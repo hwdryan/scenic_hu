@@ -20,10 +20,10 @@ model scenic.simulators.carla.model
 
 MODEL = 'vehicle.lincoln.mkz_2017'
 
-param EGO_SPEED = VerifaiRange(7, 10)
+param EGO_SPEED = Range(7, 10)
 
-param ADV_DIST = VerifaiRange(10, 25)
-param ADV_SPEED = VerifaiRange(2, 4)
+param ADV_DIST = Range(10, 25)
+param ADV_SPEED = Range(2, 4)
 
 BYPASS_DIST = [15, 10]
 INIT_DIST = 50
@@ -54,7 +54,7 @@ behavior EgoBehavior():
 
 #################################
 # SPATIAL RELATIONS             #
-#################################
+################################# q
 
 initLane = Uniform(*network.lanes)
 egoSpawnPt = new OrientedPoint in initLane.centerline

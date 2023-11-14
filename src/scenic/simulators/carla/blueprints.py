@@ -92,7 +92,7 @@ chairModels = [
 ]
 
 #: blueprints for bus stops
-busStopModels = [
+busStopsModels = [
     "static.prop.busstop",
 ]
 
