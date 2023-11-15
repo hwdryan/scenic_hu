@@ -721,6 +721,20 @@ class Sidewalk(_ContainsCenterline, LinearElement):
     road: Road
     crossings: Tuple[PedestrianCrossing]
 
+    group: LaneGroup  # parent lane group
+    road: Road  # grandparent road
+    sections: Tuple[LaneSection]  # sections in order from start to end
+
+    adjacentLanes: Tuple[Lane] = ()  # adjacent lanes of same type, if any
+
+    # possible maneuvers upon reaching the end of this lane
+    maneuvers: Tuple[Maneuver] = ()
+
+    @distributionFunction
+    def sectionAt(self, point: Vectorlike, reject=False) -> Union[LaneSection, None]:
+        """Get the LaneSection passing through a given point."""
+        return self.network.findPointIn(point, self.sections, reject)
+
 
 @attr.s(auto_attribs=True, kw_only=True, repr=False, eq=False)
 class PedestrianCrossing(_ContainsCenterline, LinearElement):
@@ -740,8 +754,19 @@ class Shoulder(_ContainsCenterline, LinearElement):
 
     A shoulder of a road, including parking lanes by default.
     """
+    group: LaneGroup  # parent lane group
+    road: Road  # grandparent road
+    sections: Tuple[LaneSection]  # sections in order from start to end
 
-    road: Road
+    adjacentLanes: Tuple[Lane] = ()  # adjacent lanes of same type, if any
+
+    # possible maneuvers upon reaching the end of this lane
+    maneuvers: Tuple[Maneuver] = ()
+
+    @distributionFunction
+    def sectionAt(self, point: Vectorlike, reject=False) -> Union[LaneSection, None]:
+        """Get the LaneSection passing through a given point."""
+        return self.network.findPointIn(point, self.sections, reject)
 
 
 @attr.s(auto_attribs=True, kw_only=True, repr=False, eq=False)
