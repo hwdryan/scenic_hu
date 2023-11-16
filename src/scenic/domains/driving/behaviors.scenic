@@ -261,7 +261,7 @@ behavior FollowRightEdgeBehavior(target_speed = 10, laneToFollow=None, is_opposi
         past_steer_angle = current_steer_angle
         past_speed = current_speed
 
-behavior FollowShoulderLaneBehavior(target_speed = 10, laneToFollow=None, is_oppositeTraffic=False):
+behavior FollowShoulderBehavior(target_speed = 10, laneToFollow=None, is_oppositeTraffic=False):
     """ 
     Follow's the lane on which the vehicle is at, unless the laneToFollow is specified.
     Once the vehicle reaches an intersection, by default, the vehicle will take the straight route.
@@ -291,6 +291,7 @@ behavior FollowShoulderLaneBehavior(target_speed = 10, laneToFollow=None, is_opp
     TARGET_SPEED_FOR_TURNING = 5 # KM/H
     TRIGGER_DISTANCE_TO_SLOWDOWN = 10 # FOR TURNING AT INTERSECTIONS
 
+    current_lane.maneuvers = ()
     if current_lane.maneuvers != ():
         nearby_intersection = current_lane.maneuvers[0].intersection
         if nearby_intersection == None:

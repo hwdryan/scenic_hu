@@ -9,34 +9,30 @@ import scenic.domains.driving.roads as _roads
 
 roadSec = network.elements['road3'].sections[0]
 ego_car_type = 'vehicle.volkswagen.t2'
-inter = network.elements['road809'].sections[0]
+# crosswalk = network.elements['road934'].sections[0]
 
 
-
-require (distance from ego to inter) < 1
-require (distance from cyclist to inter) > 1
-require (distance from cyclist to inter) < 3
-require (distance from busstop to inter) > 15
-
-
-behavior CyclistBehavior(target_speed=10,avoidance_threshold=10):
+behavior CyclistBehavior(target_speed=10,avoidance_threshold=18):
     try:
         do FollowLaneBehavior(target_speed=target_speed)
     interrupt when self.distanceToClosest(_model.BusStop) <= avoidance_threshold:
         shoulder_laneSce = self.laneSection
-        shoulder_lane = self.laneSection.group._shoulder
+        # shoulder_lane = self.laneSection.group.shoulder
+        nearby_intersection = self.laneSection.group._shoulder.centerline[-1]
         do LaneChangeToShoulderBehavior(
                 laneSectionToSwitch=shoulder_laneSce,
                 target_speed=target_speed)
-        do FollowLaneBehavior(
-                target_speed=target_speed,
-                laneToFollow=shoulder_lane) 
+        # do FollowShoulderBehavior(
+        #         target_speed=target_speed,
+        #         laneToFollow=shoulder_lane)
+        terminate
 
-scenario OneBusStop(gap=0.25):
+scenario OneBusStop(gap=2.5):
     precondition: ego.laneGroup._shoulder != None
     setup:
-        spot = new OrientedPoint on visible ego.laneGroup.curb
-        busstop = new BusStop left of spot by gap
+        curb_start = new OrientedPoint on ego.laneGroup.curb.start
+        bus_spot = new OrientedPoint behind curb_start by 38, facing 0 deg relative to roadDirection
+        busstop = new BusStop left of bus_spot by gap
 
 # scenario OneCyclist():
 #     setup:
@@ -44,17 +40,19 @@ scenario OneBusStop(gap=0.25):
 scenario Main():
     setup:
         # Ego car
-        ego = new Car in roadSec.forwardLanes[0], \
+        start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
+        ego = new Car following roadDirection from start_spot for 1, \
+            with behavior FollowLaneBehavior(target_speed=3), \
             facing 0 deg relative to roadDirection, \
+            with FollowLaneBehavior(), \
             with blueprint ego_car_type, \
             with color Color(1,0,0), \
             with rolename "hero"
 
         # front cyclist
         lane = ego.laneGroup.lanes[0]
-        cyslist_spot = new OrientedPoint on visible lane.centerline
-        cyclist = new Bicycle on cyslist_spot, \
-
+        cyslist_spot = new OrientedPoint following roadDirection from start_spot for 5
+        cyclist = new Bicycle at cyslist_spot,  \
                         facing 0 deg relative to roadDirection, \
                         with blueprint 'vehicle.bh.crossbike', \
                         with behavior CyclistBehavior()
@@ -64,8 +62,4 @@ scenario Main():
         sce1 = OneBusStop()
         do sce1
         
-
-
-
-terminate when (distance from cyclist to intersection) < 5
 
