@@ -274,6 +274,11 @@ class Table(Prop):
 class Barrier(Prop):
     blueprint: Uniform(*blueprints.barrierModels)
 
+class ConstructionCone(Prop):
+    blueprint: "static.prop.constructioncone"
+
+# class WarningConstruction(Prop):
+#     blueprint: "static.prop.warningconstruction"
 
 class PlantPot(Prop):
     blueprint: Uniform(*blueprints.plantpotModels)

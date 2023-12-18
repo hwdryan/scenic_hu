@@ -1,6 +1,6 @@
 # Ego follows lane, front cyclist leaves the lane to the bus station on the right
 
-param map = localPath("C:/Tools/Scenic/assets/maps/CARLA/Town03.xodr")
+param map = localPath("../../assets/maps/CARLA/Town03.xodr")
 param carla_map = 'Town03'
 param weather = "ClearNoon"
 model scenic.simulators.carla.model
@@ -30,8 +30,8 @@ behavior CyclistBehavior(target_speed=10,avoidance_threshold=18):
 scenario OneBusStop(gap=2.5):
     precondition: ego.laneGroup._shoulder != None
     setup:
-        curb_start = new OrientedPoint on ego.laneGroup.curb.start
-        bus_spot = new OrientedPoint behind curb_start by 38, facing 0 deg relative to roadDirection
+        curb_middle = new OrientedPoint on ego.laneGroup.curb.middle
+        bus_spot = new OrientedPoint on curb_middle, facing 0 deg relative to roadDirection
         busstop = new BusStop left of bus_spot by gap
 
 # scenario OneCyclist():
@@ -48,7 +48,7 @@ scenario Main():
             with blueprint ego_car_type, \
             with color Color(1,0,0), \
             with rolename "hero"
-
+    
         # front cyclist
         lane = ego.laneGroup.lanes[0]
         cyslist_spot = new OrientedPoint following roadDirection from start_spot for 5

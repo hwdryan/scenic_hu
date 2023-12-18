@@ -13,21 +13,19 @@ crosswalk = network.elements['road934'].sections[0]
 
 
 behavior CyclistBehavior(target_speed=10, change_time=8):
-    try:
-        do FollowLaneBehavior(target_speed=target_speed) for change_time seconds
-        do LaneChangeBehavior(
-                laneSectionToSwitch=self.laneSection.laneToRight,
-                target_speed=target_speed)
-        terminate
+    do FollowLaneBehavior(target_speed=target_speed) for change_time seconds
+    do LaneChangeBehavior(
+            laneSectionToSwitch=self.laneSection.laneToRight,
+            target_speed=target_speed)
+    terminate
 
 
 behavior EgoBehavior(target_speed=10, change_time=8):
-    try:
-        do FollowLaneBehavior(target_speed=target_speed) for change_time seconds
-        do LaneChangeBehavior(
-                laneSectionToSwitch=self.laneSection.laneToRight,
-                target_speed=target_speed)
-        terminate
+    do FollowLaneBehavior(target_speed=target_speed) for change_time seconds
+    do LaneChangeBehavior(
+            laneSectionToSwitch=self.laneSection.laneToRight,
+            target_speed=target_speed)
+    terminate
         
 scenario Main():
     setup:

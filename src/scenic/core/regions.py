@@ -3161,6 +3161,33 @@ class PolylineRegion(Region):
             pitch=orientation.pitch,
             roll=orientation.roll,
         )
+    
+    @cached_property
+    def middle(self):
+        """Get an `OrientedPoint` at the middle of the polyline.
+
+        The OP's orientation will be aligned with the orientation of the region, if
+        there is one (the default orientation pointing along the polyline).
+        """
+        pointA, _ = self.segments[0]
+        _, pointB = self.segments[-1]
+        print(pointA)
+        print(pointB)
+        if self.usingDefaultOrientation:
+            orientation = headingOfSegment(pointA, pointB)
+        elif self.orientation is not None:
+            orientation = self.orientation[Vector(*pointA)]
+        else:
+            orientation = 0
+        orientation = toOrientation(orientation)
+        from scenic.core.object_types import OrientedPoint
+
+        return OrientedPoint._with(
+            position=((pointA[0]+pointB[0])/2, (pointA[1]+pointB[1])/2),
+            yaw=orientation.yaw,
+            pitch=orientation.pitch,
+            roll=orientation.roll,
+        )
 
     def defaultOrientation(self, point):
         start, end = self.nearestSegmentTo(point)
