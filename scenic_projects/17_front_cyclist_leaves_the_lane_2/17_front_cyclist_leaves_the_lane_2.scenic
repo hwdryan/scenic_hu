@@ -17,7 +17,7 @@ behavior CyclistBehavior(target_speed=10, change_time=8):
     do LaneChangeBehavior(
             laneSectionToSwitch=self.laneSection.laneToRight,
             target_speed=target_speed)
-    terminate
+    do FollowLaneBehavior(target_speed=target_speed)
 
 
 behavior EgoBehavior(target_speed=10, change_time=8):
@@ -25,7 +25,7 @@ behavior EgoBehavior(target_speed=10, change_time=8):
     do LaneChangeBehavior(
             laneSectionToSwitch=self.laneSection.laneToRight,
             target_speed=target_speed)
-    terminate
+    do FollowLaneBehavior(target_speed=target_speed)
         
 scenario Main():
     setup:
