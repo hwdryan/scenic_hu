@@ -2,6 +2,7 @@
 
 from scenic.domains.driving.behaviors import *	# use common driving behaviors
 import time
+import carla
 
 try:
     from scenic.simulators.carla.actions import *

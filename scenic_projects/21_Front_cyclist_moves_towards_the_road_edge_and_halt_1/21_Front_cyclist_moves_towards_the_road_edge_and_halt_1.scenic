@@ -1,38 +1,34 @@
-# Ego follows lane, front cyclist leaves the lane to the bus station on the right
+# 1. Front cyclist moves towards the road edge to talk with a pedestrian
 
-param map = localPath("../../assets/maps/CARLA/Town03.xodr")
-param carla_map = 'Town03'
+param map = localPath("../../assets/maps/CARLA/Town04.xodr")
+param carla_map = 'Town04'
 param weather = "ClearNoon"
 model scenic.simulators.carla.model
 import scenic.simulators.carla.model as _model
 import scenic.domains.driving.roads as _roads
 
-roadSec = network.elements['road3'].sections[0]
+roadSec = network.elements['road29'].sections[0]
 ego_car_type = 'vehicle.volkswagen.t2'
-# crosswalk = network.elements['road934'].sections[0]
 
 
 behavior CyclistBehavior(target_speed=10,avoidance_threshold=18):
     try:
         do FollowLaneBehavior(target_speed=target_speed)
-    interrupt when self.distanceToClosest(_model.BusStop) <= avoidance_threshold:
+    interrupt when self.distanceToClosest(_model.Pedestrian) <= avoidance_threshold:
         shoulder_laneSce = self.laneSection
         # shoulder_lane = self.laneSection.group.shoulder
         nearby_intersection = self.laneSection.group._shoulder.centerline[-1]
-        do LaneChangeToShoulderBehavior(
-                laneSectionToSwitch=shoulder_laneSce,
-                target_speed=target_speed)
+        try:
+            do FollowRightEdgeBehavior(target_speed=target_speed)
+        interrupt when self.distanceToClosest(_model.Pedestrian) <= 3:
+            do BreakBehavior()
+
+        # do LaneChangeToShoulderBehavior(
+        #         laneSectionToSwitch=shoulder_laneSce,
+        #         target_speed=target_speed)
         # do FollowShoulderBehavior(
         #         target_speed=target_speed,
         #         laneToFollow=shoulder_lane)
-        terminate
-
-scenario OneBusStop(gap=2.5):
-    precondition: ego.laneGroup._shoulder != None
-    setup:
-        curb_middle = new OrientedPoint on ego.laneGroup.curb.middle
-        bus_spot = new OrientedPoint on curb_middle, facing 0 deg relative to roadDirection
-        busstop = new BusStop left of bus_spot by gap
         
 scenario Main():
     setup:
@@ -46,15 +42,16 @@ scenario Main():
             with rolename "hero"
     
         # front cyclist
+        lane = ego.laneGroup.lanes[0]
         cyslist_spot = new OrientedPoint following roadDirection from start_spot for 5
         cyclist = new Bicycle at cyslist_spot,  \
                         facing 0 deg relative to roadDirection, \
                         with blueprint 'vehicle.bh.crossbike', \
                         with behavior CyclistBehavior()
 
-        
-    compose:
-        sce1 = OneBusStop()
-        do sce1
+        # pedestrian
+        sidewalk_middle = new OrientedPoint on roadSec.road.laneGroups[0].sidewalk.centerline.middle
+        ped_spot = new OrientedPoint on sidewalk_middle, facing 180 deg relative to roadDirection
+        ped = new Pedestrian right of ped_spot by 0.1
         
 

@@ -233,6 +233,22 @@ class DrivingObject:
             if not isinstance(obj, type):
                 continue
             d = distance from self to obj
+            # print(f"**Found the closest obj! {d} meter away!**")
+            if 0 < d < minDist:
+                minDist = d
+        return minDist
+    
+    # self-defined
+    def distanceToObj(self, target_obj) -> Object:
+        """Compute the distance to the object.
+        """
+        objects = simulation().objects
+        minDist = float('inf')
+        for obj in objects:
+            if target_obj != obj:
+                continue
+            d = distance from self to obj
+            # print(f"**Found the obj! {d} meter away!**")
             if 0 < d < minDist:
                 minDist = d
         return minDist
@@ -315,6 +331,16 @@ def withinDistanceToAnyCars(car, thresholdDistance):
             continue
         if (distance from car to obj) < thresholdDistance:
             return True
+    return False
+
+# self-defined
+def withinDistanceToAnyPedestrian(car, thresholdDistance):
+    """ returns boolean """
+    objects = simulation().objects
+    for obj in objects:
+        if isinstance(obj, Pedestrian):
+            if (distance from car to obj) < thresholdDistance:
+                return True
     return False
 
 def withinDistanceToAnyObjs(vehicle, thresholdDistance):
