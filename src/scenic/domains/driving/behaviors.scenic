@@ -25,7 +25,7 @@ behavior DriveAvoidingCollisions(target_speed=25, avoidance_threshold=10):
 behavior AccelerateForwardBehavior():
     take SetReverseAction(False), SetHandBrakeAction(False), SetThrottleAction(0.5)
 
-behavior WalkForwardBehavior():
+behavior WalkForwardBehavior(speed):
     """Walk forward behavior for pedestrians.
 
     It will uniformly randomly choose either end of the sidewalk that the pedestrian is on, and have the pedestrian walk towards the endpoint.
@@ -34,7 +34,7 @@ behavior WalkForwardBehavior():
     end_point = Uniform(*current_sidewalk.centerline.points)
     end_vec = end_point[0] @ end_point[1]
     normal_vec = Vector.normalized(end_vec)
-    take WalkTowardsAction(goal_position=normal_vec), SetSpeedAction(speed=1)
+    take WalkTowardsAction(goal_position=normal_vec), SetSpeedAction(speed=speed)
 
 behavior ConstantThrottleBehavior(x):
     take SetThrottleAction(x)
@@ -261,6 +261,10 @@ behavior FollowRightEdgeBehavior(target_speed = 10, laneToFollow=None, is_opposi
         take RegulatedControlAction(throttle, current_steer_angle, past_steer_angle)
         past_steer_angle = current_steer_angle
         past_speed = current_speed
+
+# self-defined
+behavior BrakeBehavior():
+    take SetBrakeAction(1.0)
 
 # self-defined
 behavior FollowLeftEdgeBehavior(target_speed = 10, laneToFollow=None, is_oppositeTraffic=False):
@@ -653,9 +657,6 @@ behavior LaneChangeBehavior(laneSectionToSwitch, is_oppositeTraffic=False, targe
 
         take RegulatedControlAction(throttle, current_steer_angle, past_steer_angle)
         past_steer_angle = current_steer_angle
-
-
-
 
 behavior LaneChangeToShoulderBehavior(laneSectionToSwitch, is_oppositeTraffic=False, target_speed=10):
 

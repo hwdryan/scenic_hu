@@ -175,7 +175,8 @@ def runTryInterrupt(behavior, agent, body, conditions, handlers):
                 break
         result, concluded = block.step(behavior, agent)
         if concluded:
-            if result is BlockConclusion.FINISHED and block is not body:
+            # if result is BlockConclusion.FINISHED and block is not body:
+            if result is BlockConclusion.FINISHED:
                 continue  # interrupt handler finished
             else:
                 return result  # entire try-interrupt statement will terminate

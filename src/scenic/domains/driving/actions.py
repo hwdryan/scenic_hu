@@ -242,6 +242,7 @@ class RegulatedControlAction(SteeringAction):
         else:
             steer = max(-max_steer, steer)
 
+        print("***steer:", steer)
         self.throttle, self.brake, self.steer = throttle, brake, steer
 
     def applyTo(self, obj, sim):

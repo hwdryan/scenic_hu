@@ -53,6 +53,7 @@ motorcycleModels = [
 truckModels = [
     "vehicle.carlamotors.carlacola",
     "vehicle.tesla.cybertruck",
+    "vehicle.mercedes.sprinter",
 ]
 
 ## Prop blueprints
