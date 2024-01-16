@@ -39,6 +39,7 @@ Global Parameters:
 .. _carla.WeatherParameters: https://carla.readthedocs.io/en/latest/python_api/#carlaweatherparameters
 
 """
+import math
 
 from scenic.domains.driving.model import *
 
@@ -143,6 +144,21 @@ class CarlaActor(DrivingObject):
             self.carlaActor.set_target_velocity(cvel)
         else:
             self.carlaActor.set_velocity(cvel)
+    
+        # self-defined
+    def SpeedOfEgo(self) -> Object:
+        """Compute the fastest speed in the world.
+        """
+        sim_world = simulation().world
+        Ego_vehicle = None
+        for actor in sim_world.get_actors():
+            print("role_name:", actor.attributes.get('role_name'))
+            if actor.attributes.get('role_name') == 'autoware_v1':
+                Ego_vehicle = actor
+                vel = Ego_vehicle.get_velocity()
+                s = 3.6 * math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
+                print(f"**Speed for {Ego_vehicle} is {s}!**")
+                return s
 
 class Vehicle(Vehicle, CarlaActor, Steers, _CarlaVehicle):
     """Abstract class for steerable vehicles."""
