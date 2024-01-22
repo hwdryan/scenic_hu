@@ -6,11 +6,15 @@ param weather = "ClearSunset"
 model scenic.simulators.carla.model
 import scenic.simulators.carla.model as _model
 import scenic.domains.driving.roads as _roads
+import scenic.simulators.carla.utils.utils as _utils
+import scenic.simulators.carla.misc as _misc
+
 import carla
 
 roadSec = network.elements['road12'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
 truck_type = 'vehicle.mercedes.sprinter'
+target_type = 'vehicle.volkswagen.t2'
 
 sidewalk_middle = new OrientedPoint on roadSec.road.laneGroups[0].sidewalk.centerline.middle
 ped_spot = new OrientedPoint behind sidewalk_middle by 3, facing 0 deg relative to roadDirection
@@ -20,36 +24,45 @@ behavior VehicleLightBehavior():
     """Behavior causing a vehicle to use CARLA's built-in autopilot."""
     take SetVehicleLightStateAction(carla.VehicleLightState(carla.VehicleLightState.RightBlinker | carla.VehicleLightState.LeftBlinker))
 
-behavior OvertakeBehavior(target_speed=10,avoidance_threshold=20, bypass_dist=5):
+
+
+
+behavior OvertakeBehavior(target_speed=12,avoidance_threshold=20, bypass_dist=5):
     try:
-        do FollowLaneBehavior(target_speed=target_speed)
-    interrupt when self.distanceToClosest(Truck) <= 15:
-        originalSec = self.laneSection
-        laneToLeftSec = self.laneSection.laneToLeft
-        do LaneChangeBehavior(
-                laneSectionToSwitch=laneToLeftSec,
-                is_oppositeTraffic=True,
-                target_speed=target_speed)
-        do FollowLaneBehavior(
-                target_speed=target_speed,
-                is_oppositeTraffic=True,
-                laneToFollow=laneToLeftSec.lane) \
-            until self.distanceToClosest(Truck) > bypass_dist
-        do LaneChangeBehavior(
-                laneSectionToSwitch=originalSec,
-                target_speed=target_speed)
-        do FollowLaneBehavior(target_speed=target_speed) for 2 seconds
-        terminate
+        wait 
+    interrupt when self.SpeedOfEgo() > 5:
+        try:
+            do FollowLaneBehavior(target_speed=target_speed)
+        interrupt when self.distanceToClosest(Truck) <= 15:
+            originalSec = self.laneSection
+            laneToLeftSec = self.laneSection.laneToLeft
+            do LaneChangeBehavior(
+                    laneSectionToSwitch=laneToLeftSec,
+                    is_oppositeTraffic=True,
+                    target_speed=target_speed)
+            do FollowLaneBehavior(
+                    target_speed=target_speed,
+                    is_oppositeTraffic=True,
+                    laneToFollow=laneToLeftSec.lane) \
+                until self.distanceToClosest(Truck) > bypass_dist
+            do LaneChangeBehavior(
+                    laneSectionToSwitch=originalSec,
+                    target_speed=target_speed)
+            do FollowLaneBehavior(target_speed=target_speed)
 
 scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego = new Car following roadDirection from start_spot for 1, \
-            facing 270 deg, \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "v1"
+        ego_spot = new OrientedPoint following roadDirection from start_spot for 1, facing 270 deg
+        print(f"Ego_stop position: yaw:{ego_spot.yaw}, pitch:{ego_spot.pitch}, roll:{ego_spot.roll}, XYZ:{ego_spot.parentOrientation}, orientation:{ego_spot.orientation}")
+
+        # ego = new Car following roadDirection from start_spot for 1, \
+        #     facing 270 deg, \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "v1"
+        
         
         # halting vehicle with warning flasher
         parked_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.middle
@@ -63,5 +76,6 @@ scenario Main():
         overtake_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
         overtake_vehicle = new Car following roadDirection from overtake_vehicle_spot for 1,  \
                         facing 90 deg, \
-                        with blueprint ego_car_type, \
-                        with rolename "target"
+                        with blueprint target_type, \
+                        with rolename "target", \
+                        with behavior OvertakeBehavior()

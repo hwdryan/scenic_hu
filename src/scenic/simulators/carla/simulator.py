@@ -43,17 +43,23 @@ class CarlaSimulator(DrivingSimulator):
         verbosePrint(f"Connecting to CARLA on port {port}")
         self.client = carla.Client(address, port)
         self.client.set_timeout(timeout)  # limits networking operations (seconds)
-        if carla_map is not None:
-            try:
-                self.world = self.client.load_world(carla_map)
-            except Exception as e:
-                raise RuntimeError(f"CARLA could not load world '{carla_map}'") from e
-        else:
-            if str(map_path).endswith(".xodr"):
-                with open(map_path) as odr_file:
-                    self.world = self.client.generate_opendrive_world(odr_file.read())
-            else:
-                raise RuntimeError("CARLA only supports OpenDrive maps")
+
+        # # original way of load world
+        # if carla_map is not None:
+        #     try:  
+        #         self.world = self.client.load_world(carla_map)
+        #     except Exception as e:
+        #         raise RuntimeError(f"CARLA could not load world '{carla_map}'") from e
+        # else:
+        #     if str(map_path).endswith(".xodr"):
+        #         with open(map_path) as odr_file:
+        #             self.world = self.client.generate_opendrive_world(odr_file.read())
+        #     else:
+        #         raise RuntimeError("CARLA only supports OpenDrive maps")
+        # self.timestep = timestep
+
+        # get world
+        self.world = self.client.get_world()
         self.timestep = timestep
 
         if traffic_manager_port is None:
@@ -111,6 +117,7 @@ class CarlaSimulation(DrivingSimulation):
         self.record = record
         self.scenario_number = scenario_number
         self.cameraManager = None
+        self.t = None
 
         super().__init__(scene, **kwargs)
 
@@ -149,6 +156,12 @@ class CarlaSimulation(DrivingSimulation):
             camIndex = 0
             camPosIndex = 0
             egoActor = self.objects[0].carlaActor
+            t = egoActor.get_transform()
+            print("******")
+            print("******")
+            print(t)
+            print("******")
+            print("******")
             self.cameraManager = visuals.CameraManager(self.world, egoActor, self.hud)
             self.cameraManager._transform_index = camPosIndex
             self.cameraManager.set_sensor(camIndex)
@@ -265,6 +278,16 @@ class CarlaSimulation(DrivingSimulation):
             pygame.display.flip()
 
     def getProperties(self, obj, properties):
+        if self.t == None:
+            # Print ego position
+            egoActor = self.objects[0].carlaActor
+            self.t = egoActor.get_transform()
+            print("******")
+            print("******")
+            print("Ego position:", self.t)
+            print("******")
+            print("******")
+
         # Extract Carla properties
         carlaActor = obj.carlaActor
         currTransform = carlaActor.get_transform()

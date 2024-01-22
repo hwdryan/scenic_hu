@@ -37,6 +37,7 @@ from scenic.domains.driving.behaviors import *
 
 from scenic.core.distributions import RejectionException
 from scenic.simulators.utils.colors import Color
+import scenic.simulators.carla.misc as _misc
 
 ## Load map and set up workspace
 
@@ -332,6 +333,7 @@ def withinDistanceToAnyCars(car, thresholdDistance):
         if (distance from car to obj) < thresholdDistance:
             return True
     return False
+
 
 # self-defined
 def withinDistanceToAnyPedestrian(car, thresholdDistance):
