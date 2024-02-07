@@ -146,18 +146,18 @@ class CarlaActor(DrivingObject):
             self.carlaActor.set_velocity(cvel)
     
         # self-defined
-    def SpeedOfEgo(self) -> Object:
+    def SpeedOfEgo(self):
         """Compute the fastest speed in the world.
         """
         sim_world = simulation().world
         Ego_vehicle = None
         for actor in sim_world.get_actors():
-            print("role_name:", actor.attributes.get('role_name'))
-            if actor.attributes.get('role_name') == 'autoware_v1':
+            # print("role_name:", actor.attributes.get('role_name'))
+            if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
                 Ego_vehicle = actor
                 vel = Ego_vehicle.get_velocity()
                 s = 3.6 * math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
-                print(f"**Speed for {Ego_vehicle} is {s}!**")
+                # print(f"**Speed for {Ego_vehicle} is {s}!**")
                 return s
 
 class Vehicle(Vehicle, CarlaActor, Steers, _CarlaVehicle):
@@ -195,6 +195,10 @@ class Car(Vehicle):
 
 class NPCCar(Car):  # no distinction between these in CARLA
     pass
+
+# self-defined
+class Egocar(CarlaActor):  # no distinction between these in CARLA
+    blueprint: vehicle.lincoln.mkz_2017
 
 class Bicycle(Vehicle):
     width: 1
@@ -408,6 +412,18 @@ def withinDistanceToRedYellowTrafficLight(vehicle, thresholdDistance):
     if traffic_light is not None and str(traffic_light.state) in ("Red", "Yellow"):
         return True
     return False
+
+# self-defined
+def arenotVisibleOfobj(vehicle, rolename):
+    """ returns boolean """
+    objects = simulation().objects
+    for obj in objects:
+        if obj.rolename != rolename:
+            continue
+        if (vehicle can see obj) is not True:
+            return True
+    return False
+
 
 def withinDistanceToTrafficLight(vehicle, thresholdDistance):
     traffic_light = _getClosestTrafficLight(vehicle, distance=thresholdDistance)

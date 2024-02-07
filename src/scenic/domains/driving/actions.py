@@ -219,7 +219,7 @@ class RegulatedControlAction(SteeringAction):
         throttle: float,
         steer: float,
         past_steer: float,
-        max_throttle: float = 0.5,
+        max_throttle: float = 1,
         max_brake: float = 0.5,
         max_steer: float = 0.8,
     ):
@@ -231,18 +231,16 @@ class RegulatedControlAction(SteeringAction):
             brake = min(abs(throttle), max_brake)
 
         # Steering regulation: changes cannot happen abruptly, can't steer too much.
-
-        if steer > past_steer + 0.1:
-            steer = past_steer + 0.1
-        elif steer < past_steer - 0.1:
-            steer = past_steer - 0.1
+        if steer > past_steer + 0.2:
+            steer = past_steer + 0.2
+        elif steer < past_steer - 0.2:
+            steer = past_steer - 0.2
 
         if steer >= 0:
             steer = min(max_steer, steer)
         else:
             steer = max(-max_steer, steer)
-
-        print("***steer:", steer)
+            
         self.throttle, self.brake, self.steer = throttle, brake, steer
 
     def applyTo(self, obj, sim):

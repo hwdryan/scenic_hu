@@ -3,11 +3,12 @@
 These behaviors are automatically imported when using the driving domain.
 """
 
-import math
+import time
 
 from scenic.domains.driving.actions import *
 import scenic.domains.driving.model as _model
 from scenic.domains.driving.roads import ManeuverType
+
 
 def concatenateCenterlines(centerlines=[]):
     return PolylineRegion.unionAll(centerlines)
@@ -52,7 +53,7 @@ behavior FollowLaneBehavior(target_speed = 10, laneToFollow=None, is_oppositeTra
     :param target_speed: Its unit is in m/s. By default, it is set to 10 m/s
     :param laneToFollow: If the lane to follow is different from the lane that the vehicle is on, this parameter can be used to specify that lane. By default, this variable will be set to None, which means that the vehicle will follow the lane that it is currently on.
     """
-
+    target_speed += 0.4
     past_steer_angle = 0
     past_speed = 0 # making an assumption here that the agent starts from zero speed
     if laneToFollow is None:
@@ -141,6 +142,7 @@ behavior FollowLaneBehavior(target_speed = 10, laneToFollow=None, is_oppositeTra
 
         # compute throttle : Longitudinal Control
         throttle = _lon_controller.run_step(speed_error)
+        # print("throttle:", throttle)
 
         # compute steering : Lateral Control
         current_steer_angle = _lat_controller.run_step(cte)
@@ -148,7 +150,14 @@ behavior FollowLaneBehavior(target_speed = 10, laneToFollow=None, is_oppositeTra
         take RegulatedControlAction(throttle, current_steer_angle, past_steer_angle)
         past_steer_angle = current_steer_angle
         past_speed = current_speed
-
+        past_time =  time.time()
+        # self-defined
+        # print("time: ", time.time())
+        # print("Vehicle_speed: ", past_speed)
+        with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "a") as log_file:
+        # Log parameters to the file
+            log_file.write(f"{time.time()}, {past_speed}, {self.position[0]}, {self.position[1]}, {throttle}\n")
+        
 # self-defined
 behavior FollowRightEdgeBehavior(target_speed = 10, laneToFollow=None, is_oppositeTraffic=False):
     """
@@ -583,6 +592,83 @@ behavior TurnBehavior(trajectory, target_speed=6):
 
 
 behavior LaneChangeBehavior(laneSectionToSwitch, is_oppositeTraffic=False, target_speed=10):
+
+    """
+    is_oppositeTraffic should be specified as True only if the laneSectionToSwitch to has
+    the opposite traffic direction to the initial lane from which the vehicle started LaneChangeBehavior
+    e.g. refer to the use of this flag in examples/carla/Carla_Challenge/carlaChallenge6.scenic
+    """
+
+    brakeIntensity = 1.0
+    distanceToEndpoint = 3 # meters
+
+    current_lane = laneSectionToSwitch.lane
+    traj_centerline = [current_lane.centerline]
+    trajectory_centerline = concatenateCenterlines(traj_centerline)
+
+    if current_lane.maneuvers != ():
+        nearby_intersection = current_lane.maneuvers[0].intersection
+        if nearby_intersection == None:
+            nearby_intersection = current_lane.centerline[-1]
+    else:
+        nearby_intersection = current_lane.centerline[-1]
+
+    # instantiate longitudinal and lateral controllers
+    _lon_controller, _lat_controller = simulation().getLaneChangingControllers(self)
+
+    past_steer_angle = 0
+
+    if not is_oppositeTraffic:
+        traj_endpoint = current_lane.centerline[-1]
+    else:
+        traj_endpoint = current_lane.centerline[0]
+
+    while True:
+        if abs(trajectory_centerline.signedDistanceTo(self.position)) < 0.1:
+            break        
+        if (distance from self to nearby_intersection) < distanceToEndpoint:
+            straight_manuevers = filter(lambda i: i.type == ManeuverType.STRAIGHT, current_lane.maneuvers)
+
+            if len(straight_manuevers) > 0:
+                select_maneuver = Uniform(*straight_manuevers)
+            else:
+                if len(current_lane.maneuvers) > 0:
+                    select_maneuver = Uniform(*current_lane.maneuvers)
+                else:
+                    take SetBrakeAction(1.0)
+                    break
+
+            # assumption: there always will be a maneuver
+            if select_maneuver.connectingLane != None:
+                trajectory_centerline = concatenateCenterlines([trajectory_centerline, select_maneuver.connectingLane.centerline, \
+                    select_maneuver.endLane.centerline])
+            else:
+                trajectory_centerline = concatenateCenterlines([trajectory_centerline, select_maneuver.endLane.centerline])
+
+            current_lane = select_maneuver.endLane
+
+        if self.speed is not None:
+            current_speed = self.speed
+        else:
+            current_speed = 0
+
+        cte = trajectory_centerline.signedDistanceTo(self.position)
+        if is_oppositeTraffic: # [bypass] when crossing over the yellowline to opposite traffic lane 
+            cte = -cte
+
+        speed_error = target_speed - current_speed
+
+        # compute throttle : Longitudinal Control
+        throttle = _lon_controller.run_step(speed_error)
+
+        # compute steering : Latitudinal Control
+        current_steer_angle = _lat_controller.run_step(cte)
+
+        take RegulatedControlAction(throttle, current_steer_angle, past_steer_angle)
+        past_steer_angle = current_steer_angle
+
+# self-defined
+behavior LaneChangeOvertakeBehavior(laneSectionToSwitch, is_oppositeTraffic=False, target_speed=10):
 
     """
     is_oppositeTraffic should be specified as True only if the laneSectionToSwitch to has

@@ -85,6 +85,10 @@ from scenic.core.vectors import (
 )
 from scenic.core.visibility import canSee
 
+# self-defined
+import carla
+# from scenic.simulators.carla.utils.utils import scenicToCarlaLocation, scenicToCarlaOrientation
+
 ## Types
 #: Type alias for an interval (a pair of floats).
 Interval = typing.Tuple[float, float]
@@ -948,6 +952,21 @@ class OrientedPoint(Point):
 
     def relativePosition(self, vec):
         return self.position.offsetLocally(self.orientation, vec)
+    
+    def pos_and_ori(self):
+        # return self.position, self.orientation
+        # pos
+        loc = carla.Location(self.position.x, -1 * self.position.y, 0.6)
+        # ori
+        pitch, yaw, roll = self.orientation.r.as_euler("XZY", degrees=True)
+        # pitch -= 180
+        # yaw -= 180
+        # roll -= 180
+        yaw = -yaw - 90
+        rot = carla.Rotation(pitch=pitch, yaw=yaw, roll=roll)
+        # carla transformation
+        transform = carla.Transform(loc, rot)
+        return transform
 
     def distancePast(self, vec):
         """Distance past a given point, assuming we've been moving in a straight line."""
