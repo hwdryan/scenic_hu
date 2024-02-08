@@ -335,6 +335,8 @@ def withinDistanceToAnyCars(car, thresholdDistance):
     return False
 
 
+
+
 # self-defined
 def withinDistanceToAnyPedestrian(car, thresholdDistance):
     """ returns boolean """
