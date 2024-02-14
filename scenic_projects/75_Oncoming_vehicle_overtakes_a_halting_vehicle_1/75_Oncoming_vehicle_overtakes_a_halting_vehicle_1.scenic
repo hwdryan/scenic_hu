@@ -27,10 +27,10 @@ behavior VehicleLightBehavior():
 
 
 
-behavior OvertakeBehavior(target_speed=12,avoidance_threshold=20, bypass_dist=5):
+behavior OvertakeBehavior(target_speed=5,avoidance_threshold=20, bypass_dist=5):
     try:
         wait 
-    interrupt when self.SpeedOfEgo() > 5:
+    interrupt when True:
         try:
             do FollowLaneBehavior(target_speed=target_speed)
         interrupt when self.distanceToClosest(Truck) <= 15:
@@ -55,13 +55,18 @@ scenario Main():
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for 1, facing 270 deg
-        print(f"Ego_stop position: yaw:{ego_spot.yaw}, pitch:{ego_spot.pitch}, roll:{ego_spot.roll}, XYZ:{ego_spot.parentOrientation}, orientation:{ego_spot.orientation}")
-
-        # ego = new Car following roadDirection from start_spot for 1, \
-        #     facing 270 deg, \
-        #     with blueprint ego_car_type, \
-        #     with color Color(1,0,0), \
-        #     with rolename "v1"
+        x = ego_spot.pos_and_ori().location.x
+        y = ego_spot.pos_and_ori().location.y
+        z = ego_spot.pos_and_ori().location.z
+        pitch = ego_spot.pos_and_ori().rotation.pitch
+        yaw = ego_spot.pos_and_ori().rotation.yaw
+        roll = ego_spot.pos_and_ori().rotation.roll
+        print(f"Ego position: {x},{y},{z},{pitch},{yaw},{roll}")
+        ego = new Car following roadDirection from start_spot for 1, \
+            facing 270 deg, \
+            with blueprint ego_car_type, \
+            with color Color(1,0,0), \
+            with rolename "v1"
         
         
         # halting vehicle with warning flasher

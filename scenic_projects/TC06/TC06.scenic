@@ -34,6 +34,16 @@ scenario Main():
         # Ego car
             # with behavior FollowLaneBehavior(target_speed=3), \
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
+        ego_spot = new OrientedPoint following roadDirection from start_spot for 1
+        x = ego_spot.pos_and_ori().location.x
+        y = ego_spot.pos_and_ori().location.y
+        z = ego_spot.pos_and_ori().location.z
+        pitch = ego_spot.pos_and_ori().rotation.pitch
+        yaw = ego_spot.pos_and_ori().rotation.yaw
+        roll = ego_spot.pos_and_ori().rotation.roll
+        print(f"Ego position: {x},{y},{z},{pitch},{yaw},{roll}")
+
+
         ego = new Car following roadDirection from start_spot for 1, \
             facing 0 deg relative to roadDirection, \
             with behavior FollowLaneBehavior(target_speed=3), \

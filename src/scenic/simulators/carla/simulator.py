@@ -31,7 +31,7 @@ class CarlaSimulator(DrivingSimulator):
         self,
         carla_map,
         map_path,
-        address="127.0.0.1",
+        address="172.17.0.1",
         port=2000,
         timeout=10,
         render=True,
@@ -45,7 +45,7 @@ class CarlaSimulator(DrivingSimulator):
         self.client = carla.Client(address, port)
         self.client.set_timeout(timeout)  # limits networking operations (seconds)
 
-        # # original way of load world
+        # original way of load world
         # if carla_map is not None:
         #     try:  
         #         self.world = self.client.load_world(carla_map)
@@ -59,7 +59,7 @@ class CarlaSimulator(DrivingSimulator):
         #         raise RuntimeError("CARLA only supports OpenDrive maps")
         # self.timestep = timestep
 
-        # # get world
+        # get world
         self.world = self.client.get_world()
         self.timestep = timestep
 
@@ -67,12 +67,10 @@ class CarlaSimulator(DrivingSimulator):
             traffic_manager_port = port + 6000
         self.tm = self.client.get_trafficmanager(traffic_manager_port)
         self.tm.set_synchronous_mode(True)
-        # self.tm.set_synchronous_mode(False)
 
         # Set to synchronous with fixed timestep
         settings = self.world.get_settings()
         settings.synchronous_mode = True
-        # settings.synchronous_mode = False
         settings.fixed_delta_seconds = timestep  # NOTE: Should not exceed 0.1
         self.world.apply_settings(settings)
         verbosePrint("Map loaded in simulator.")
@@ -164,8 +162,9 @@ class CarlaSimulation(DrivingSimulation):
             self.cameraManager._transform_index = camPosIndex
             self.cameraManager.set_sensor(camIndex)
             self.cameraManager.set_transform(self.camTransform)
-
-        self.world.tick()  ## allowing manualgearshift to take effect    # TODO still need this?
+    
+        # self.world.tick()  ## allowing manualgearshift to take effect    # TODO still need this?
+        self.world.wait_for_tick()
 
         for obj in self.objects:
             if isinstance(obj.carlaActor, carla.Vehicle):
@@ -173,7 +172,8 @@ class CarlaSimulation(DrivingSimulation):
                     carla.VehicleControl(manual_gear_shift=False)
                 )
 
-        self.world.tick()
+        # self.world.tick()
+        self.world.wait_for_tick()
 
         for obj in self.objects:
             if obj.speed is not None and obj.speed != 0:
@@ -268,7 +268,8 @@ class CarlaSimulation(DrivingSimulation):
 
     def step(self):
         # Run simulation for one timestep
-        self.world.tick()
+        # self.world.tick()
+        self.world.wait_for_tick()
 
         # Render simulation
         if self.render:
@@ -280,11 +281,11 @@ class CarlaSimulation(DrivingSimulation):
             # Print ego position
             egoActor = self.objects[0].carlaActor
             self.t = egoActor.get_transform()
-            print("******")
-            print("******")
-            print("Ego position:", self.t)
-            print("******")
-            print("******")
+            # print("******")
+            # print("******")
+            # print("Ego position:", self.t)
+            # print("******")
+            # print("******")
 
         # Extract Carla properties
         carlaActor = obj.carlaActor
