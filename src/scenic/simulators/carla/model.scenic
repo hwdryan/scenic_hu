@@ -159,6 +159,37 @@ class CarlaActor(DrivingObject):
                 s = 3.6 * math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
                 # print(f"**Speed for {Ego_vehicle} is {s}!**")
                 return s
+                
+    # self-defined
+    def distanceToEgo(self):
+        """Compute the distance to the object.
+        """
+        objects = simulation().objects
+
+        sim_world = simulation().world
+        Ego_vehicle = None
+        for actor in sim_world.get_actors():
+            # print("role_name:", actor.attributes.get('role_name'))
+            if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+                Ego_vehicle = actor
+                distance = math.sqrt((self.carlaActor.get_transform().location.x - Ego_vehicle.get_transform().location.x)**2 + \
+                (self.carlaActor.get_transform().location.y - Ego_vehicle.get_transform().location.y)**2)
+                print("Distance: ", distance)
+                return distance
+
+        return None
+
+# self-defined
+def EgoSpawned() -> bool:
+    """return Bool
+    """
+    sim_world = simulation().world
+    Ego_vehicle = None
+    for actor in sim_world.get_actors():
+        # print("role_name:", actor.attributes.get('role_name'))
+        if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+            return True
+    return False
 
 class Vehicle(Vehicle, CarlaActor, Steers, _CarlaVehicle):
     """Abstract class for steerable vehicles."""

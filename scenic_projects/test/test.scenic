@@ -12,20 +12,11 @@ scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego = new Car following roadDirection from start_spot for 1, \
+        ego = new Car following roadDirection from start_spot for 5, \
             facing 0 deg relative to roadDirection, \
-            with FollowLaneBehavior(), \
+            with behavior FollowLaneBehavior(), \
             with blueprint ego_car_type, \
             with color Color(1,0,0), \
-            with rolename "hero"
-
-        # front cyclist
-        lane = ego.laneGroup.lanes[0]
-        cyslist_spot = new OrientedPoint following roadDirection from start_spot for 5
-        cyclist = new Bicycle at cyslist_spot,  \
-                        facing 0 deg relative to roadDirection, \
-                        with blueprint 'vehicle.bh.crossbike', \
-                        with behavior FollowLaneBehavior(target_speed=1)
-
+            with rolename "test"
         
 

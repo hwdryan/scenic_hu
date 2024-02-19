@@ -20,27 +20,26 @@ target_type = 'vehicle.volkswagen.t2'
 start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
 
 # Speed of vehicles
-Ego_speed = 5
 V1_speed = 5
-V2_speed = 5
+V2_speed = 8.333
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = 20
-V1_loc = road_length - 90
-V2_loc = 75
-V3_loc = road_length - 70
+Ego_loc = 150
+V1_loc = road_length - 200
+V2_loc = 175
+V3_loc = road_length - 180
 
 # self-defined
 behavior VehicleLightBehavior():
     """Behavior causing a vehicle to use CARLA's built-in autopilot."""
     take SetVehicleLightStateAction(carla.VehicleLightState(carla.VehicleLightState.RightBlinker | carla.VehicleLightState.LeftBlinker))
 
-behavior OvertakeBehavior(target_speed=V1_speed,avoidance_threshold=25, bypass_dist=17):
-    changeback_spot = new OrientedPoint following roadDirection from start_spot for 70
+behavior OvertakeBehavior(target_speed=V1_speed,avoidance_threshold=20, bypass_dist=17):
+    changeback_spot = new OrientedPoint following roadDirection from start_spot for (road_length - V3_loc)
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 5:
+    interrupt when self.SpeedOfEgo() > 1:
         try:
             do FollowLaneBehavior(target_speed=target_speed)
         interrupt when self.distanceToClosest(Truck) < bypass_dist:
@@ -60,7 +59,7 @@ behavior OvertakeBehavior(target_speed=V1_speed,avoidance_threshold=25, bypass_d
 behavior V2Behavior():
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 5:
+    interrupt when self.SpeedOfEgo() > 1:
         do FollowLaneBehavior(target_speed=V2_speed)
 
 scenario Main():
@@ -81,7 +80,14 @@ scenario Main():
         #     with color Color(1,0,0), \
         #     with rolename "hero", \
         #     with behavior FollowLaneBehavior()
-        
+
+        # overtake vehicle V1
+        overtake_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
+        overtake_vehicle = new Car following roadDirection from overtake_vehicle_spot for V1_loc,  \
+                        with blueprint target_type, \
+                        with rolename "V1", \
+                        with behavior OvertakeBehavior()
+
         # Front car V2
         v2 = new Car following roadDirection from start_spot for V2_loc, \
             with blueprint ego_car_type, \
@@ -96,9 +102,4 @@ scenario Main():
                         with behavior VehicleLightBehavior(), \
                         with rolename "V3"
 
-        # overtake vehicle V1
-        overtake_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
-        overtake_vehicle = new Car following roadDirection from overtake_vehicle_spot for V1_loc,  \
-                        with blueprint target_type, \
-                        with rolename "V1", \
-                        with behavior OvertakeBehavior()
+        
