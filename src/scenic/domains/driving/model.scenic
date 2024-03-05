@@ -248,7 +248,6 @@ class DrivingObject:
             if target_obj != obj:
                 continue
             d = distance from self to obj
-            # print(f"**Found the obj! {d} meter away!**")
             return d
 
     

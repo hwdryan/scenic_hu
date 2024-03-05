@@ -219,9 +219,9 @@ class RegulatedControlAction(SteeringAction):
         throttle: float,
         steer: float,
         past_steer: float,
-        max_throttle: float = 1,
+        max_throttle: float = 1.0,
         max_brake: float = 0.5,
-        max_steer: float = 0.8,
+        max_steer: float = 1.0,
     ):
         if throttle > 0:
             throttle = min(throttle, max_throttle)

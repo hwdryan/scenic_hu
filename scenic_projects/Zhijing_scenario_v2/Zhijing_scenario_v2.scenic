@@ -20,13 +20,14 @@ target_type = 'vehicle.volkswagen.t2'
 start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
 
 # Speed of vehicles
-V1_speed = 11.11
+V1_speed = 6
+V1_speed_2 = 11.11
 V3_speed = 5
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = 150
-V1_loc = 170
+Ego_loc = 1
+V1_loc = 20
 V2_loc = road_length - 180
 V3_loc = road_length - 200
 
@@ -39,7 +40,8 @@ behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_d
     changeback_spot = new OrientedPoint following roadDirection from start_spot for (road_length - V2_loc)
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 0.1:
+    # interrupt when self.SpeedOfEgo() > 0.1:
+    interrupt when self.distanceToEgo() <= 70:
         try:
             do FollowLaneBehavior(target_speed=target_speed)
         interrupt when self.distanceToClosest(Truck) < bypass_dist:
@@ -60,7 +62,10 @@ behavior V1Behavior():
     try:
         wait
     interrupt when self.SpeedOfEgo() > 0.1:
-        do FollowLaneBehavior(target_speed=V1_speed)
+        try:
+            do FollowLaneBehavior(target_speed=V1_speed)
+        interrupt when self.distanceToObj(role_name="V3") <= 10:
+            do FollowLaneBehavior(target_speed=V1_speed_2)
 
 scenario Main():
     setup:

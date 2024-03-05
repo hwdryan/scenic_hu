@@ -174,9 +174,22 @@ class CarlaActor(DrivingObject):
                 Ego_vehicle = actor
                 distance = math.sqrt((self.carlaActor.get_transform().location.x - Ego_vehicle.get_transform().location.x)**2 + \
                 (self.carlaActor.get_transform().location.y - Ego_vehicle.get_transform().location.y)**2)
-                print("Distance: ", distance)
                 return distance
+        return None
 
+    # self-defined
+    def distanceToObj(self, role_name):
+        """Compute the distance to the object.
+        """
+        objects = simulation().objects
+
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            # print("role_name:", actor.attributes.get('role_name'))
+            if actor.attributes.get('role_name') == role_name:
+                distance = math.sqrt((self.carlaActor.get_transform().location.x - actor.get_transform().location.x)**2 + \
+                (self.carlaActor.get_transform().location.y - actor.get_transform().location.y)**2)
+                return distance
         return None
 
 # self-defined

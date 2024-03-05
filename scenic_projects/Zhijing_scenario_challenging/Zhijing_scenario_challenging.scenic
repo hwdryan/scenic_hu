@@ -27,8 +27,8 @@ V3_speed = 5
 road_length = 308.69
 Ego_loc = 150
 V1_loc = 170
-V2_loc = road_length - 180
-V3_loc = road_length - 200
+V2_loc = road_length - 168
+V3_loc = road_length - 188
 
 # self-defined
 behavior VehicleLightBehavior():
@@ -39,7 +39,7 @@ behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_d
     changeback_spot = new OrientedPoint following roadDirection from start_spot for (road_length - V2_loc)
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 0.1:
+    interrupt when self.SpeedOfEgo() > 1:
         try:
             do FollowLaneBehavior(target_speed=target_speed)
         interrupt when self.distanceToClosest(Truck) < bypass_dist:
@@ -59,7 +59,7 @@ behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_d
 behavior V1Behavior():
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 0.1:
+    interrupt when self.SpeedOfEgo() > 1:
         do FollowLaneBehavior(target_speed=V1_speed)
 
 scenario Main():

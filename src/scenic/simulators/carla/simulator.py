@@ -269,7 +269,11 @@ class CarlaSimulation(DrivingSimulation):
     def step(self):
         # Run simulation for one timestep
         # self.world.tick()
-        self.world.wait_for_tick()
+        snapshot = self.world.wait_for_tick()
+        # print("len(snapshot): ", len(snapshot))
+        # with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "a") as log_file:
+        # # Log parameters to the file
+        #     log_file.write(f"{time.time()}, {past_speed}, {self.position[0]}, {self.position[1]}, {throttle}\n")
 
         # Render simulation
         if self.render:
