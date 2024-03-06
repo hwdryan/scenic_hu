@@ -15,7 +15,8 @@ model="scenic.simulators.carla.model"
 
 
 simulator = CarlaSimulator(carla_map=carla_map, 
-                        map_path=map_path, 
+                        map_path=map_path,
+                        render=False
                         )
 
 scenario = scenic.scenarioFromFile(path = scenic_path

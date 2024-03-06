@@ -204,6 +204,17 @@ def EgoSpawned() -> bool:
             return True
     return False
 
+# self-defined
+def point_transformation(point):
+    x = point.pos_and_ori().location.x
+    y = point.pos_and_ori().location.y
+    z = point.pos_and_ori().location.z
+    pitch = point.pos_and_ori().rotation.pitch
+    yaw = point.pos_and_ori().rotation.yaw
+    roll = point.pos_and_ori().rotation.roll
+
+    
+
 class Vehicle(Vehicle, CarlaActor, Steers, _CarlaVehicle):
     """Abstract class for steerable vehicles."""
 

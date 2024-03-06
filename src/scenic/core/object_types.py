@@ -966,7 +966,13 @@ class OrientedPoint(Point):
         rot = carla.Rotation(pitch=pitch, yaw=yaw, roll=roll)
         # carla transformation
         transform = carla.Transform(loc, rot)
-        return transform
+        x = transform.location.x
+        y = transform.location.y
+        z = transform.location.z
+        pitch = transform.rotation.pitch
+        yaw = transform.rotation.yaw
+        roll = transform.rotation.roll
+        return (x,y,z,pitch,yaw,roll)
 
     def distancePast(self, vec):
         """Distance past a given point, assuming we've been moving in a straight line."""

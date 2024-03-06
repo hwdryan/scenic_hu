@@ -31,7 +31,8 @@ class CarlaSimulator(DrivingSimulator):
         self,
         carla_map,
         map_path,
-        address="172.17.0.1",
+        # address="172.17.0.1",
+        address="127.0.0.1",
         port=2000,
         timeout=10,
         render=True,
@@ -45,7 +46,7 @@ class CarlaSimulator(DrivingSimulator):
         self.client = carla.Client(address, port)
         self.client.set_timeout(timeout)  # limits networking operations (seconds)
 
-        # original way of load world
+        # # original way of load world
         # if carla_map is not None:
         #     try:  
         #         self.world = self.client.load_world(carla_map)
@@ -163,7 +164,7 @@ class CarlaSimulation(DrivingSimulation):
             self.cameraManager.set_sensor(camIndex)
             self.cameraManager.set_transform(self.camTransform)
     
-        # self.world.tick()  ## allowing manualgearshift to take effect    # TODO still need this?
+        # self.world.wait_for_tick()  ## allowing manualgearshift to take effect    # TODO still need this?
         self.world.wait_for_tick()
 
         for obj in self.objects:
@@ -172,7 +173,7 @@ class CarlaSimulation(DrivingSimulation):
                     carla.VehicleControl(manual_gear_shift=False)
                 )
 
-        # self.world.tick()
+        # self.world.wait_for_tick()
         self.world.wait_for_tick()
 
         for obj in self.objects:
@@ -268,7 +269,7 @@ class CarlaSimulation(DrivingSimulation):
 
     def step(self):
         # Run simulation for one timestep
-        # self.world.tick()
+        # self.world.wait_for_tick()
         snapshot = self.world.wait_for_tick()
         # print("len(snapshot): ", len(snapshot))
         # with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "a") as log_file:
@@ -336,5 +337,5 @@ class CarlaSimulation(DrivingSimulation):
 
         self.client.stop_recorder()
 
-        self.world.tick()
+        self.world.wait_for_tick()
         super().destroy()
