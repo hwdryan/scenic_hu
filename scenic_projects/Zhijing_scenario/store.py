@@ -20,7 +20,7 @@ with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/acc_thr
 
 simulator = CarlaSimulator(carla_map=carla_map, 
                         map_path=map_path, 
-                        render=True
+                        render=False
                         )
 
 scenario = scenic.scenarioFromFile(path = scenic_path

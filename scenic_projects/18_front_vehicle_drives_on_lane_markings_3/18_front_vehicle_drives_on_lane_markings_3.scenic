@@ -19,13 +19,15 @@ scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego = new Car following roadDirection from start_spot for 1, \
-            with behavior EgoBehavior(target_speed=3), \
-            facing 0 deg relative to roadDirection, \
-            with FollowLaneBehavior(), \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "hero"
+        ego_spot = new OrientedPoint following roadDirection from start_spot for 1
+        print(f"Ego position: {ego_spot.pos_and_ori()}")
+        # ego = new Car following roadDirection from start_spot for 1, \
+        #     with behavior EgoBehavior(target_speed=3), \
+        #     facing 0 deg relative to roadDirection, \
+        #     with FollowLaneBehavior(), \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "hero"
 
         # langechange car
         target_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start

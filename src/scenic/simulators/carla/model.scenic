@@ -147,7 +147,7 @@ class CarlaActor(DrivingObject):
     
         # self-defined
     def SpeedOfEgo(self):
-        """Compute the fastest speed in the world.
+        """Compute the speed of Ego.
         """
         sim_world = simulation().world
         Ego_vehicle = None
@@ -162,7 +162,7 @@ class CarlaActor(DrivingObject):
                 
     # self-defined
     def distanceToEgo(self):
-        """Compute the distance to the object.
+        """Compute the distance to Ego.
         """
         objects = simulation().objects
 

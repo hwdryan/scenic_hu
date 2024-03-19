@@ -37,31 +37,29 @@ modules = [
 for module in modules:
     ws.send(json.dumps({"type": "HMIAction", "action": "START_MODULE", "value": module}))
 # Wait for all modules to be launched
-# modules_launched = False
-# while not modules_launched:
-#     try:
-#         states = json.loads(ws.recv())
-#         for module in modules:
-#             if not states['data']['modules'][module]:
-#                 modules_launched = False
-#                 break  # Break the loop if any module is False
-#             modules_launched = True
-#     except KeyError:
-#         pass
-
+modules_launched = False
+while not modules_launched:
+    data = json.loads(ws.recv())
+    while data["type"] != "HMIStatus":
+        data = json.loads(ws.recv())
+    for module in modules:
+        if not data['data']['modules'][module]:
+            modules_launched = False
+            break  # Break the loop if any module is False
+        modules_launched = True
 # Wait
-time.sleep(10)
+time.sleep(5)
 
 # Set destination
 msg = {
     "type": "SendRoutingRequest",
     "start": {    
-        "x": 396.30413818359375,
-        "y": -168.53921508789062,
-        "z": 0.03354499861598015,
-        "heading": 1.5710071159951764,
+        "x": 396.3344421386719,
+        "y": -278.5392150878906,
+        "z": 0.033544957637786865,
+        "heading": 1.5711844825237757,
     },
-    "end": {"x": 396.30413818359375, "y": -68.53921508789062, "z": 0},
+    "end": {"x": 396.30413818359375, "y": -18.53921508789062, "z": 0},
     "waypoint": "[]",
 }
 

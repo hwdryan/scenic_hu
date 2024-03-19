@@ -25,10 +25,10 @@ scenario = scenic.scenarioFromFile(path = scenic_path
                                 , model=model
                                 , mode2D=True)
 
-scene, _ = scenario.generate()
-# safe parameters
-data = scenario.sceneToBytes(scene)
-with open(scenic_param, 'wb') as f:
-        f.write(data)
-simulator.simulate(scene, verbosity=2)
+# scene, _ = scenario.generate()
+# # safe parameters
+# data = scenario.sceneToBytes(scene)
+# with open(scenic_param, 'wb') as f:
+#         f.write(data)
+# simulator.simulate(scene, verbosity=2)
 

@@ -1,0 +1,102 @@
+{
+    "data": {
+        "currentCameraSensorChannel": "",
+        "currentDynamicModel": "",
+        "currentMap": "Carla Town01",
+        "currentMode": "Mkz Standard Debug",
+        "currentPointCloudChannel": "",
+        "currentRecordId": "",
+        "currentScenarioId": "",
+        "currentScenarioSetId": "",
+        "currentVehicle": "Lincoln2017MKZ LGSVL",
+        "currentVehicleType": 0,
+        "dockerImage": "apolloauto/apollo:dev-x86_64-18.04-20221124_1708",
+        "dynamicModels": [],
+        "maps": [
+            "Sunnyvale With Two Offices",
+            "Sunnyvale Loop",
+            "Apollo Virutal Map",
+            "Carla Town02",
+            "Sunnyvale Big Loop",
+            "Carla Town03",
+            "Carla Town05",
+            "Carla Town01",
+            "Demo",
+            "Borregas Ave",
+            "Carla Town04",
+            "San Mateo"
+        ],
+        "modes": [
+            "Ipc1 Mkz Standard Debug",
+            "Dev Kit Debug",
+            "Ipc2 Mkz Standard Debug",
+            "Rtk",
+            "Vehicle Calibration",
+            "Camera-Lidar Sensor Calibration",
+            "Mkz 64beam",
+            "Car Teleop",
+            "Mkz Close Loop",
+            "Ipc2 Mkz Close Loop",
+            "Lidar-IMU Sensor Calibration",
+            "Ipc1 Mkz Close Loop",
+            "Navigation",
+            "Map Collection",
+            "Mkz Standard Debug",
+            "Dev Kit Close Loop",
+            "Mkz Standard Debug Hesai",
+            "Mkz Standard Debug Smart Recorder",
+            "Console Teleop",
+            "Mkz Lgsvl"
+        ],
+        "modules": {
+            "AudioDetection": false,
+            "Camera": false,
+            "Canbus": false,
+            "Control": true,
+            "GPS": false,
+            "Guardian": false,
+            "Localization": false,
+            "Microphone": false,
+            "Perception": false,
+            "Planning": true,
+            "Prediction": true,
+            "Radar": false,
+            "Recorder": false,
+            "Routing": true,
+            "Storytelling": false,
+            "Traffic Light": false,
+            "Transform": false,
+            "Velodyne": false
+        },
+        "monitoredComponents": {
+            "GPS": {
+                "message": "",
+                "status": "FATAL"
+            },
+            "Lidar 128": {
+                "message": "",
+                "status": "OK"
+            },
+            "Localization": {
+                "message": "No LocalizationStatus received",
+                "status": "ERROR"
+            },
+            "Recorder": {
+                "message": "",
+                "status": "FATAL"
+            }
+        },
+        "otherComponents": {},
+        "passengerMsg": "",
+        "records": {},
+        "scenarioSet": {},
+        "utmZoneId": 10,
+        "vehicles": [
+            "Mkz Example",
+            "Lincoln2017MKZ LGSVL",
+            "Perception Test V1",
+            "Apollo Perception Test Bev"
+        ]
+    },
+    "type": "HMIStatus"
+}
