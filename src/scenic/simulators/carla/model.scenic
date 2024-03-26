@@ -156,7 +156,7 @@ class CarlaActor(DrivingObject):
             if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
                 Ego_vehicle = actor
                 vel = Ego_vehicle.get_velocity()
-                s = 3.6 * math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
+                s = math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
                 # print(f"**Speed for {Ego_vehicle} is {s}!**")
                 return s
                 

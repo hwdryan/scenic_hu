@@ -11,7 +11,7 @@ subprocess.run(['tmux', 'kill-session', '-t', 'scenic_session'])
 subprocess.run(['pkill','-f','CarlaUE4'])
 
 command_list = [
-    {'command': ['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], 'cwd': os.path.join(home_directory, 'Tools/CARLA_0.9.13/')},
+    {'command': ['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], 'cwd': os.path.join(home_directory, 'Tools/CARLA_0.9.14/')},
     {'command': ["./docker/scripts/dev_start.sh"], 'cwd': os.path.join(home_directory, "Tools/apollo/")},
     {'command': ['git','checkout','--','modules/common/data/global_flagfile.txt'], 'cwd': os.path.join(home_directory, "Tools/apollo/")},
     {'command': ['docker','exec','-u','weidonghu','apollo_dev_weidonghu','./scripts/bootstrap.sh'], 'cwd': home_directory},
@@ -26,7 +26,7 @@ command_list = [
                     export PYTHONPATH=$PYTHONPATH:/apollo/cyber/python && \
                     export PYTHONPATH=$PYTHONPATH:/apollo && \
                     export PYTHONPATH=$PYTHONPATH:/apollo/modules && \
-                    export PYTHONPATH=$PYTHONPATH:/apollo/modules/carla_bridge/carla_api/carla-0.9.13-py3.7-linux-x86_64.egg && \
+                    export PYTHONPATH=$PYTHONPATH:/apollo/modules/carla_bridge/carla_api/carla-0.9.14-py3.7-linux-x86_64.egg && \
                     echo $PYTHONPATH && \
                     python main.py'], 'cwd': home_directory, 'wait':5},
     {'command': ['tmux', 'new-session', '-d', '-s', 'scenic_session','conda','run','-n','scenic_related','python3','./Zhijing_scenario/store.py'], 'cwd': os.path.join(home_directory, "Tools/Scenic/scenic_projects/"), 'wait':10},

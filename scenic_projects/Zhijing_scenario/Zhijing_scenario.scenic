@@ -21,21 +21,22 @@ start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
 
 # Speed of vehicles
 V1_speed = 11.11
-V3_speed = 4.5
+V3_speed = 5
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = 40
-V1_loc = 60
-V2_loc = road_length - 120
-V3_loc = road_length - 200
+Ego_loc = 140
+V1_loc = 170 - 14
+
+V2_loc = road_length - 180
+V3_loc = road_length - 210 - 5.5
 
 # self-defined
 behavior VehicleLightBehavior():
     """Behavior causing a vehicle to use CARLA's built-in autopilot."""
     take SetVehicleLightStateAction(carla.VehicleLightState(carla.VehicleLightState.RightBlinker | carla.VehicleLightState.LeftBlinker))
 
-behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_dist=25):
+behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_dist=17):
     changeback_spot = new OrientedPoint following roadDirection from start_spot for (road_length - V2_loc)
     try:
         wait

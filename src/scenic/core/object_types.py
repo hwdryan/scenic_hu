@@ -953,6 +953,7 @@ class OrientedPoint(Point):
     def relativePosition(self, vec):
         return self.position.offsetLocally(self.orientation, vec)
     
+    # self-defined
     def pos_and_ori(self):
         # return self.position, self.orientation
         # pos

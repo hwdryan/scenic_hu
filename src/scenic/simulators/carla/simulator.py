@@ -268,14 +268,35 @@ class CarlaSimulation(DrivingSimulation):
                 obj._control = None
 
     def step(self):
+        
+
         # Run simulation for one timestep
         # self.world.wait_for_tick()
-        snapshot = self.world.wait_for_tick()
-        # print("len(snapshot): ", len(snapshot))
-        # with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "a") as log_file:
-        # # Log parameters to the file
-        #     log_file.write(f"{time.time()}, {past_speed}, {self.position[0]}, {self.position[1]}, {throttle}\n")
+        world_snapshot = self.world.wait_for_tick()
 
+        # # self-defined, find ids
+        # actor_id_list = []
+        # actor_list = self.world.get_actors()
+        # front_actor_id = actor_list.filter('vehicle.tesla.model3')[0].id
+        # overtake_actor_id = actor_list.filter('vehicle.volkswagen.t2')[0].id
+                    
+        # if world_snapshot.has_actor(front_actor_id) and world_snapshot.has_actor(overtake_actor_id):
+        #     front_actor = world_snapshot.find(front_actor_id)
+        #     overtake_actor = world_snapshot.find(overtake_actor_id)
+        #     # 
+        #     v_f = front_actor.get_velocity()
+        #     v_f = math.sqrt(float(v_f.x)**2+(v_f.y)**2+(v_f.z)**2)
+        #     v_o = overtake_actor.get_velocity()
+        #     v_o = math.sqrt((v_o.x)**2+(v_o.y)**2+(v_o.z)**2)
+        #     # 396.3500061035156, 318.5392150878906
+        #     l_f = front_actor.get_transform().location
+        #     l_f = 318.5392150878906 - l_f.y
+        #     l_o = overtake_actor.get_transform().location
+        #     l_o = 318.5392150878906 - l_o.y
+        #     if v_f + v_o > 0:
+        #         with open("/home/weidonghu/Documents/data.txt",'a') as f:
+        #             f.write(f"v_f:{v_f},l_f:{l_f},\nv_o:{v_o},l_o:{l_o}\n")
+        
         # Render simulation
         if self.render:
             self.cameraManager.render(self.display)
