@@ -191,7 +191,7 @@ def pointForObject(dom, obj):
 def spaceForScenario(scenario, ignoredProperties):
     """Construct a FeatureSpace for the given Scenic Scenario."""
     # create domains for objects
-    assert scenario.egoObject is scenario.objects[0]
+    # assert scenario.egoObject is scenario.objects[0]
     doms = (domainForObject(obj, ignoredProperties)
             for obj in scenario.objects)
     objects = Struct({ f'object{i}': dom for i, dom in enumerate(doms) })
@@ -282,7 +282,7 @@ class ScenicSampler(FeatureSampler):
         """Convert a sampled Scenic :obj:`Scene` to a point in our feature space."""
         lengths, dom = self.space.domains
         assert lengths is None
-        assert scene.egoObject is scene.objects[0]
+        # assert scene.egoObject is scene.objects[0]
         objDomain = dom.domainNamed['objects']
         assert len(objDomain.domains) == len(scene.objects)
         objects = (pointForObject(objDomain.domainNamed[f'object{i}'], obj)

@@ -154,9 +154,9 @@ behavior FollowLaneBehavior(target_speed = 10, laneToFollow=None, is_oppositeTra
         # self-defined
         # print("time: ", time.time())
         # print("Vehicle_speed: ", past_speed)
-        with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "a") as log_file:
-        # Log parameters to the file
-            log_file.write(f"{time.time()}, {past_speed}, {self.position[0]}, {self.position[1]}, {throttle}\n")
+        # with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "a") as log_file:
+        # # Log parameters to the file
+        #     log_file.write(f"{time.time()}, {past_speed}, {self.position[0]}, {self.position[1]}, {throttle}\n")
         
 # self-defined
 behavior FollowRightEdgeBehavior(target_speed = 10, laneToFollow=None, is_oppositeTraffic=False):

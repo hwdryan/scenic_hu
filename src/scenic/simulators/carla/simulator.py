@@ -23,6 +23,7 @@ import scenic.simulators.carla.utils.utils as utils
 import scenic.simulators.carla.utils.visuals as visuals
 from scenic.syntax.veneer import verbosePrint
 
+scenic_lead = False
 
 class CarlaSimulator(DrivingSimulator):
     """Implementation of `Simulator` for CARLA."""
@@ -46,23 +47,24 @@ class CarlaSimulator(DrivingSimulator):
         self.client = carla.Client(address, port)
         self.client.set_timeout(timeout)  # limits networking operations (seconds)
 
-        # # original way of load world
-        # if carla_map is not None:
-        #     try:  
-        #         self.world = self.client.load_world(carla_map)
-        #     except Exception as e:
-        #         raise RuntimeError(f"CARLA could not load world '{carla_map}'") from e
-        # else:
-        #     if str(map_path).endswith(".xodr"):
-        #         with open(map_path) as odr_file:
-        #             self.world = self.client.generate_opendrive_world(odr_file.read())
-        #     else:
-        #         raise RuntimeError("CARLA only supports OpenDrive maps")
-        # self.timestep = timestep
-
-        # get world
-        self.world = self.client.get_world()
-        self.timestep = timestep
+        if scenic_lead:
+            # original way of load world
+            if carla_map is not None:
+                try:  
+                    self.world = self.client.load_world(carla_map)
+                except Exception as e:
+                    raise RuntimeError(f"CARLA could not load world '{carla_map}'") from e
+            else:
+                if str(map_path).endswith(".xodr"):
+                    with open(map_path) as odr_file:
+                        self.world = self.client.generate_opendrive_world(odr_file.read())
+                else:
+                    raise RuntimeError("CARLA only supports OpenDrive maps")
+            self.timestep = timestep
+        else:
+            # get world
+            self.world = self.client.get_world()
+            self.timestep = timestep
 
         if traffic_manager_port is None:
             traffic_manager_port = port + 6000
@@ -164,8 +166,10 @@ class CarlaSimulation(DrivingSimulation):
             self.cameraManager.set_sensor(camIndex)
             self.cameraManager.set_transform(self.camTransform)
     
-        # self.world.wait_for_tick()  ## allowing manualgearshift to take effect    # TODO still need this?
-        self.world.wait_for_tick()
+        if scenic_lead:
+            self.world.tick()  ## allowing manualgearshift to take effect    # TODO still need this?
+        else:
+            self.world.wait_for_tick()
 
         for obj in self.objects:
             if isinstance(obj.carlaActor, carla.Vehicle):
@@ -173,8 +177,10 @@ class CarlaSimulation(DrivingSimulation):
                     carla.VehicleControl(manual_gear_shift=False)
                 )
 
-        # self.world.wait_for_tick()
-        self.world.wait_for_tick()
+        if scenic_lead:
+            self.world.tick()
+        else:
+            self.world.wait_for_tick()
 
         for obj in self.objects:
             if obj.speed is not None and obj.speed != 0:
@@ -271,8 +277,10 @@ class CarlaSimulation(DrivingSimulation):
         
 
         # Run simulation for one timestep
-        # self.world.wait_for_tick()
-        world_snapshot = self.world.wait_for_tick()
+        if scenic_lead:
+            self.world.tick()
+        else:
+            world_snapshot = self.world.wait_for_tick()
 
         # # self-defined, find ids
         # actor_id_list = []
@@ -358,5 +366,6 @@ class CarlaSimulation(DrivingSimulation):
 
         self.client.stop_recorder()
 
-        self.world.wait_for_tick()
+        self.world.tick()
+
         super().destroy()

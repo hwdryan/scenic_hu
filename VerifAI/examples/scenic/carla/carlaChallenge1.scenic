@@ -3,14 +3,25 @@ Traffic Scenario 01.
 Control loss without previous action.
 The ego-vehicle loses control due to bad conditions on the road and it must recover, coming back to its original lane.
 """
+import subprocess
+import os
+import time
+
+home_directory = os.path.expanduser('~')
+subprocess.run(['tmux', 'kill-session', '-t', 'carla_session'])
+subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
+subprocess.run(['tmux', 'kill-session', '-t', 'scenic_session'])
+subprocess.run(['pkill','-f','CarlaUE4'])
+subprocess.run(['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], cwd = os.path.join(home_directory, 'Tools/CARLA_0.9.13/'))
+time.sleep(6)
 
 ## SET MAP AND MODEL (i.e. definitions of all referenceable vehicle types, road library, etc)
-param map = localPath('../../../tests/Town01.xodr')
+param map = localPath("../../../../assets/maps/CARLA/Town01.xodr")
 param carla_map = 'Town01'
 model scenic.simulators.carla.model
 
 ## CONSTANTS
-EGO_MODEL = "vehicle.lincoln.mkz2017"
+EGO_MODEL = "vehicle.lincoln.mkz_2017"
 EGO_SPEED = 10
 REACTION_DISTANCE = Range(5,10)
 

@@ -1,6 +1,8 @@
 """Specialized server for using Scenic's dynamic simulator interfaces."""
 
 import time
+import os
+import subprocess
 
 from dotmap import DotMap
 import progressbar
@@ -47,6 +49,22 @@ class ScenicServer(Server):
         self.maxSteps = defaults.maxSteps
         self.verbosity = defaults.verbosity
         self.maxIterations = defaults.maxIterations
+        ################
+        # Launch CARLA
+        ################
+        import subprocess
+        import os
+        import time
+
+        home_directory = os.path.expanduser('~')
+        subprocess.run(['tmux', 'kill-session', '-t', 'carla_session'])
+        subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
+        subprocess.run(['tmux', 'kill-session', '-t', 'scenic_session'])
+        subprocess.run(['pkill','-f','CarlaUE4'])
+        subprocess.run(['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], cwd = os.path.join(home_directory, 'Tools/CARLA_0.9.13/'))
+        subprocess.run(['./docker/scripts/dev_start.sh'], cwd = os.path.join(home_directory, "Tools/apollo/"))
+        time.sleep(6)
+        # 
         if defaults.simulator is None:
             self.simulator = self.sampler.scenario.getSimulator()
         else:
@@ -63,6 +81,48 @@ class ScenicServer(Server):
         return value
 
     def _simulate(self, scene):
+        # Launch Carla, Apollo, bridge
+        home_directory = os.path.expanduser('~')
+        subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
+        subprocess.run(['tmux', 'kill-session', '-t', 'scenic_session'])
+
+        command_list = [
+            {'command': ['git','checkout','--','modules/common/data/global_flagfile.txt'], 'cwd': os.path.join(home_directory, "Tools/apollo/")},
+            {'command': ['docker','exec','-u','weidong','apollo_dev_weidong','./scripts/bootstrap.sh','restart'], 'cwd': home_directory},
+            {'command': ['tmux', 'new-session', '-d', '-s', 'bridge_session', 
+                        'docker','exec',
+                        '-w','/apollo/modules/carla_bridge/',
+                        '-u','weidong','apollo_dev_weidong', 
+                        'sh', '-c',
+                        'export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin/cyber/python/internal && \
+                            export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin && \
+                            export PYTHONPATH=$PYTHONPATH:/apollo/cyber && \
+                            export PYTHONPATH=$PYTHONPATH:/apollo/cyber/python && \
+                            export PYTHONPATH=$PYTHONPATH:/apollo && \
+                            export PYTHONPATH=$PYTHONPATH:/apollo/modules && \
+                            export PYTHONPATH=$PYTHONPATH:/apollo/modules/carla_bridge/carla_api/carla-0.9.13-py3.7-linux-x86_64.egg && \
+                            echo $PYTHONPATH && \
+                            python main.py'], 'cwd': home_directory, 'wait':5, 'print':True},
+        ]
+
+        # Run the command and capture the output
+        for command in command_list:
+            print(f"Running command: {' '.join(command['command'])} in directory {command['cwd']}")
+            result_subprocess = subprocess.Popen(command['command'], cwd=command['cwd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # Read output and errors
+            if 'print' in command:
+                stdout, stderr = result_subprocess.communicate()
+                print("stdout:",stdout.decode())
+                print("stderr:",stderr.decode())
+            return_code = result_subprocess.returncode
+            if return_code == 0:
+                print("Subprocess executed successfully")
+            else:
+                print(f"Subprocess failed with return code {return_code}")
+            if 'wait' in command:
+                print(f"wait for {command['wait']} seconds")
+                time.sleep(command['wait'])
+        # start scenic scenario
         startTime = time.time()
         if self.verbosity >= 1:
             print('  Beginning simulation...')
@@ -74,6 +134,8 @@ class ScenicServer(Server):
             if self.verbosity >= 1:
                 print(f'  Failed to create simulation: {e}')
             return None
+        result_subprocess = subprocess.Popen(['python3','./set_destination.py'], cwd=os.path.join(home_directory, "Tools/Scenic/scripts/"), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
         if self.verbosity >= 1:
             totalTime = time.time() - startTime
             print(f'  Ran simulation in {totalTime:.4g} seconds.')

@@ -138,3 +138,127 @@ src/scenic/syntax/parser.py
 
 # self-defined
 scenic_projects/Zhijing_scenario/parameters_log.txt
+
+# VerifAI
+# Scenic cache files
+VerifAI/*.snet
+
+# Webots temporary files
+VerifAI/.*.wbproj
+
+# OS X junk
+VerifAI/.DS_Store
+
+# Byte-compiled / optimized / DLL files
+VerifAI/__pycache__/
+VerifAI/*.py[cod]
+VerifAI/*$py.class
+
+# C extensions
+VerifAI/*.so
+
+# Distribution / packaging
+VerifAI/.Python
+VerifAI/build/
+VerifAI/develop-eggs/
+VerifAI/dist/
+VerifAI/downloads/
+VerifAI/eggs/
+VerifAI/.eggs/
+VerifAI/lib/
+VerifAI/lib64/
+VerifAI/parts/
+VerifAI/sdist/
+VerifAI/var/
+VerifAI/wheels/
+VerifAI/*.egg-info/
+VerifAI/.installed.cfg
+VerifAI/*.egg
+VerifAI/MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+VerifAI/*.manifest
+VerifAI/*.spec
+
+# Installer logs
+VerifAI/pip-log.txt
+VerifAI/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+VerifAI/htmlcov/
+VerifAI/.tox/
+VerifAI/.nox/
+VerifAI/.coverage
+VerifAI/.coverage.*
+VerifAI/.cache
+VerifAI/nosetests.xml
+VerifAI/coverage.xml
+VerifAI/*.cover
+VerifAI/.hypothesis/
+VerifAI/.pytest_cache/
+
+# Translations
+VerifAI/*.mo
+VerifAI/*.pot
+
+# Django stuff:
+VerifAI/*.log
+VerifAI/local_settings.py
+VerifAI/db.sqlite3
+
+# Flask stuff:
+VerifAI/instance/
+VerifAI/.webassets-cache
+
+# Scrapy stuff:
+VerifAI/.scrapy
+
+# Sphinx documentation
+VerifAI/docs/_build/
+
+# PyBuilder
+VerifAI/target/
+
+# Jupyter Notebook
+VerifAI/.ipynb_checkpoints
+
+# IPython
+VerifAI/profile_default/
+VerifAI/ipython_config.py
+
+# pyenv
+VerifAI/.python-version
+
+# celery beat schedule file
+VerifAI/celerybeat-schedule
+
+# SageMath parsed files
+VerifAI/*.sage.py
+
+# Environments
+VerifAI/.env
+VerifAI/.venv
+VerifAI/env/
+VerifAI/venv/
+VerifAI/ENV/
+VerifAI/env.bak/
+VerifAI/venv.bak/
+
+# Spyder project settings
+VerifAI/.spyderproject
+VerifAI/.spyproject
+
+# Rope project settings
+VerifAI/.ropeproject
+
+# mypy
+VerifAI/.mypy_cache/
+VerifAI/.dmypy.json
+VerifAI/dmypy.json
+
+VerifAI/*.cproject
+
+VerifAI/error_table.csv
+VerifAI/safe_table.csv
