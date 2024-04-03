@@ -101,7 +101,9 @@ def choose_sampler(sample_space, sampler_type,
 class Server:
     """Generic server for communicating with an external simulator."""
     def __init__(self, sampling_data, monitor, options={}):
-        defaults = DotMap(port=8888, bufsize=4096, maxreqs=5)
+        # defaults = DotMap(port=8888, bufsize=4096, maxreqs=5)
+        # self-defined
+        defaults = DotMap(port=6666, bufsize=4096, maxreqs=5)
         defaults.update(options)
         self.monitor = monitor
         self.lastValue = None

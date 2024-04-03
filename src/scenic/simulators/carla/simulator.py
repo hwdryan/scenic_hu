@@ -8,7 +8,7 @@ except ImportError as e:
 import math
 import os
 import warnings
-
+import psutil
 import scenic.core.errors as errors
 
 if errors.verbosityLevel == 0:  # suppress pygame advertisement at zero verbosity
@@ -68,6 +68,9 @@ class CarlaSimulator(DrivingSimulator):
 
         if traffic_manager_port is None:
             traffic_manager_port = port + 6000
+        check_and_kill_process_on_port(traffic_manager_port)
+        check_and_kill_process_on_port(traffic_manager_port)
+        check_and_kill_process_on_port(traffic_manager_port)
         self.tm = self.client.get_trafficmanager(traffic_manager_port)
         self.tm.set_synchronous_mode(True)
 
@@ -353,6 +356,13 @@ class CarlaSimulation(DrivingSimulation):
         return values
 
     def destroy(self):
+        # self-defined
+        print("***DESTROY***")
+        for actor in self.world.get_actors():
+            if isinstance(actor, carla.Sensor):
+                actor.stop()
+                actor.destroy()
+        # 
         for obj in self.objects:
             if obj.carlaActor is not None:
                 if isinstance(obj.carlaActor, carla.Vehicle):
@@ -363,9 +373,33 @@ class CarlaSimulation(DrivingSimulation):
                 obj.carlaActor.destroy()
         if self.render and self.cameraManager:
             self.cameraManager.destroy_sensor()
-
+        # self-defined
+        print(f"{len(self.world.get_actors())} are left to destroy")
+        for actor in self.world.get_actors():
+            if isinstance(actor, carla.Sensor):
+                if actor.is_listening:
+                    actor.stop()
+            actor.destroy()
+            
+        
         self.client.stop_recorder()
 
         self.world.tick()
 
         super().destroy()
+
+
+# self-defined
+def check_and_kill_process_on_port(port):
+    for conn in psutil.net_connections():
+        if conn.laddr.port == port:
+            pid = conn.pid
+            try:
+                process = psutil.Process(pid)
+                process.kill()
+                print(f"Process with PID {pid} killed.")
+            except psutil.NoSuchProcess:
+                print(f"No such process with PID {pid}.")
+            return
+    print(f"No process found occupying port {port}.")
+
