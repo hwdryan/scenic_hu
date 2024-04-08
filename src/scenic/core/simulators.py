@@ -189,6 +189,7 @@ class Simulator(abc.ABC):
                 continueAfterDivergence=continueAfterDivergence,
                 allowPickle=allowPickle,
             )
+        print("***simulate while loop exit***")
         return simulation
 
     def replay(self, scene, replay, **kwargs):

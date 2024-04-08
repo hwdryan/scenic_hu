@@ -10,13 +10,13 @@ from verifai.scenic_server import ScenicServer
 from verifai.falsifier import generic_falsifier
 from verifai.monitor import specification_monitor, mtl_specification
 
-# Load the Scenic scenario and create a sampler from it
+# # Load the Scenic scenario and create a sampler from it
 # if len(sys.argv) > 1:
 #     path = sys.argv[1]
 # else:
 #     path = os.path.join(os.path.dirname(__file__), 'carla/carlaChallenge1.scenic')
 
-path = '/home/weidong/Tools/Scenic/scenic_projects/Zhijing_scenario/Zhijing_scenario.scenic'
+path = '/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/Zhijing_scenario.scenic'
 sampler = ScenicSampler.fromScenario(path, mode2D=True, params=dict(render=False))
 
 # Define the specification (i.e. evaluation metric) as an MTL formula.

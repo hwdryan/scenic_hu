@@ -7,13 +7,13 @@ import subprocess
 import os
 import time
 
-home_directory = os.path.expanduser('~')
-subprocess.run(['tmux', 'kill-session', '-t', 'carla_session'])
-subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
-subprocess.run(['tmux', 'kill-session', '-t', 'scenic_session'])
-subprocess.run(['pkill','-f','CarlaUE4'])
-subprocess.run(['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], cwd = os.path.join(home_directory, 'Tools/CARLA_0.9.13/'))
-time.sleep(6)
+# home_directory = os.path.expanduser('~')
+# subprocess.run(['tmux', 'kill-session', '-t', 'carla_session'])
+# subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
+# subprocess.run(['tmux', 'kill-session', '-t', 'scenic_session'])
+# subprocess.run(['pkill','-f','CarlaUE4'])
+# subprocess.run(['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], cwd = os.path.join(home_directory, 'Tools/CARLA_0.9.14/'))
+# time.sleep(6)
 
 ## SET MAP AND MODEL (i.e. definitions of all referenceable vehicle types, road library, etc)
 param map = localPath("../../../../assets/maps/CARLA/Town01.xodr")

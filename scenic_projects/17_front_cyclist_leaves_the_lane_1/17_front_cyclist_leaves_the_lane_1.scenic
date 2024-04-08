@@ -9,8 +9,6 @@ import scenic.domains.driving.roads as _roads
 
 roadSec = network.elements['road3'].sections[0]
 ego_car_type = 'vehicle.volkswagen.t2'
-# crosswalk = network.elements['road934'].sections[0]
-
 
 behavior CyclistBehavior(target_speed=10,avoidance_threshold=18):
     try:

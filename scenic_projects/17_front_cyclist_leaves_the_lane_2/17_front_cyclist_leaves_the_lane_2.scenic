@@ -30,17 +30,19 @@ behavior EgoBehavior(target_speed=10, change_time=8):
 scenario Main():
     setup:
         # Ego car
-        start_spot = new OrientedPoint on roadSec.forwardLanes[1].centerline.start
-        ego = new Car following roadDirection from start_spot for 1, \
-            with behavior EgoBehavior(target_speed=3), \
-            facing 0 deg relative to roadDirection, \
-            with FollowLaneBehavior(), \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "hero"
+        start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
+        ego_spot = new OrientedPoint following roadDirection from start_spot for 1
+        print(f"Ego position: {ego_spot.pos_and_ori()}")
+
+        # ego = new Car following roadDirection from start_spot for 1, \
+        #     with behavior EgoBehavior(target_speed=3), \
+        #     facing 0 deg relative to roadDirection, \
+        #     with FollowLaneBehavior(), \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "hero"
 
         # front cyclist
-        lane = ego.laneGroup.lanes[0]
         cyslist_spot = new OrientedPoint following roadDirection from start_spot for 5
         cyclist = new Bicycle at cyslist_spot,  \
                         facing 0 deg relative to roadDirection, \
