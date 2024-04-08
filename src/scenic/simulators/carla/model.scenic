@@ -255,7 +255,7 @@ class NPCCar(Car):  # no distinction between these in CARLA
 class Egocar(CarlaActor):  # no distinction between these in CARLA
     blueprint: vehicle.lincoln.mkz_2017
 
-class Bicycle(Vehicle):
+class Bicycle(Pedestrian, Vehicle):
     width: 1
     length: 2
     blueprint: Uniform(*blueprints.bicycleModels)

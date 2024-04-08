@@ -54,6 +54,7 @@ truckModels = [
     "vehicle.carlamotors.carlacola",
     "vehicle.tesla.cybertruck",
     "vehicle.mercedes.sprinter",
+    "vehicle.carlamotors.european_hgv",
 ]
 
 ## Prop blueprints

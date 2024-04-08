@@ -9,7 +9,7 @@ import scenic.domains.driving.roads as _roads
 import time
 
 roadSec = network.elements['road15'].sections[0]
-ego_car_type = 'vehicle.volkswagen.t2'
+ego_car_type = "vehicle.tesla.cybertruck"
 walker_type = 'walker.pedestrian.0006'
 init_time = time.time()
 
@@ -35,16 +35,10 @@ scenario Main():
             # with behavior FollowLaneBehavior(target_speed=3), \
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for 1
-        x = ego_spot.pos_and_ori().location.x
-        y = ego_spot.pos_and_ori().location.y
-        z = ego_spot.pos_and_ori().location.z
-        pitch = ego_spot.pos_and_ori().rotation.pitch
-        yaw = ego_spot.pos_and_ori().rotation.yaw
-        roll = ego_spot.pos_and_ori().rotation.roll
-        print(f"Ego position: {x},{y},{z},{pitch},{yaw},{roll}")
+        print(f"Ego position: {ego_spot.pos_and_ori()}")
 
 
-        ego = new Car following roadDirection from start_spot for 1, \
+        ego = new Truck following roadDirection from start_spot for 1, \
             facing 0 deg relative to roadDirection, \
             with behavior FollowLaneBehavior(target_speed=3), \
             with blueprint ego_car_type, \

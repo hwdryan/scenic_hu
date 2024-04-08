@@ -119,7 +119,7 @@ class LGSVLSimulation(simulators.Simulation):
                 self.collisionOccurred = True
 
         # Initialize Data
-        self.data[obj]["collision"] = False
+        self.data[obj]["collision"] = False 
         lgsvlObj.on_collision(on_collision)
 
         # connect bridge from LGSVL to Apollo

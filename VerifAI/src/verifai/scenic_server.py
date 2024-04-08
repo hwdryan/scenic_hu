@@ -3,9 +3,11 @@
 import time
 import os
 import subprocess
+import lgsvl
 
 from dotmap import DotMap
 import progressbar
+from set_destination import set_destination, close_modules
 
 try:
     import ray
@@ -84,14 +86,15 @@ class ScenicServer(Server):
     def launch_tools(self):
         # Launch Carla, Apollo, bridge
         home_directory = os.path.expanduser('~')
+        subprocess.run("docker exec apollo_dev_weidong ps aux | grep 'python main.py' | grep -v grep | awk '{print $2}' | xargs docker exec apollo_dev_weidong kill -SIGINT", shell=True)
         subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
         command_list = [
             {'command': ['git','checkout','--','modules/common/data/global_flagfile.txt'], 'cwd': os.path.join(home_directory, "Tools/apollo/"), 'print':True},
-            {'command': ['docker','exec','-u','weidonghu','apollo_dev_weidonghu','./scripts/bootstrap.sh','restart'], 'cwd': home_directory},
+            {'command': ['docker','exec','-u','weidong','apollo_dev_weidong','./scripts/bootstrap.sh','restart'], 'cwd': home_directory},
             {'command': ['tmux', 'new-session', '-d', '-s', 'bridge_session', 
                         'docker','exec',
                         '-w','/apollo/modules/carla_bridge/',
-                        '-u','weidonghu','apollo_dev_weidonghu', 
+                        '-u','weidong','apollo_dev_weidong', 
                         'sh', '-c',
                         'export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin/cyber/python/internal && \
                             export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin && \
@@ -130,13 +133,12 @@ class ScenicServer(Server):
         try:
             print("***Run self.simulator.simulate***")
             home_directory = os.path.expanduser('~')
-            subprocess.run(['python3','./set_destination.py'], cwd = os.path.join(home_directory, "Tools/Scenic/scripts/"))
+            # subprocess.run(['python3','./set_destination.py'], cwd = os.path.join(home_directory, "Tools/Scenic/scripts/"))
+            set_destination()
             result = self.simulator.simulate(scene,
                 maxSteps=self.maxSteps, verbosity=self.verbosity,
                 maxIterations=self.maxIterations)
-            subprocess.run("docker exec apollo_dev_weidonghu ps aux | grep 'python main.py' | grep -v grep | awk '{print $2}' | xargs docker exec apollo_dev_weidonghu kill -SIGINT", shell=True)
-            # subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
-            # subprocess.run(['python3','config.py','-m','TOWN01'], cwd = os.path.join(home_directory, 'Tools/CARLA_0.9.14/PythonAPI/util/'))
+            close_modules()
             time.sleep(5)
         except SimulationCreationError as e:
             if self.verbosity >= 1:

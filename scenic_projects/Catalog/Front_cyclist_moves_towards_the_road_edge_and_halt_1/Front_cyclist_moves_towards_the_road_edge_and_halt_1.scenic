@@ -1,4 +1,4 @@
-# 1. Front cyclist moves towards the road edge to talk with a pedestrian
+# 1. One a straight road, Front cyclist moves towards the road edge to talk with a pedestrian
 
 param map = localPath("../../assets/maps/CARLA/Town04.xodr")
 param carla_map = 'Town04'
@@ -7,7 +7,7 @@ model scenic.simulators.carla.model
 import scenic.simulators.carla.model as _model
 import scenic.domains.driving.roads as _roads
 
-roadSec = network.elements['road29'].sections[0]
+roadSec = network.elements['road15'].sections[0]
 ego_car_type = 'vehicle.volkswagen.t2'
 
 
@@ -21,7 +21,7 @@ behavior CyclistBehavior(target_speed=10,avoidance_threshold=18):
         try:
             do FollowRightEdgeBehavior(target_speed=target_speed)
         interrupt when self.distanceToClosest(_model.Pedestrian) <= 3:
-            do BreakBehavior()
+            do BrakeBehavior()
 
         # do LaneChangeToShoulderBehavior(
         #         laneSectionToSwitch=shoulder_laneSce,
@@ -37,16 +37,15 @@ scenario Main():
         ego_spot = new OrientedPoint following roadDirection from start_spot for 1
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         
-        # ego = new Car following roadDirection from start_spot for 1, \
-        #     with behavior FollowLaneBehavior(target_speed=3), \
-        #     facing 0 deg relative to roadDirection, \
-        #     with blueprint ego_car_type, \
-        #     with color Color(1,0,0), \
-        #     with rolename "hero"
+        ego = new Car following roadDirection from start_spot for 1, \
+            with behavior FollowLaneBehavior(target_speed=4), \
+            facing 0 deg relative to roadDirection, \
+            with blueprint ego_car_type, \
+            with color Color(1,0,0), \
+            with rolename "hero"
     
         # front cyclist
-        lane = ego.laneGroup.lanes[0]
-        cyslist_spot = new OrientedPoint following roadDirection from start_spot for 5
+        cyslist_spot = new OrientedPoint following roadDirection from start_spot for 8
         cyclist = new Bicycle at cyslist_spot,  \
                         facing 0 deg relative to roadDirection, \
                         with blueprint 'vehicle.bh.crossbike', \
@@ -54,7 +53,7 @@ scenario Main():
 
         # pedestrian
         sidewalk_middle = new OrientedPoint on roadSec.road.laneGroups[0].sidewalk.centerline.middle
-        ped_spot = new OrientedPoint on sidewalk_middle, facing 180 deg relative to roadDirection
-        ped = new Pedestrian right of ped_spot by 0.1
+        ped_spot = new OrientedPoint on sidewalk_middle, facing 270 deg relative to roadDirection
+        ped = new Pedestrian left of ped_spot by 0.3
         
 

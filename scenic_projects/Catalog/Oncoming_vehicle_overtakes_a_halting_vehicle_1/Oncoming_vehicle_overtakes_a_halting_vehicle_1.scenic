@@ -90,18 +90,18 @@ scenario Main():
             with rolename "V1", \
             with behavior V1Behavior()
             
-        # # halting vehicle with warning flasher V2
-        # parked_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
-        # parked_vehicle = new Truck following roadDirection from parked_vehicle_spot for V2_loc,  \
-        #                 with color Color(0,1,0), \
-        #                 with blueprint truck_type, \
-        #                 with behavior VehicleLightBehavior(), \
-        #                 with rolename "V2"
+        # halting vehicle with warning flasher V2
+        parked_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
+        parked_vehicle = new Truck following roadDirection from parked_vehicle_spot for V2_loc,  \
+                        with color Color(0,1,0), \
+                        with blueprint truck_type, \
+                        with behavior VehicleLightBehavior(), \
+                        with rolename "V2"
 
-        # # overtake vehicle V3
-        # overtake_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
-        # overtake_vehicle = new Car following roadDirection from overtake_vehicle_spot for V3_loc,  \
-        #                 with color Color(0,0,1), \
-        #                 with blueprint target_type, \
-        #                 with rolename "V3", \
-        #                 with behavior OvertakeBehavior()
+        # overtake vehicle V3
+        overtake_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
+        overtake_vehicle = new Car following roadDirection from overtake_vehicle_spot for V3_loc,  \
+                        with color Color(0,0,1), \
+                        with blueprint target_type, \
+                        with rolename "V3", \
+                        with behavior OvertakeBehavior()

@@ -16,7 +16,7 @@ from verifai.monitor import specification_monitor, mtl_specification
 # else:
 #     path = os.path.join(os.path.dirname(__file__), 'carla/carlaChallenge1.scenic')
 
-path = '/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/Zhijing_scenario.scenic'
+path = '/home/weidong/Tools/Scenic/scenic_projects/Zhijing_scenario/Zhijing_scenario.scenic'
 sampler = ScenicSampler.fromScenario(path, mode2D=True, params=dict(render=False))
 
 # Define the specification (i.e. evaluation metric) as an MTL formula.
@@ -46,7 +46,7 @@ class MyMonitor(specification_monitor):
 
 # Set up the falsifier
 falsifier_params = DotMap(
-    n_iters=5,
+    n_iters=3,
     verbosity=1,
     save_error_table=True,
     save_safe_table=True,

@@ -13,6 +13,42 @@ from scenic.domains.driving.roads import ManeuverType
 def concatenateCenterlines(centerlines=[]):
     return PolylineRegion.unionAll(centerlines)
 
+behavior ConstantSpeedBehavior(target_speed=10):
+    """ 
+    This behavior does not terminate. A recommended use of the behavior is to accompany it with condition,
+    e.g. do FollowLaneBehavior() until ...
+
+    :param target_speed: Its unit is in m/s. By default, it is set to 10 m/s
+    """
+    target_speed += 0.4
+    past_steer_angle = 0
+    past_speed = 0 # making an assumption here that the agent starts from zero speed
+    original_target_speed = target_speed
+    # instantiate longitudinal and lateral controllers
+    _lon_controller, _lat_controller = simulation().getLaneFollowingControllers(self)
+
+    while True:
+
+        if self.speed is not None:
+            current_speed = self.speed
+        else:
+            current_speed = past_speed
+
+        cte = 0
+
+        speed_error = target_speed - current_speed
+
+        # compute throttle : Longitudinal Control
+        throttle = _lon_controller.run_step(speed_error)
+        # print("throttle:", throttle)
+
+        # compute steering : Lateral Control
+        current_steer_angle = _lat_controller.run_step(cte)
+
+        take RegulatedControlAction(throttle, current_steer_angle, past_steer_angle)
+        past_steer_angle = current_steer_angle
+        past_speed = current_speed
+        
 behavior ConstantThrottleBehavior(x):
     while True:
         take SetThrottleAction(x), SetReverseAction(False), SetHandBrakeAction(False)

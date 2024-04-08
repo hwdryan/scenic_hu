@@ -1,14 +1,14 @@
 import scenic, tempfile, pathlib, os
 from scenic.simulators.carla import CarlaSimulator
 
-scenic_dir = '21_Front_cyclist_moves_towards_the_road_edge_and_halt_1/'
-scenic_path = '21_Front_cyclist_moves_towards_the_road_edge_and_halt_1.scenic'
+scenic_dir = 'Front_cyclist_moves_towards_the_road_edge_and_halt_1/'
+scenic_path = 'Front_cyclist_moves_towards_the_road_edge_and_halt_1.scenic'
 scenic_param = 'param.scene'
 scenic_path = os.path.join(scenic_dir, scenic_path)
 scenic_param = os.path.join(scenic_dir, scenic_param)
 
-map_path="../assets/maps/CARLA/Town04.xodr"
-carla_map='Town04'
+map_path="../assets/maps/CARLA/Town01.xodr"
+carla_map='Town01'
 weather="ClearNoon"
 model="scenic.simulators.carla.model"
 
