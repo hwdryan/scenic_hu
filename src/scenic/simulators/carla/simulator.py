@@ -23,7 +23,7 @@ import scenic.simulators.carla.utils.utils as utils
 import scenic.simulators.carla.utils.visuals as visuals
 from scenic.syntax.veneer import verbosePrint
 
-scenic_lead = False
+scenic_lead = True
 
 class CarlaSimulator(DrivingSimulator):
     """Implementation of `Simulator` for CARLA."""
@@ -37,7 +37,7 @@ class CarlaSimulator(DrivingSimulator):
         port=2000,
         timeout=10,
         render=True,
-        record="",
+        record="/home/weidonghu/Tools/Save/",
         timestep=0.05,
         # timestep=None,
         traffic_manager_port=None,
@@ -149,28 +149,44 @@ class CarlaSimulation(DrivingSimulation):
             )
             self.cameraManager = None
 
-        if self.record:
-            if not os.path.exists(self.record):
-                os.mkdir(self.record)
-            name = "{}/scenario{}.log".format(self.record, self.scenario_number)
-            self.client.start_recorder(name)
+        # if self.record:
+        #     if not os.path.exists(self.record):
+        #         os.mkdir(self.record)
+        #     name = "{}/scenario{}.log".format(self.record, self.scenario_number)
+        #     self.client.start_recorder(name)
+        
+        # self-defined
+        self.record = "/home/weidonghu/Tools/Save/"
+        if not os.path.exists(self.record):
+            os.mkdir(self.record)
+        name = "{}/scenario{}.log".format(self.record, self.scenario_number)
+        self.client.start_recorder(name)
 
         # Create objects.
         super().setup()
 
-        # Set up camera manager and collision sensor for ego
-        if self.render:
-            camIndex = 0
-            camPosIndex = 0
-            egoActor = self.objects[0].carlaActor
-            t = egoActor.get_transform()
-            self.cameraManager = visuals.CameraManager(self.world, egoActor, self.hud)
-            self.cameraManager._transform_index = camPosIndex
-            self.cameraManager.set_sensor(camIndex)
-            self.cameraManager.set_transform(self.camTransform)
+        
+        # self-defined
+        if scenic_lead:
+            # Set up camera manager and collision sensor for ego
+            if self.render:
+                camIndex = 0
+                camPosIndex = 0
+                egoActor = self.objects[0].carlaActor
+                t = egoActor.get_transform()
+                self.cameraManager = visuals.CameraManager(self.world, egoActor, self.hud)
+                self.cameraManager._transform_index = camPosIndex
+                self.cameraManager.set_sensor(camIndex)
+                self.cameraManager.set_transform(self.camTransform)
+        else:
+            # self-defined
+            world = self.client.get_world()
+            for actor in world.get_actors():
+                if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+                    egoActor = actor
     
         if scenic_lead:
-            self.world.tick()  ## allowing manualgearshift to take effect    # TODO still need this?
+            self.world.tick() 
         else:
             self.world.wait_for_tick()
 
@@ -356,13 +372,13 @@ class CarlaSimulation(DrivingSimulation):
         return values
 
     def destroy(self):
-        # self-defined
-        print("***DESTROY***")
-        for actor in self.world.get_actors():
-            if isinstance(actor, carla.Sensor):
-                actor.stop()
-                actor.destroy()
-        # 
+        # # self-defined
+        # print("***DESTROY***")
+        # for actor in self.world.get_actors():
+        #     if isinstance(actor, carla.Sensor):
+        #         actor.stop()
+        #         actor.destroy()
+        # # 
         for obj in self.objects:
             if obj.carlaActor is not None:
                 if isinstance(obj.carlaActor, carla.Vehicle):
@@ -373,6 +389,7 @@ class CarlaSimulation(DrivingSimulation):
                 obj.carlaActor.destroy()
         if self.render and self.cameraManager:
             self.cameraManager.destroy_sensor()
+        
         # self-defined
         print(f"{len(self.world.get_actors())} are left to destroy")
         for actor in self.world.get_actors():

@@ -3,11 +3,11 @@
 import time
 import os
 import subprocess
-import lgsvl
+# import lgsvl
 
 from dotmap import DotMap
 import progressbar
-from set_destination import set_destination, close_modules
+from .set_destination import set_destination, close_modules
 
 try:
     import ray
@@ -51,20 +51,6 @@ class ScenicServer(Server):
         self.maxSteps = defaults.maxSteps
         self.verbosity = defaults.verbosity
         self.maxIterations = defaults.maxIterations
-        # ################
-        # # Launch CARLA
-        # ################
-        # import subprocess
-        # import os
-        # import time
-
-        home_directory = os.path.expanduser('~')
-        subprocess.run(['tmux', 'kill-session', '-t', 'carla_session'])
-        subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
-        subprocess.run(['pkill','-f','CarlaUE4'])
-        subprocess.run(['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], cwd = os.path.join(home_directory, 'Tools/CARLA_0.9.14/'))
-        subprocess.run(['./docker/scripts/dev_start.sh'], cwd = os.path.join(home_directory, "Tools/apollo/"))
-        time.sleep(6)
         # 
         if defaults.simulator is None:
             self.simulator = self.sampler.scenario.getSimulator()
@@ -86,15 +72,19 @@ class ScenicServer(Server):
     def launch_tools(self):
         # Launch Carla, Apollo, bridge
         home_directory = os.path.expanduser('~')
-        subprocess.run("docker exec apollo_dev_weidong ps aux | grep 'python main.py' | grep -v grep | awk '{print $2}' | xargs docker exec apollo_dev_weidong kill -SIGINT", shell=True)
+        subprocess.run("docker exec apollo_dev_weidonghu ps aux | grep 'python main.py' | grep -v grep | awk '{print $2}' | xargs docker exec apollo_dev_weidonghu kill -SIGINT", shell=True)
         subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
+        try:
+            close_modules()
+        except ConnectionRefusedError:
+            pass
         command_list = [
             {'command': ['git','checkout','--','modules/common/data/global_flagfile.txt'], 'cwd': os.path.join(home_directory, "Tools/apollo/"), 'print':True},
-            {'command': ['docker','exec','-u','weidong','apollo_dev_weidong','./scripts/bootstrap.sh','restart'], 'cwd': home_directory},
+            {'command': ['docker','exec','-u','weidonghu','apollo_dev_weidonghu','./scripts/bootstrap.sh','restart'], 'cwd': home_directory},
             {'command': ['tmux', 'new-session', '-d', '-s', 'bridge_session', 
                         'docker','exec',
                         '-w','/apollo/modules/carla_bridge/',
-                        '-u','weidong','apollo_dev_weidong', 
+                        '-u','weidonghu','apollo_dev_weidonghu', 
                         'sh', '-c',
                         'export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin/cyber/python/internal && \
                             export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin && \
@@ -133,12 +123,12 @@ class ScenicServer(Server):
         try:
             print("***Run self.simulator.simulate***")
             home_directory = os.path.expanduser('~')
-            # subprocess.run(['python3','./set_destination.py'], cwd = os.path.join(home_directory, "Tools/Scenic/scripts/"))
             set_destination()
             result = self.simulator.simulate(scene,
                 maxSteps=self.maxSteps, verbosity=self.verbosity,
                 maxIterations=self.maxIterations)
             close_modules()
+            
             time.sleep(5)
         except SimulationCreationError as e:
             if self.verbosity >= 1:

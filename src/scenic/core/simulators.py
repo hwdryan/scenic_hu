@@ -495,6 +495,8 @@ class Simulation(abc.ABC):
         """
         for obj in self.scene.objects:
             self._createObject(obj)
+        
+        
 
     def initializeReplay(self, replay, enableReplay, enableDivergenceCheck, allowPickle):
         if replay:
@@ -517,8 +519,8 @@ class Simulation(abc.ABC):
             self._replayOut = None
 
     def _createObject(self, obj):
-        if self.verbosity >= 3:
-            print(f"      Creating object {obj}")
+        # if self.verbosity >= 3:
+        print(f"      Creating object {type(obj)}")
 
         # Add the new object to our lists.
         self.objects.append(obj)
