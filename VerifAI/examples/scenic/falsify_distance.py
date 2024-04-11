@@ -33,6 +33,7 @@ time.sleep(6)
 #     path = os.path.join(os.path.dirname(__file__), 'carla/carlaChallenge1.scenic')
 
 path = '/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/Zhijing_scenario.scenic'
+# path = '/home/weidonghu/Tools/Scenic/scenic_projects/test/test.scenic'
 sampler = ScenicSampler.fromScenario(path, mode2D=True, params=dict(render=False))
 
 # Define the specification (i.e. evaluation metric) as an MTL formula.

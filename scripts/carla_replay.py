@@ -39,7 +39,7 @@ def main():
         # --------------
     
         # Show the most important events in the recording.
-        with open('./temp', 'w') as f:
+        with open('./temp2', 'w+') as f:
             f.write(client.show_recorder_file_info("/home/weidonghu/Tools/Save/scenario1.log",True))  
         # print(client.show_recorder_file_info("/home/weidonghu/Tools/Save/scenario1.log",True))
         # Show actors not moving 1 meter in 10 seconds.  

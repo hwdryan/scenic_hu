@@ -1,7 +1,7 @@
 import scenic, tempfile, pathlib, os
 from scenic.simulators.carla import CarlaSimulator
 
-scenic_dir = 'Cyclist_drives_on_opposite_lane_1/'
+scenic_dir = os.path.dirname(__file__)
 scenic_path = 'Cyclist_drives_on_opposite_lane_1.scenic'
 scenic_param = 'param.scene'
 scenic_path = os.path.join(scenic_dir, scenic_path)

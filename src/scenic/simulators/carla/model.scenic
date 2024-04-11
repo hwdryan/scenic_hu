@@ -255,7 +255,12 @@ class NPCCar(Car):  # no distinction between these in CARLA
 class Egocar(CarlaActor):  # no distinction between these in CARLA
     blueprint: vehicle.lincoln.mkz_2017
 
-class Bicycle(Pedestrian, Vehicle):
+class Bicycle(Vehicle):
+    # self-defined
+    # regionContainedIn: network.walkableRegion
+    # position: new Point on network.walkableRegion
+    # heading: Range(0, 360) deg
+    # 
     width: 1
     length: 2
     blueprint: Uniform(*blueprints.bicycleModels)

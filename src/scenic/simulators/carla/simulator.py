@@ -5,6 +5,7 @@ try:
 except ImportError as e:
     raise ModuleNotFoundError('CARLA scenarios require the "carla" Python package') from e
 
+import csv
 import math
 import os
 import warnings
@@ -23,7 +24,7 @@ import scenic.simulators.carla.utils.utils as utils
 import scenic.simulators.carla.utils.visuals as visuals
 from scenic.syntax.veneer import verbosePrint
 
-scenic_lead = True
+scenic_lead = False
 
 class CarlaSimulator(DrivingSimulator):
     """Implementation of `Simulator` for CARLA."""
@@ -300,13 +301,60 @@ class CarlaSimulation(DrivingSimulation):
             self.world.tick()
         else:
             world_snapshot = self.world.wait_for_tick()
+            self.custom_recorder(world_snapshot)
+        
+        # Render simulation
+        if self.render:
+            self.cameraManager.render(self.display)
+            pygame.display.flip()
 
-        # # self-defined, find ids
-        # actor_id_list = []
-        # actor_list = self.world.get_actors()
+    # self-defined
+    def custom_recorder(self, world_snapshot):
+        """
+        get_acceleration(self)
+            Returns the actor's 3D acceleration vector the client recieved during last tick. The method does not call the simulator.
+            Return: carla.Vector3D - m/s2
+        get_angular_velocity(self)
+            Returns the actor's angular velocity vector the client recieved during last tick. The method does not call the simulator.
+            Return: carla.Vector3D - deg/s
+        get_location(self)
+            Returns the actor's location the client recieved during last tick. The method does not call the simulator.
+            Return: carla.Location - meters
+            Setter: carla.Actor.set_location
+        get_transform(self)
+            Returns the actor's transform (location and rotation) the client recieved during last tick. The method does not call the simulator.
+            Return: carla.Transform
+            Setter: carla.Actor.set_transform
+        get_velocity(self)
+            Returns the actor's velocity vector the client recieved during last tick. The method does not call the simulator.
+            Return: carla.Vector3D - m/s
+        """
+        timestamp = world_snapshot.timestamp.elapsed_seconds
+        actor_list = self.world.get_actors()
+        vehicles = actor_list.filter('vehicle.*.*')
+        peds = actor_list.filter('walker.pedestrian.*')
         # front_actor_id = actor_list.filter('vehicle.tesla.model3')[0].id
         # overtake_actor_id = actor_list.filter('vehicle.volkswagen.t2')[0].id
-                    
+        for v in vehicles:
+            actor = world_snapshot.find(v.id)
+            location = actor.get_transform().location
+            location = tuple(map(float,[location.x, location.y, location.z]))
+            rotation = actor.get_transform().rotation
+            rotation = tuple(map(float,[rotation.pitch, rotation.yaw, rotation.roll]))
+            angular_velocity = actor.get_angular_velocity()
+            angular_velocity = tuple(map(float,[angular_velocity.x, angular_velocity.y, angular_velocity.z]))
+            velocity = actor.get_velocity()
+            velocity = tuple(map(float,[velocity.x, velocity.y, velocity.z]))
+            acceleration = actor.get_acceleration()
+            acceleration = tuple(map(float,[acceleration.x, acceleration.y, acceleration.z]))
+            # Write extracted data to a CSV file
+            with open("/home/weidonghu/Documents/data.csv", "a", newline="") as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows([[timestamp] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)])
+
+            # print("***INFOMATION:",[timestamp,location,rotation,angular_velocity,velocity,acceleration])
+
+
         # if world_snapshot.has_actor(front_actor_id) and world_snapshot.has_actor(overtake_actor_id):
         #     front_actor = world_snapshot.find(front_actor_id)
         #     overtake_actor = world_snapshot.find(overtake_actor_id)
@@ -324,10 +372,6 @@ class CarlaSimulation(DrivingSimulation):
         #         with open("/home/weidonghu/Documents/data.txt",'a') as f:
         #             f.write(f"v_f:{v_f},l_f:{l_f},\nv_o:{v_o},l_o:{l_o}\n")
         
-        # Render simulation
-        if self.render:
-            self.cameraManager.render(self.display)
-            pygame.display.flip()
 
     def getProperties(self, obj, properties):
         if self.t == None:

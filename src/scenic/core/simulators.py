@@ -10,6 +10,7 @@ the ``result`` attribute, which captures information about the result of the
 simulation as a `SimulationResult` object).
 """
 
+import csv
 import abc
 from collections import OrderedDict, defaultdict
 import enum
@@ -340,6 +341,7 @@ class Simulation(abc.ABC):
         self.verbosity = verbosity
         self.name = name
         self.worker_num = 0
+        self.data = []
 
         self.actionSequence = []
 
@@ -368,6 +370,10 @@ class Simulation(abc.ABC):
             self.updateObjects()
 
             # Run the simulation.
+            with open("/home/weidonghu/Documents/data.csv", "w", newline="") as csvfile:
+                writer = csv.writer(csvfile)
+                # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
+                writer.writerow(["timestep", "Id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z"])
             terminationType, terminationReason = self._run(dynamicScenario, maxSteps)
 
             # Stop all remaining scenarios.
