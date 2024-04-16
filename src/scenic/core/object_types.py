@@ -84,6 +84,7 @@ from scenic.core.vectors import (
     globalOrientation,
 )
 from scenic.core.visibility import canSee
+from scenic.miscs.launches import change_spawn_point, change_destination_point
 
 # self-defined
 import carla
@@ -960,9 +961,6 @@ class OrientedPoint(Point):
         loc = carla.Location(self.position.x, -1 * self.position.y, 0.6)
         # ori
         pitch, yaw, roll = self.orientation.r.as_euler("XZY", degrees=True)
-        # pitch -= 180
-        # yaw -= 180
-        # roll -= 180
         yaw = -yaw - 90
         rot = carla.Rotation(pitch=pitch, yaw=yaw, roll=roll)
         # carla transformation
@@ -973,7 +971,21 @@ class OrientedPoint(Point):
         pitch = transform.rotation.pitch
         yaw = transform.rotation.yaw
         roll = transform.rotation.roll
+        change_spawn_point(x,y,z,pitch,yaw,roll)
+        
         return (x,y,z,pitch,yaw,roll)
+    
+    def destination_spot(self):
+        # pos
+        loc = carla.Location(self.position.x, -1 * self.position.y, 0)
+        rot = carla.Rotation(pitch=0, yaw=0, roll=0)
+        # carla transformation
+        transform = carla.Transform(loc, rot)
+        x = transform.location.x
+        y = transform.location.y
+        z = transform.location.z
+        change_destination_point(x,y,z)
+        return (x,y,z)
 
     def distancePast(self, vec):
         """Distance past a given point, assuming we've been moving in a straight line."""

@@ -31,6 +31,8 @@ V1_loc = 170 - 14
 V2_loc = road_length - 180
 V3_loc = road_length - 220 - 14
 
+
+
 # self-defined
 behavior VehicleLightBehavior():
     """Behavior causing a vehicle to use CARLA's built-in autopilot."""
@@ -60,7 +62,7 @@ behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_d
 behavior V1Behavior():
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 7:
+    interrupt when self.distanceToEgo() <= 78:
         do FollowLaneBehavior(target_speed=V1_speed)
 
 scenario Main():
@@ -77,12 +79,12 @@ scenario Main():
         #     with behavior FollowLaneBehavior()
 
         
-        # Front car V1
-        v2 = new Car following roadDirection from start_spot for V1_loc, \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "V1", \
-            with behavior V1Behavior()
+        # # Front car V1
+        # v2 = new Car following roadDirection from start_spot for V1_loc, \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "V1", \
+        #     with behavior V1Behavior()
             
         # halting vehicle with warning flasher V2
         parked_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start

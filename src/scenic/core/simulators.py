@@ -370,10 +370,15 @@ class Simulation(abc.ABC):
             self.updateObjects()
 
             # Run the simulation.
-            with open("/home/weidonghu/Documents/data.csv", "w", newline="") as csvfile:
+            # self-defined
+            import os
+            
+            user_home = os.path.expanduser("~")
+            with open(os.path.join(user_home,"Documents/data.csv"), "w+", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
                 writer.writerow(["timestep", "Id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z"])
+            # 
             terminationType, terminationReason = self._run(dynamicScenario, maxSteps)
 
             # Stop all remaining scenarios.

@@ -6,7 +6,7 @@ import sys
 from dotmap import DotMap
 
 from verifai.samplers import ScenicSampler
-from verifai.scenic_server import ScenicServer
+from verifai.scenic_server import ScenicServer, is_container_running
 from verifai.falsifier import generic_falsifier
 from verifai.monitor import specification_monitor, mtl_specification
 
@@ -23,7 +23,8 @@ subprocess.run(['tmux', 'kill-session', '-t', 'carla_session'])
 subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
 subprocess.run(['pkill','-f','CarlaUE4'])
 subprocess.run(['tmux', 'new-session', '-d', '-s', 'carla_session', 'bash', '-c', './CarlaUE4.sh'], cwd = os.path.join(home_directory, 'Tools/CARLA_0.9.14/'))
-subprocess.run(['./docker/scripts/dev_start.sh'], cwd = os.path.join(home_directory, "Tools/apollo/"))
+if not is_container_running("apollo_dev_"+os.getlogin()):
+    subprocess.run(['./docker/scripts/dev_start.sh'], cwd = os.path.join(home_directory, "Tools/apollo/"))
 time.sleep(6)
 
 # # Load the Scenic scenario and create a sampler from it
@@ -32,8 +33,8 @@ time.sleep(6)
 # else:
 #     path = os.path.join(os.path.dirname(__file__), 'carla/carlaChallenge1.scenic')
 
-path = '/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/Zhijing_scenario.scenic'
-# path = '/home/weidonghu/Tools/Scenic/scenic_projects/test/test.scenic'
+path = os.path.join(home_directory, 'Tools/Scenic/scenic_projects/Zhijing_scenario/Zhijing_scenario.scenic')
+# path = os.path.join(home_directory, 'Tools/Scenic/scenic_projects/test/test.scenic')
 sampler = ScenicSampler.fromScenario(path, mode2D=True, params=dict(render=False))
 
 # Define the specification (i.e. evaluation metric) as an MTL formula.

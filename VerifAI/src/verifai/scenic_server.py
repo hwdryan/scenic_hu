@@ -72,7 +72,8 @@ class ScenicServer(Server):
     def launch_tools(self):
         # Launch Carla, Apollo, bridge
         home_directory = os.path.expanduser('~')
-        subprocess.run("docker exec apollo_dev_weidonghu ps aux | grep 'python main.py' | grep -v grep | awk '{print $2}' | xargs docker exec apollo_dev_weidonghu kill -SIGINT", shell=True)
+        username = os.getlogin()
+        subprocess.run(f"docker exec apollo_dev_{username} ps aux | grep 'python main.py' | grep -v grep | awk '{{print $2}}' | xargs docker exec apollo_dev_{username} kill -SIGINT", shell=True)
         subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
         try:
             close_modules()
@@ -80,11 +81,11 @@ class ScenicServer(Server):
             pass
         command_list = [
             {'command': ['git','checkout','--','modules/common/data/global_flagfile.txt'], 'cwd': os.path.join(home_directory, "Tools/apollo/"), 'print':True},
-            {'command': ['docker','exec','-u','weidonghu','apollo_dev_weidonghu','./scripts/bootstrap.sh','restart'], 'cwd': home_directory},
+            {'command': ['docker','exec','-u',username,f'apollo_dev_{username}','./scripts/bootstrap.sh','restart'], 'cwd': home_directory},
             {'command': ['tmux', 'new-session', '-d', '-s', 'bridge_session', 
                         'docker','exec',
                         '-w','/apollo/modules/carla_bridge/',
-                        '-u','weidonghu','apollo_dev_weidonghu', 
+                        '-u',username,f'apollo_dev_{username}', 
                         'sh', '-c',
                         'export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin/cyber/python/internal && \
                             export PYTHONPATH=$PYTHONPATH:/apollo/bazel-bin && \
@@ -122,7 +123,6 @@ class ScenicServer(Server):
             print('  Beginning simulation...')
         try:
             print("***Run self.simulator.simulate***")
-            home_directory = os.path.expanduser('~')
             set_destination()
             result = self.simulator.simulate(scene,
                 maxSteps=self.maxSteps, verbosity=self.verbosity,
@@ -298,3 +298,20 @@ class ParallelScenicServer(ScenicServer):
             futures[index] = sim.simulate.remote(next_sample)
 
         return results
+
+# self-defined
+import docker
+
+def is_container_running(container_name):
+    # Connect to the Docker daemon
+    client = docker.from_env()
+
+    try:
+        # Get container object
+        container = client.containers.get(container_name)
+        # Check if container is running
+        return container.status == "running"
+    except docker.errors.NotFound:
+        # Container does not exist
+        return False
+

@@ -38,7 +38,7 @@ class CarlaSimulator(DrivingSimulator):
         port=2000,
         timeout=10,
         render=True,
-        record="/home/weidonghu/Tools/Save/",
+        record="",
         timestep=0.05,
         # timestep=None,
         traffic_manager_port=None,
@@ -47,7 +47,6 @@ class CarlaSimulator(DrivingSimulator):
         verbosePrint(f"Connecting to CARLA on port {port}")
         self.client = carla.Client(address, port)
         self.client.set_timeout(timeout)  # limits networking operations (seconds)
-
         if scenic_lead:
             # original way of load world
             if carla_map is not None:
@@ -157,7 +156,8 @@ class CarlaSimulation(DrivingSimulation):
         #     self.client.start_recorder(name)
         
         # self-defined
-        self.record = "/home/weidonghu/Tools/Save/"
+        user_home = os.path.expanduser("~")
+        self.record = os.path.join(user_home,"Tools/Save/")
         if not os.path.exists(self.record):
             os.mkdir(self.record)
         name = "{}/scenario{}.log".format(self.record, self.scenario_number)
@@ -295,7 +295,7 @@ class CarlaSimulation(DrivingSimulation):
 
     def step(self):
         
-
+        
         # Run simulation for one timestep
         if scenic_lead:
             self.world.tick()
@@ -307,6 +307,7 @@ class CarlaSimulation(DrivingSimulation):
         if self.render:
             self.cameraManager.render(self.display)
             pygame.display.flip()
+            
 
     # self-defined
     def custom_recorder(self, world_snapshot):
@@ -329,14 +330,20 @@ class CarlaSimulation(DrivingSimulation):
             Returns the actor's velocity vector the client recieved during last tick. The method does not call the simulator.
             Return: carla.Vector3D - m/s
         """
+        user_home = os.path.expanduser("~")
+
         timestamp = world_snapshot.timestamp.elapsed_seconds
         actor_list = self.world.get_actors()
         vehicles = actor_list.filter('vehicle.*.*')
         peds = actor_list.filter('walker.pedestrian.*')
+        current_map = self.world.get_map()
         # front_actor_id = actor_list.filter('vehicle.tesla.model3')[0].id
         # overtake_actor_id = actor_list.filter('vehicle.volkswagen.t2')[0].id
+
+        bb = dict()
         for v in vehicles:
             actor = world_snapshot.find(v.id)
+            actual_actor = self.world.get_actor(v.id)
             location = actor.get_transform().location
             location = tuple(map(float,[location.x, location.y, location.z]))
             rotation = actor.get_transform().rotation
@@ -347,31 +354,108 @@ class CarlaSimulation(DrivingSimulation):
             velocity = tuple(map(float,[velocity.x, velocity.y, velocity.z]))
             acceleration = actor.get_acceleration()
             acceleration = tuple(map(float,[acceleration.x, acceleration.y, acceleration.z]))
+            # 
+            vehicle_waypoint = current_map.get_waypoint(actor.get_transform().location)
+            vehicle_bb_waypoints = actual_actor.bounding_box.get_world_vertices(actor.get_transform())
+            vehicle_bb_waypoints = [vehicle_bb_waypoints[0], vehicle_bb_waypoints[2], vehicle_bb_waypoints[4], vehicle_bb_waypoints[6]]
+            vehicle_bb_waypoints = [current_map.get_waypoint(vertex) for vertex in vehicle_bb_waypoints]
+            vehicle_bb_location = [list(map(float,[vertex.transform.location.x,vertex.transform.location.y,vertex.transform.location.z])) for vertex in vehicle_bb_waypoints]
+            role_name = actual_actor.attributes.get('role_name')
+            if role_name in ['autoware_v1', 'hero', 'ego_vehicle']:
+                bb['ego'] = vehicle_bb_location
+            else:
+                bb[role_name] = vehicle_bb_location
             # Write extracted data to a CSV file
-            with open("/home/weidonghu/Documents/data.csv", "a", newline="") as csvfile:
+            with open(os.path.join(user_home, "Documents/data.csv"), "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerows([[timestamp] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)])
-
-            # print("***INFOMATION:",[timestamp,location,rotation,angular_velocity,velocity,acceleration])
-
-
-        # if world_snapshot.has_actor(front_actor_id) and world_snapshot.has_actor(overtake_actor_id):
-        #     front_actor = world_snapshot.find(front_actor_id)
-        #     overtake_actor = world_snapshot.find(overtake_actor_id)
-        #     # 
-        #     v_f = front_actor.get_velocity()
-        #     v_f = math.sqrt(float(v_f.x)**2+(v_f.y)**2+(v_f.z)**2)
-        #     v_o = overtake_actor.get_velocity()
-        #     v_o = math.sqrt((v_o.x)**2+(v_o.y)**2+(v_o.z)**2)
-        #     # 396.3500061035156, 318.5392150878906
-        #     l_f = front_actor.get_transform().location
-        #     l_f = 318.5392150878906 - l_f.y
-        #     l_o = overtake_actor.get_transform().location
-        #     l_o = 318.5392150878906 - l_o.y
-        #     if v_f + v_o > 0:
-        #         with open("/home/weidonghu/Documents/data.txt",'a') as f:
-        #             f.write(f"v_f:{v_f},l_f:{l_f},\nv_o:{v_o},l_o:{l_o}\n")
+                writer.writerows([[timestamp] + [int(v.id)] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)])
         
+        
+        import math
+
+        def euclidean_distance(point1, point2):
+            """Calculate the Euclidean distance between two points."""
+            return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 + (point1[2] - point2[2]) ** 2)
+
+        def calculate_distances(data):
+            """Calculate distances from 'ego' to other points."""
+            ego_points = data['ego']
+            results = {}
+            
+            for key, points in data.items():
+                if key != 'ego':
+                    distances = []
+                    for ego_point in ego_points:
+                        for point in points:
+                            distance = euclidean_distance(ego_point, point)
+                            distances.append(distance)
+                    results[key] = min(distances)
+        
+            return results
+        
+        from datetime import datetime
+
+        # Format the date and time as "data_YYYY_DD_MM_TIME"
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("data_%Y_%d_%m_%H_%M_%S")
+        with open(os.path.join(user_home, "Documents/boundingbox"+formatted_datetime), "a+", newline="\n") as f:
+            f.write(str(calculate_distances(bb))+"\n")
+
+
+        
+    def _is_vehicle_hazard(self, vehicle_list):
+        """
+
+        :param vehicle_list: list of potential obstacle to check
+        :return: a tuple given by (bool_flag, vehicle), where
+                 - bool_flag is True if there is a vehicle ahead blocking us
+                   and False otherwise
+                 - vehicle is the blocker object itself
+        """
+        ego_vehicle_location = self._vehicle.get_location()
+        ego_vehicle_waypoint = self._map.get_waypoint(ego_vehicle_location)
+
+        longitudinal_acc = self._vehicle.get_acceleration().x
+        ego_velocity = self._vehicle.get_velocity().x
+        response_time = 0.8
+
+        safe_distance = self._proximity_vehicle_threshold
+
+        for target_vehicle in vehicle_list:
+
+            # recalculate safe_distance
+            if longitudinal_acc - target_vehicle.get_acceleration().x < 0.0:
+                safe_distance = response_time * ego_velocity
+                if safe_distance < self._proximity_vehicle_threshold:
+                    safe_distance = self._proximity_vehicle_threshold
+            # do not account for the ego vehicle
+            if target_vehicle.id == self._vehicle.id:
+                continue
+
+            tv_vertices = target_vehicle.bounding_box.get_world_vertices(
+                target_vehicle.get_transform())
+            tv_vertices = [tv_vertices[0], tv_vertices[2], tv_vertices[4], tv_vertices[6]]
+            tv_vertex_waypoints = [self._map.get_waypoint(vertex) for vertex in tv_vertices]
+
+            # check if object vertices falls on ego lane
+            extension_falls_on_ego_lane = False
+            for tv_vertex_waypoint in tv_vertex_waypoints:
+                if tv_vertex_waypoint.lane_id == ego_vehicle_waypoint.lane_id:
+                    extension_falls_on_ego_lane = True
+
+            # if the object is not in our lane it's not an obstacle
+            target_vehicle_waypoint = self._map.get_waypoint(target_vehicle.get_location())
+            if (target_vehicle_waypoint.road_id == ego_vehicle_waypoint.road_id and
+                target_vehicle_waypoint.lane_id == ego_vehicle_waypoint.lane_id) or \
+                    extension_falls_on_ego_lane:
+                delta_p = self._vehicle.bounding_box.extent.x + target_vehicle.bounding_box.extent.x
+                if is_within_distance_ahead(target_vehicle.get_transform(),
+                                            self._vehicle.get_transform(),
+                                            safe_distance + delta_p):
+                    return True, target_vehicle
+
+        return False, None
+
 
     def getProperties(self, obj, properties):
         if self.t == None:

@@ -74,8 +74,10 @@ scenario Main():
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        
+        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc + 125
         print(f"Ego position: {ego_spot.pos_and_ori()}")
+        print(f"Ego destination: {destination_spot.destination_spot()}")
+
         # ego = new Car following roadDirection from start_spot for Ego_loc, \
         #     with blueprint ego_car_type, \
         #     with color Color(1,0,0), \

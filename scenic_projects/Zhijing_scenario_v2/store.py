@@ -12,11 +12,11 @@ carla_map='Town01'
 weather="ClearNoon"
 model="scenic.simulators.carla.model"
 
-# Empty log files
-with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "w") as log_file:
-        log_file.write("")
-with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/acc_thr.txt", "w") as log_file:
-        log_file.write("")
+# # Empty log files
+# with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "w") as log_file:
+#         log_file.write("")
+# with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/acc_thr.txt", "w") as log_file:
+#         log_file.write("")
 
 simulator = CarlaSimulator(carla_map=carla_map, 
                         map_path=map_path, 

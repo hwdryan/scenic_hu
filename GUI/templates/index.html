@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scenario Runner</title>
+</head>
+<body>
+    <h1>Scenario Runner</h1>
+    <ul>
+        {% for scenario in scenarios %}
+        <li>
+            <form action="/run_scenario" method="post">
+                <input type="hidden" name="scenario_id" value="{{ scenario[0] }}">
+                <button type="submit">{{ scenario[1] }}</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
