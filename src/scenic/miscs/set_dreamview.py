@@ -67,7 +67,8 @@ def set_dreamview():
     d_x = data['objects'][1]['destination_point']['x']
     d_y = data['objects'][1]['destination_point']['y']
     d_z = data['objects'][1]['destination_point']['z']
-    heading = -1*math.radians(-1*data['objects'][1]['spawn_point']['yaw'])
+    # heading = -1*math.radians(data['objects'][1]['spawn_point']['yaw'])
+    heading = math.radians(data['objects'][1]['spawn_point']['yaw'] - data['objects'][1]['spawn_point']['roll'])
     msg = {
         "type": "SendRoutingRequest",
         "start": {    
@@ -79,25 +80,29 @@ def set_dreamview():
         "end": {"x": d_x, "y": d_y, "z": d_z},
         "waypoint": "[]",
     }
-    print("msg:",msg)
+    # print("msg:",msg)
     ws.send(json.dumps(msg))
 
 def close_modules():
-    # connect to dreamview
-    ip = 'localhost'
-    port = '8888'
-    url = "ws://" + ip + ":" + port + "/websocket"
-    ws = create_connection(url)
-
-    # Open modules
-    apollo_modules = [
-        'Routing',
-        'Prediction',
-        'Planning',
-        'Control',
-    ]
-    for apollo_module in apollo_modules:
-        ws.send(json.dumps({"type": "HMIAction", "action": "STOP_MODULE", "value": apollo_module}))
+    # 
     username = os.getlogin()
     subprocess.run(f"docker exec apollo_dev_{username} ps aux | grep 'python main.py' | grep -v grep | awk '{{print $2}}' | xargs docker exec apollo_dev_{username} kill -SIGINT", shell=True)
-    subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])
+    subprocess.run(['tmux', 'kill-session', '-t', 'bridge_session'])# connect to dreamview
+    # 
+    try:
+        ip = 'localhost'
+        port = '8888'
+        url = "ws://" + ip + ":" + port + "/websocket"
+        ws = create_connection(url)
+
+        # Open modules
+        apollo_modules = [
+            'Routing',
+            'Prediction',
+            'Planning',
+            'Control',
+        ]
+        for apollo_module in apollo_modules:
+            ws.send(json.dumps({"type": "HMIAction", "action": "STOP_MODULE", "value": apollo_module}))
+    except ConnectionRefusedError:
+        pass

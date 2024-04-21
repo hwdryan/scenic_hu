@@ -18,6 +18,7 @@ import math
 import numbers
 import time
 import types
+import os
 
 from scenic.core.distributions import RejectionException
 from scenic.core.dynamics import GuardViolation, RejectSimulationException
@@ -33,6 +34,7 @@ from scenic.core.object_types import (
 from scenic.core.requirements import RequirementType
 from scenic.core.serialization import Serializer
 from scenic.core.vectors import Vector
+from datetime import datetime
 
 
 class SimulatorInterfaceWarning(UserWarning):
@@ -373,14 +375,10 @@ class Simulation(abc.ABC):
             # self-defined
             import os
             
-            user_home = os.path.expanduser("~")
-            with open(os.path.join(user_home,"Documents/data.csv"), "w+", newline="") as csvfile:
-                writer = csv.writer(csvfile)
-                # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
-                writer.writerow(["timestep", "Id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z"])
+            terminationType, terminationReason= self._run(dynamicScenario, maxSteps)
             # 
-            terminationType, terminationReason = self._run(dynamicScenario, maxSteps)
-
+            
+            
             # Stop all remaining scenarios.
             # (and reject if some 'require eventually' condition was never satisfied)
             for scenario in tuple(reversed(veneer.runningScenarios)):
@@ -421,6 +419,17 @@ class Simulation(abc.ABC):
 
     def _run(self, dynamicScenario, maxSteps):
         assert self.currentTime == 0
+
+        user_home = os.path.expanduser("~")
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y_%d_%m_%H_%M_%S")
+        with open(os.path.join(user_home,f"Documents/data_{formatted_datetime}.csv"), "w+", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
+            writer.writerow(["timestep", "Id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z"])
+        
+        with open(os.path.join(user_home, f"Documents/boundingbox{formatted_datetime}.txt"), "w+", newline="\n") as f:
+            f.write("")
 
         while True:
             if self.verbosity >= 3:
@@ -493,9 +502,19 @@ class Simulation(abc.ABC):
             self.executeActions(allActions)
 
             # Run the simulation for a single step and read its state back into Scenic
-            self.step()
+            data, bb = self.step()
+            with open(os.path.join(user_home,f"Documents/data_{formatted_datetime}.csv"), "a", newline="") as csvfile:
+                writer = csv.writer(csvfile)
+                for row in data:
+                    writer.writerows(row)
+        
+            with open(os.path.join(user_home, f"Documents/boundingbox{formatted_datetime}.txt"), "a", newline="\n") as f:
+                f.write(bb)
             self.currentTime += 1
             self.updateObjects()
+
+        
+
 
     def setup(self):
         """Set up the simulation to run in the simulator.

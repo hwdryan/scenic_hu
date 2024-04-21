@@ -2,6 +2,7 @@
 # On the opposite lane a delivery vehicle halts with warning flasher. The vehicle behind it performs overtaking via ego's lane.
 
 
+
 ################
 # Scenic code
 ################
@@ -20,32 +21,36 @@ import time
 roadSec = network.elements['road8'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
 truck_type = 'vehicle.mercedes.sprinter'
-target_type = 'vehicle.volkswagen.t2'
+target_type = 'vehicle.tesla.model3'
 
 start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
 
 # Speed of vehicles
 V1_speed = 11.11
-V3_speed = 5
+V3_speed = 11.11
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = 140
-V1_loc = 170 - 14
+Ego_loc = 1
+V1_loc = 120 - 9.1
 
-V2_loc = road_length - 180
-V3_loc = road_length - 210 - 5.5
+V2_loc = road_length - 120
+V3_loc = road_length - 210 - 9.1
+# 11.11 - 9.1
+# 9 - 6
+# 7 - 8.75
 
 # self-defined
 behavior VehicleLightBehavior():
     """Behavior causing a vehicle to use CARLA's built-in autopilot."""
     take SetVehicleLightStateAction(carla.VehicleLightState(carla.VehicleLightState.RightBlinker | carla.VehicleLightState.LeftBlinker))
 
-behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_dist=17):
+behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_dist=30):
     changeback_spot = new OrientedPoint following roadDirection from start_spot for (road_length - V2_loc)
     try:
         wait
-    interrupt when self.EgoInitControl():
+    # interrupt when self.SpeedOfEgo() > 0.01:
+    interrupt when self.distanceToEgo() <= 170:
         try:
             do FollowLaneBehavior(target_speed=target_speed)
         interrupt when self.distanceToClosest(Truck) < bypass_dist:
@@ -55,7 +60,7 @@ behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_d
                 do LaneChangeBehavior(
                         laneSectionToSwitch=laneToLeftSec,
                         is_oppositeTraffic=True,
-                        target_speed=target_speed)
+                        target_speed=V3_speed)
             interrupt when (distance from self to changeback_spot) < 2:
                 do LaneChangeBehavior(
                         laneSectionToSwitch=originalSec,
@@ -65,28 +70,29 @@ behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_d
 behavior V1Behavior():
     try:
         wait
-    interrupt when self.EgoInitControl():
+    # interrupt when self.SpeedOfEgo() > 0.01:
+    interrupt when self.distanceToEgo() <= 60:
         do FollowLaneBehavior(target_speed=V1_speed)
 
 scenario Main():
     setup:
         # Ego car
-        start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc + 125
-        print(f"Ego position: {ego_spot.pos_and_ori()}")
-        print(f"Ego destination: {destination_spot.destination_spot()}")
+        # roadSec2 = network.elements['road7'].sections[0]
+        ego_start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
+        ego_spot = new OrientedPoint following roadDirection from ego_start_spot for Ego_loc, \
+            facing 0.1 deg relative to roadDirection
 
-        # ego = new Car following roadDirection from start_spot for Ego_loc, \
+        print(f"Ego position: {ego_spot.pos_and_ori()}")
+        # ego = new Car following roadDirection from ego_start_spot for Ego_loc, \
+        #     facing 0.1 deg relative to roadDirection, \
         #     with blueprint ego_car_type, \
         #     with color Color(1,0,0), \
-        #     with rolename "hero", \
-        #     with behavior FollowLaneBehavior()
+        #     with rolename "hero"
 
         
         # Front car V1
-        v2 = new Car following roadDirection from start_spot for V1_loc, \
-            with blueprint ego_car_type, \
+        v1 = new Car following roadDirection from start_spot for V1_loc, \
+            with blueprint target_type, \
             with color Color(1,0,0), \
             with rolename "V1", \
             with behavior V1Behavior()

@@ -1,8 +1,6 @@
 # The road has one lane for ego's travelling direction and one lane for the opposite direction. 
 # ego follows lane, while multiple vehicle cut in to ego path in short time
 
-
-
 ################
 # Scenic code
 ################
@@ -19,67 +17,69 @@ import carla
 import time
 
 roadSec = network.elements['road8'].sections[0]
-ego_car_type = 'vehicle.tesla.model3'
-truck_type = 'vehicle.mercedes.sprinter'
-target_type = 'vehicle.volkswagen.t2'
-
-start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
+roadSec2 = network.elements['road7'].sections[0]
+target_type = 'vehicle.tesla.model3'
+ego_car_type = 'vehicle.volkswagen.t2'
 
 # Speed of vehicles
 V1_speed = 12
-V3_speed = 5
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = 35
+Ego_loc = 55
 V1_loc = 1
 V2_loc = 15
 
-# self-defined
 behavior VehicleLightBehavior():
-    """Behavior causing a vehicle to use CARLA's built-in autopilot."""
-    take SetVehicleLightStateAction(carla.VehicleLightState(carla.VehicleLightState.RightBlinker | carla.VehicleLightState.LeftBlinker))
+    take SetVehicleLightStateAction(carla.VehicleLightState(carla.VehicleLightState.RightBlinker))
 
-behavior OvertakeBehavior(target_speed=V1_speed,avoidance_threshold=20, bypass_dist=17):
+behavior OvertakeBehavior(target_speed,avoidance_threshold=5):
     originalSec = self.laneSection
     laneToLeftSec = self.laneSection.laneToLeft
     try:
-        do LaneChangeBehavior(
-                laneSectionToSwitch=laneToLeftSec,
-                is_oppositeTraffic=True,
-                target_speed=target_speed)
-        do FollowLaneBehavior(
-                is_oppositeTraffic=True,
-                target_speed=target_speed)
-    interrupt when self.distanceToEgo() <= 5:
-        do LaneChangeBehavior(
-                laneSectionToSwitch=originalSec,
-                target_speed=target_speed)
-        do FollowLaneBehavior(target_speed=target_speed)
+        wait
+    interrupt when self.EgoInitControl():
+        try:
+            do LaneChangeBehavior(
+                    laneSectionToSwitch=laneToLeftSec,
+                    is_oppositeTraffic=True,
+                    target_speed=target_speed)
+            do FollowLaneBehavior(
+                    is_oppositeTraffic=True,
+                    target_speed=target_speed)
+        interrupt when self.distanceToEgo() <= 5:
+            do LaneChangeBehavior(
+                    laneSectionToSwitch=originalSec,
+                    target_speed=target_speed)
+            do FollowLaneBehavior(target_speed=target_speed)
 
 scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        
+        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc + 125
         print(f"Ego position: {ego_spot.pos_and_ori()}")
-        ego = new Car following roadDirection from start_spot for Ego_loc, \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "hero", \
-            with behavior FollowLaneBehavior(target_speed=7)
+        print(f"Ego destination: {destination_spot.destination_spot()}")
+
+        # ego = new Car following roadDirection from start_spot for Ego_loc, \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "hero", \
+        #     with behavior FollowLaneBehavior(target_speed=7)
 
         # overtake vehicle V1
         overtake_vehicle = new Car following roadDirection from start_spot for V1_loc,  \
+                        facing 0.1 deg relative to roadDirection,
                         with color Color(0,0,1), \
                         with blueprint target_type, \
                         with rolename "V1", \
-                        with behavior OvertakeBehavior()
+                        with behavior OvertakeBehavior(target_speed=V1_speed)
 
         # overtake vehicle V2
         overtake_vehicle = new Car following roadDirection from start_spot for V2_loc,  \
+                        facing 0.1 deg relative to roadDirection,
                         with color Color(1,0,1), \
                         with blueprint target_type, \
                         with rolename "V2", \
-                        with behavior OvertakeBehavior()
+                        with behavior OvertakeBehavior(target_speed=V1_speed)

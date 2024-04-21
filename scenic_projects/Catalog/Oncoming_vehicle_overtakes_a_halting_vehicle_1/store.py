@@ -20,28 +20,30 @@ weather="ClearNoon"
 model="scenic.simulators.carla.model"
 
 # 
-launch_carla()
-simulator = CarlaSimulator(carla_map=carla_map, 
-                        map_path=map_path, 
-                        render=False
-                        )
+try:
+        launch_carla()
+        simulator = CarlaSimulator(carla_map=carla_map, 
+                                map_path=map_path, 
+                                render=False
+                                )
 
-scenario = scenic.scenarioFromFile(path = scenic_path
-                                , params={"map":map_path
-                                        , "carla_map":carla_map
-                                        , "weather":weather}
-                                , model=model
-                                , mode2D=True)
+        scenario = scenic.scenarioFromFile(path = scenic_path
+                                        , params={"map":map_path
+                                                , "carla_map":carla_map
+                                                , "weather":weather}
+                                        , model=model
+                                        , mode2D=True)
 
-scene, _ = scenario.generate()
+        scene, _ = scenario.generate()
 
-# save parameters
-data = scenario.sceneToBytes(scene)
-with open(scenic_param, 'wb') as f:
-        f.write(data)
+        # save parameters
+        data = scenario.sceneToBytes(scene)
+        with open(scenic_param, 'wb') as f:
+                f.write(data)
 
-# pipeline
-launch_tools()
-set_dreamview()
-simulator.simulate(scene, verbosity=2, maxSteps=1000)
-close_modules()
+        # pipeline
+        launch_tools()
+        set_dreamview()
+        simulator.simulate(scene, verbosity=2, maxSteps=1000)
+finally:
+        close_modules()

@@ -295,18 +295,19 @@ class CarlaSimulation(DrivingSimulation):
 
     def step(self):
         
-        
         # Run simulation for one timestep
         if scenic_lead:
             self.world.tick()
         else:
             world_snapshot = self.world.wait_for_tick()
-            self.custom_recorder(world_snapshot)
+            data, bb = self.custom_recorder(world_snapshot)
         
         # Render simulation
         if self.render:
             self.cameraManager.render(self.display)
             pygame.display.flip()
+        
+        return data, bb
             
 
     # self-defined
@@ -341,6 +342,7 @@ class CarlaSimulation(DrivingSimulation):
         # overtake_actor_id = actor_list.filter('vehicle.volkswagen.t2')[0].id
 
         bb = dict()
+        data = list()
         for v in vehicles:
             actor = world_snapshot.find(v.id)
             actual_actor = self.world.get_actor(v.id)
@@ -365,13 +367,26 @@ class CarlaSimulation(DrivingSimulation):
                 bb['ego'] = vehicle_bb_location
             else:
                 bb[role_name] = vehicle_bb_location
-            # Write extracted data to a CSV file
-            with open(os.path.join(user_home, "Documents/data.csv"), "a", newline="") as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerows([[timestamp] + [int(v.id)] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)])
-        
+            data.append([[timestamp] + [int(v.id)] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)])
+
         
         import math
+
+        def bb_size(bb_points):
+            # calculate boundingbox size 
+            length = 0
+            width = 0
+            size = []
+            for a in bb_points:
+                for b in bb_points:
+                    size.append(euclidean_distance((a), b))
+            size = [x for x in size if x>0]
+
+            length = max(size)
+            width = min(size)
+
+        
+            return (length,width)
 
         def euclidean_distance(point1, point2):
             """Calculate the Euclidean distance between two points."""
@@ -395,11 +410,14 @@ class CarlaSimulation(DrivingSimulation):
         
         from datetime import datetime
 
-        # Format the date and time as "data_YYYY_DD_MM_TIME"
-        current_datetime = datetime.now()
-        formatted_datetime = current_datetime.strftime("data_%Y_%d_%m_%H_%M_%S")
-        with open(os.path.join(user_home, "Documents/boundingbox"+formatted_datetime), "a+", newline="\n") as f:
-            f.write(str(calculate_distances(bb))+"\n")
+        # # Format the date and time as "data_YYYY_DD_MM_TIME"
+        # current_datetime = datetime.now()
+        # formatted_datetime = current_datetime.strftime("data_%Y_%d_%m_%H_%M_%S")
+        # with open(os.path.join(user_home, "Documents/boundingbox"+formatted_datetime), "a+", newline="\n") as f:
+        #     f.write(str(calculate_distances(bb))+ str(bb_size(bb['V1'])) +"\n")
+        bb = str(calculate_distances(bb))
+
+        return data,bb
 
 
         

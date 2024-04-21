@@ -15,43 +15,42 @@ import time
 
 roadSec = network.elements['road8'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
-truck_type = 'vehicle.mercedes.sprinter'
-target_type = 'vehicle.volkswagen.t2'
-
-start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
+cyclist_type = 'vehicle.bh.crossbike'
 
 # Speed of vehicles
-V1_speed = 11.11
+C1_speed = 11.11
 
 # location of vehicles
 road_length = 308.69
 Ego_loc = 50
-V1_loc = road_length - 100
+C1_loc = road_length - 100
 
-behavior V1Behavior():
+behavior C1Behavoir(target_speed):
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 0.01:
-        do FollowLaneBehavior(target_speed=V1_speed)
+    interrupt when self.EgoInitControl():
+        do FollowLaneBehavior(target_speed=target_speed)
 
 scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        
+        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc + 125
         print(f"Ego position: {ego_spot.pos_and_ori()}")
-        ego = new Car following roadDirection from start_spot for Ego_loc, \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "hero", \
-            with behavior FollowLaneBehavior()
+        print(f"Ego destination: {destination_spot.destination_spot()}")
+        # ego = new Car following roadDirection from start_spot for Ego_loc, \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "hero", \
+        #     with behavior FollowLaneBehavior()
 
-        # cyclist
+        # Cyclist C1
         end_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
-        cyslist_spot = new OrientedPoint following roadDirection from end_spot for V1_loc
+        cyslist_spot = new OrientedPoint following roadDirection from end_spot for C1_loc
         cyclist = new Bicycle at cyslist_spot,  \
-                        facing 0 deg relative to roadDirection, \
-                        with blueprint 'vehicle.bh.crossbike', \
-                        with behavior FollowLaneBehavior(target_speed=V1_speed), \
-                        with rolename "V1"
+                facing 0.1 deg relative to roadDirection, \
+                with behavior C1Behavoir(target_speed=C1_speed), \
+                with color Color(1,0,0), \
+                with rolename "C1", \
+                with blueprint cyclist_type

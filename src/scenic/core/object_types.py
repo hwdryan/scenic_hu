@@ -958,10 +958,10 @@ class OrientedPoint(Point):
     def pos_and_ori(self):
         # return self.position, self.orientation
         # pos
-        loc = carla.Location(self.position.x, -1 * self.position.y, 0.6)
+        loc = carla.Location(self.position.x, self.position.y, max(self.position.z, 0.6))
         # ori
         pitch, yaw, roll = self.orientation.r.as_euler("XZY", degrees=True)
-        yaw = -yaw - 90
+        yaw = yaw + 90
         rot = carla.Rotation(pitch=pitch, yaw=yaw, roll=roll)
         # carla transformation
         transform = carla.Transform(loc, rot)
@@ -977,7 +977,7 @@ class OrientedPoint(Point):
     
     def destination_spot(self):
         # pos
-        loc = carla.Location(self.position.x, -1 * self.position.y, 0)
+        loc = carla.Location(self.position.x, self.position.y, 0)
         rot = carla.Rotation(pitch=0, yaw=0, roll=0)
         # carla transformation
         transform = carla.Transform(loc, rot)

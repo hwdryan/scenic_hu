@@ -1,11 +1,17 @@
 # 1. One a straight road, there is a traffic jam on the lane opposite to ego's direction 
 
-param map = localPath("../../assets/maps/CARLA/Town04.xodr")
-param carla_map = 'Town04'
+
+################
+# Scenic code
+################
+param map = localPath("../../assets/maps/CARLA/Town01.xodr")
+param carla_map = 'Town01'
 param weather = "ClearNoon"
 model scenic.simulators.carla.model
 import scenic.simulators.carla.model as _model
 import scenic.domains.driving.roads as _roads
+import scenic.simulators.carla.utils.utils as _utils
+import scenic.simulators.carla.misc as _misc
 
 roadSec = network.elements['road15'].sections[0]
 ego_car_type = 'vehicle.lincoln.mkz_2017'
@@ -32,23 +38,30 @@ parked_vehicle_type = [
     'vehicle.mini.cooper_s',
 ]
 
-        
+# location of vehicles
+road_length = 308.69
+Ego_loc = 30
+parked_vehicle_loc = 150
+
 scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego_spot = new OrientedPoint following roadDirection from start_spot for 30
+        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
+        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc - 10
         print(f"Ego position: {ego_spot.pos_and_ori()}")
-        
-        ego = new Car following roadDirection from start_spot for 1, \
-            with behavior FollowLaneBehavior(target_speed=4), \
-            facing 0 deg relative to roadDirection, \
-            with blueprint ego_car_type, \
-            with color Color(0,0,0), \
-            with rolename "hero"
+        print(f"Ego destination: {destination_spot.destination_spot()}")
+
+        # ego = new Car following roadDirection from start_spot for 1, \
+        #     with behavior FollowLaneBehavior(target_speed=4), \
+        #     facing 0 deg relative to roadDirection, \
+        #     with blueprint ego_car_type, \
+        #     with color Color(0,0,0), \
+        #     with rolename "hero"
 
         # Traffic jam
-        parked_vehicle_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
+        opposite_start_spot = new OrientedPoint on roadSec.backwardLanes[0].centerline.start
+        parked_vehicle_spot = new OrientedPoint following roadDirection from opposite_start_spot for parked_vehicle_loc
 
         dis = 0
         for parked_vehicle in parked_vehicle_type:
@@ -57,7 +70,6 @@ scenario Main():
                         with blueprint parked_vehicle, \
                         with behavior BrakeBehavior()
             dis += 6
-
 
         
 

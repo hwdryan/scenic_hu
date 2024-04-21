@@ -69,6 +69,8 @@ shoulder : Region = network.shoulderRegion
 #: All drivable areas, including both ordinary roads and shoulders.
 roadOrShoulder : Region = road.union(shoulder)
 
+allRoad : Region = roadOrShoulder.union(sidewalk.union(curb))
+
 #: The union of all intersections.
 intersection : Region = network.intersectionRegion
 

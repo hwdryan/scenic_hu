@@ -1,7 +1,14 @@
 import scenic, tempfile, pathlib, os
-from scenic.simulators.carla import CarlaSimulator
 
-scenic_dir = os.path.dirname(__file__)
+# Change the current working directory to the specified directory
+home_directory = os.path.expanduser('~')
+directory_path = 'Tools/Scenic/scenic_projects'
+os.chdir(os.path.join(home_directory,directory_path))
+from scenic.simulators.carla import CarlaSimulator
+from scenic.miscs.launches import launch_carla, launch_tools
+from scenic.miscs.set_dreamview import set_dreamview, close_modules 
+
+scenic_dir = os.path.join(home_directory, os.path.dirname(__file__))
 scenic_path = 'Cyclist_crosses_from_roadside_1.scenic'
 scenic_param = 'param.scene'
 scenic_path = os.path.join(scenic_dir, scenic_path)
@@ -12,30 +19,32 @@ carla_map='Town01'
 weather="ClearNoon"
 model="scenic.simulators.carla.model"
 
-# # Empty log files
-# with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/parameters_log.txt", "w") as log_file:
-#         log_file.write("")
-# with open("/home/weidonghu/Tools/Scenic/scenic_projects/Zhijing_scenario/acc_thr.txt", "w") as log_file:
-#         log_file.write("")
+# 
+try:
+        launch_carla()
+        simulator = CarlaSimulator(carla_map=carla_map, 
+                                map_path=map_path, 
+                                render=False
+                                )
 
-simulator = CarlaSimulator(carla_map=carla_map, 
-                        map_path=map_path, 
-                        render=True
-                        )
+        scenario = scenic.scenarioFromFile(path = scenic_path
+                                        , params={"map":map_path
+                                                , "carla_map":carla_map
+                                                , "weather":weather}
+                                        , model=model
+                                        , mode2D=True)
 
-scenario = scenic.scenarioFromFile(path = scenic_path
-                                , params={"map":map_path
-                                        , "carla_map":carla_map
-                                        , "weather":weather}
-                                , model=model
-                                , mode2D=True)
+        scene, _ = scenario.generate()
 
-scene, _ = scenario.generate()
+        # save parameters
+        data = scenario.sceneToBytes(scene)
+        with open(scenic_param, 'wb') as f:
+                f.write(data)
 
-
-# safe parameters
-data = scenario.sceneToBytes(scene)
-with open(scenic_param, 'wb') as f:
-        f.write(data)
-simulator.simulate(scene, verbosity=2)
+        # pipeline
+        launch_tools()
+        set_dreamview()
+        simulator.simulate(scene, verbosity=2, maxSteps=1000)
+finally:
+        close_modules()
 

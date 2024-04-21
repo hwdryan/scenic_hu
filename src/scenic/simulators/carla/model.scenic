@@ -145,7 +145,7 @@ class CarlaActor(DrivingObject):
         else:
             self.carlaActor.set_velocity(cvel)
     
-        # self-defined
+    # self-defined
     def SpeedOfEgo(self):
         """Compute the speed of Ego.
         """
@@ -159,6 +159,36 @@ class CarlaActor(DrivingObject):
                 s = math.sqrt(vel.x**2 + vel.y**2 + vel.z**2)
                 # print(f"**Speed for {Ego_vehicle} is {s}!**")
                 return s
+    
+    # self-defined
+    def EgoInitControl(self):
+        """Compute the speed of Ego.
+        """
+        sim_world = simulation().world
+        Ego_vehicle = None
+        for actor in sim_world.get_actors():
+            # print("role_name:", actor.attributes.get('role_name'))
+            if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+                Ego_vehicle = actor
+                break
+        control = Ego_vehicle.get_control()
+        """
+        Parameters:
+        throttle (float) - Scalar value between [0.0,1.0].
+        steer (float) - Scalar value between [0.0,1.0].
+        brake (float) - Scalar value between [0.0,1.0].
+        hand_brake (bool)
+        reverse (bool)
+        manual_gear_shift (bool)
+        gear (int)
+        """
+        v_parameters = [control.throttle, control.steer, control.brake]
+        print(control.throttle, control.steer, control.brake)
+        if control.throttle!=0 or control.steer!=0 or control.brake!=0:
+            return True
+        else:
+            return False
+
                 
     # self-defined
     def distanceToEgo(self):
@@ -257,10 +287,20 @@ class Egocar(CarlaActor):  # no distinction between these in CARLA
 
 class Bicycle(Vehicle):
     # self-defined
-    # regionContainedIn: network.walkableRegion
-    # position: new Point on network.walkableRegion
+    regionContainedIn: allRoad
+    position: new Point on allRoad
     # heading: Range(0, 360) deg
     # 
+    """
+    regionContainedIn: roadOrShoulder
+    position: new Point on road
+    heading: (roadDirection at self.position) + self.roadDeviation
+    roadDeviation: 0
+    viewAngle: 90 deg
+    width: 2
+    length: 4.5
+    color: Color.defaultCarColor()
+    """
     width: 1
     length: 2
     blueprint: Uniform(*blueprints.bicycleModels)

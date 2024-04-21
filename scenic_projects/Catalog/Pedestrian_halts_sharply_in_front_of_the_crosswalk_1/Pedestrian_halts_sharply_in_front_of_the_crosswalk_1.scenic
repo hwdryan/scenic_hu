@@ -19,9 +19,10 @@ import time
 
 roadSec = network.elements['road15'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
+pedestrian_type = "walker.pedestrian.0001"
 
 # Speed of vehicles
-V1_speed = 11.11
+P1_speed = 11.11
 
 # location of vehicles
 road_length = 308.69
@@ -33,7 +34,7 @@ brake_spot = new OrientedPoint right of curb_middle by 1.5
 behavior PedestrianHaltBehavior(target_speed=10,avoidance_threshold=20):
     try:
         wait
-    interrupt when self.distanceToObj('hero') <= avoidance_threshold:
+    interrupt when self.distanceToEgo() <= avoidance_threshold:
         try:
             do WalkwithDirectionBehavior(direction=270 deg relative to brake_spot.heading, speed = 4)
         interrupt when (distance from self to brake_spot) <= 1.8:
@@ -44,13 +45,15 @@ scenario Main():
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        
+        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc + 125
         print(f"Ego position: {ego_spot.pos_and_ori()}")
-        ego = new Car following roadDirection from start_spot for Ego_loc, \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "hero", \
-            with behavior FollowLaneBehavior(target_speed=3)
+        print(f"Ego destination: {destination_spot.destination_spot()}")
+
+        # ego = new Car following roadDirection from start_spot for Ego_loc, \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "hero", \
+        #     with behavior FollowLaneBehavior(target_speed=3)
 
         
         # Pedestrian V1 
@@ -59,6 +62,6 @@ scenario Main():
 
         ped = new Pedestrian left of ped_spot by 2, \
             facing 270 deg relative to roadDirection, \
-            with blueprint "walker.pedestrian.0001", \
+            with blueprint pedestrian_type, \
             with color Color(1,0,0), \
             with behavior PedestrianHaltBehavior()

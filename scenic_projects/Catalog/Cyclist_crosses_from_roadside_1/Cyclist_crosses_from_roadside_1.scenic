@@ -19,7 +19,7 @@ import time
 
 roadSec = network.elements['road15'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
-
+cyclist_type = 'vehicle.bh.crossbike'
 # Speed of vehicles
 V1_speed = 11.11
 
@@ -29,10 +29,10 @@ Ego_loc = 120
 
 oppo_curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle
 brake_spot = new OrientedPoint right of oppo_curb_middle by 1.5
-behavior CyclistCrossingBehavior(target_speed=10,avoidance_threshold=20):
+behavior CyclistCrossingBehavior(target_speed=10,avoidance_threshold=25):
     try:
         wait
-    interrupt when self.distanceToObj('hero') <= avoidance_threshold:
+    interrupt when self.distanceToEgo() <= avoidance_threshold:
         try:
             do ConstantSpeedBehavior(target_speed)
         interrupt when (distance from self to brake_spot) < 1:
@@ -43,20 +43,24 @@ scenario Main():
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        
+        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc +125
         print(f"Ego position: {ego_spot.pos_and_ori()}")
-        ego = new Car following roadDirection from start_spot for Ego_loc, \
-            with blueprint ego_car_type, \
-            with color Color(1,0,0), \
-            with rolename "hero", \
-            with behavior FollowLaneBehavior(target_speed=3)
+        print(f"Ego destination: {destination_spot.destination_spot()}")
+        # ego = new Car following roadDirection from start_spot for Ego_loc, \
+        #     with blueprint ego_car_type, \
+        #     with color Color(1,0,0), \
+        #     with rolename "hero", \
+        #     with behavior FollowLaneBehavior(target_speed=3)
 
         
         # Cyclist V1 
         curb_middle = new OrientedPoint on roadSec.forwardLanes[0].group.curb.middle 
-        ped_spot = new OrientedPoint on curb_middle, facing 0 deg relative to roadDirection
+        cyclist_spot = new OrientedPoint on curb_middle, facing 0 deg relative to roadDirection
 
-        ped = new Bicycle left of ped_spot by 2, \
+        cyclist = new Bicycle left of cyclist_spot by 2, \
             facing 270 deg relative to roadDirection, \
             with color Color(1,0,0), \
-            with behavior CyclistCrossingBehavior()
+            with behavior CyclistCrossingBehavior(), \
+            with rolename "C1", \
+            with blueprint cyclist_type
+

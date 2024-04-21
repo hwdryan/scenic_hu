@@ -21,22 +21,24 @@ import time
 roadSec = network.elements['road8'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
 truck_type = 'vehicle.mercedes.sprinter'
-target_type = 'vehicle.volkswagen.t2'
+target_type = 'vehicle.tesla.model3'
 
 start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
 
 # Speed of vehicles
 V1_speed = 11.11
-V3_speed = 11.11
+V3_speed = 9
 
 # location of vehicles
 road_length = 308.69
 Ego_loc = 1
-V1_loc = 60 - 14
+V1_loc = 120 - 9.1
 
 V2_loc = road_length - 120
-V3_loc = road_length - 210 - 14
-
+V3_loc = road_length - 190 - 6
+# 11.11 - 9.1
+# 9 - 6
+# 7 - 8.75
 
 # self-defined
 behavior VehicleLightBehavior():
@@ -48,7 +50,7 @@ behavior OvertakeBehavior(target_speed=V3_speed,avoidance_threshold=20, bypass_d
     try:
         wait
     # interrupt when self.SpeedOfEgo() > 0.01:
-    interrupt when self.distanceToEgo() <= 185:
+    interrupt when self.distanceToEgo() <= 146.9:
         try:
             do FollowLaneBehavior(target_speed=target_speed)
         interrupt when self.distanceToClosest(Truck) < bypass_dist:
@@ -69,14 +71,14 @@ behavior V1Behavior():
     try:
         wait
     # interrupt when self.SpeedOfEgo() > 0.01:
-    interrupt when self.distanceToEgo() <= 45:
+    interrupt when self.distanceToEgo() <= 61:
         do FollowLaneBehavior(target_speed=V1_speed)
 
 scenario Main():
     setup:
         # Ego car
-        roadSec2 = network.elements['road7'].sections[0]
-        ego_start_spot = new OrientedPoint on roadSec2.forwardLanes[0].centerline.start
+        # roadSec2 = network.elements['road7'].sections[0]
+        ego_start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from ego_start_spot for Ego_loc, \
             facing 0.1 deg relative to roadDirection
 
@@ -90,7 +92,7 @@ scenario Main():
         
         # Front car V1
         v1 = new Car following roadDirection from start_spot for V1_loc, \
-            with blueprint ego_car_type, \
+            with blueprint target_type, \
             with color Color(1,0,0), \
             with rolename "V1", \
             with behavior V1Behavior()
