@@ -372,9 +372,6 @@ class Simulation(abc.ABC):
             self.updateObjects()
 
             # Run the simulation.
-            # self-defined
-            import os
-            
             terminationType, terminationReason= self._run(dynamicScenario, maxSteps)
             # 
             
@@ -426,10 +423,7 @@ class Simulation(abc.ABC):
         with open(os.path.join(user_home,f"Documents/data_{formatted_datetime}.csv"), "w+", newline="") as csvfile:
             writer = csv.writer(csvfile)
             # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
-            writer.writerow(["timestep", "Id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z"])
-        
-        with open(os.path.join(user_home, f"Documents/boundingbox{formatted_datetime}.txt"), "w+", newline="\n") as f:
-            f.write("")
+            writer.writerow(["Timestep", "Id", "Role_name", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z", "Distance2Ego"])
 
         while True:
             if self.verbosity >= 3:
@@ -502,14 +496,12 @@ class Simulation(abc.ABC):
             self.executeActions(allActions)
 
             # Run the simulation for a single step and read its state back into Scenic
-            data, bb = self.step()
+            data = self.step()
             with open(os.path.join(user_home,f"Documents/data_{formatted_datetime}.csv"), "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 for row in data:
                     writer.writerows(row)
-        
-            with open(os.path.join(user_home, f"Documents/boundingbox{formatted_datetime}.txt"), "a", newline="\n") as f:
-                f.write(bb)
+
             self.currentTime += 1
             self.updateObjects()
 

@@ -1,5 +1,5 @@
 command_list = [
-    {'command': ['./CarlaUE4.sh'], 'cwd': os.path.join(home_directory, 'Tools/CARLA_0.9.13/'), 'close_fds':True},
+    {'command': ['./CarlaUE4.sh'], 'cwd': os.path.join(home_directory, 'Tools/CARLA_0.9.15/'), 'close_fds':True},
     {'command': ["./docker/scripts/dev_start.sh"], 'cwd': os.path.join(home_directory, "Tools/apollo/")},
     # {'command': ['docker','exec','-u','weidonghu','apollo_dev_weidonghu','tail','/home/weidonghu/.bashrc'], 'cwd': home_directory},
     # {'command': "./docker/scripts/dev_into.sh", 'cwd': os.path.join(home_directory, "Tools/apollo/")},
@@ -33,4 +33,4 @@ git checkout -- modules/common/data/global_flagfile.txt
 #     "${DEV_CONTAINER}" \
 #     ./scripts/bootstrap.sh
 
-export PYTHONPATH=$PYTHONPATH:/apollo/cyber && export PYTHONPATH=$PYTHONPATH:/apollo/cyber/python && export PYTHONPATH=$PYTHONPATH:/apollo && export PYTHONPATH=$PYTHONPATH:/apollo/modules && export PYTHONPATH=$PYTHONPATH:/apollo/modules/carla_bridge/carla_api/carla-0.9.13-py3.7-linux-x86_64.egg
+export PYTHONPATH=$PYTHONPATH:/apollo/cyber && export PYTHONPATH=$PYTHONPATH:/apollo/cyber/python && export PYTHONPATH=$PYTHONPATH:/apollo && export PYTHONPATH=$PYTHONPATH:/apollo/modules && export PYTHONPATH=$PYTHONPATH:/apollo/modules/carla_bridge/carla_api/carla-0.9.15-py3.7-linux-x86_64.egg

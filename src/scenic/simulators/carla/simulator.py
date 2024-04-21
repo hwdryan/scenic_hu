@@ -342,7 +342,7 @@ class CarlaSimulation(DrivingSimulation):
         # overtake_actor_id = actor_list.filter('vehicle.volkswagen.t2')[0].id
 
         bb = dict()
-        data = list()
+        data = dict()
         for v in vehicles:
             actor = world_snapshot.find(v.id)
             actual_actor = self.world.get_actor(v.id)
@@ -363,11 +363,13 @@ class CarlaSimulation(DrivingSimulation):
             vehicle_bb_waypoints = [current_map.get_waypoint(vertex) for vertex in vehicle_bb_waypoints]
             vehicle_bb_location = [list(map(float,[vertex.transform.location.x,vertex.transform.location.y,vertex.transform.location.z])) for vertex in vehicle_bb_waypoints]
             role_name = actual_actor.attributes.get('role_name')
+            distance_ego = None
             if role_name in ['autoware_v1', 'hero', 'ego_vehicle']:
+                role_name = 'ego'
                 bb['ego'] = vehicle_bb_location
             else:
                 bb[role_name] = vehicle_bb_location
-            data.append([[timestamp] + [int(v.id)] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)])
+            data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)]
 
         
         import math
@@ -395,7 +397,7 @@ class CarlaSimulation(DrivingSimulation):
         def calculate_distances(data):
             """Calculate distances from 'ego' to other points."""
             ego_points = data['ego']
-            results = {}
+            results = dict()
             
             for key, points in data.items():
                 if key != 'ego':
@@ -405,22 +407,21 @@ class CarlaSimulation(DrivingSimulation):
                             distance = euclidean_distance(ego_point, point)
                             distances.append(distance)
                     results[key] = min(distances)
+                else:
+                    results[key] = -1
+
         
             return results
-        
-        from datetime import datetime
+                
+        bb = calculate_distances(bb)
 
-        # # Format the date and time as "data_YYYY_DD_MM_TIME"
-        # current_datetime = datetime.now()
-        # formatted_datetime = current_datetime.strftime("data_%Y_%d_%m_%H_%M_%S")
-        # with open(os.path.join(user_home, "Documents/boundingbox"+formatted_datetime), "a+", newline="\n") as f:
-        #     f.write(str(calculate_distances(bb))+ str(bb_size(bb['V1'])) +"\n")
-        bb = str(calculate_distances(bb))
+        for key in data:
+            data[key] = data[key].append(str(bb[key]))
 
-        return data,bb
+        return data
 
 
-        
+    # TODO
     def _is_vehicle_hazard(self, vehicle_list):
         """
 
