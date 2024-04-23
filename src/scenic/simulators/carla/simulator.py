@@ -300,14 +300,14 @@ class CarlaSimulation(DrivingSimulation):
             self.world.tick()
         else:
             world_snapshot = self.world.wait_for_tick()
-            data, bb = self.custom_recorder(world_snapshot)
+            data = self.custom_recorder(world_snapshot)
         
         # Render simulation
         if self.render:
             self.cameraManager.render(self.display)
             pygame.display.flip()
         
-        return data, bb
+        return data
             
 
     # self-defined
@@ -357,19 +357,18 @@ class CarlaSimulation(DrivingSimulation):
             acceleration = actor.get_acceleration()
             acceleration = tuple(map(float,[acceleration.x, acceleration.y, acceleration.z]))
             # 
-            vehicle_waypoint = current_map.get_waypoint(actor.get_transform().location)
+            vehicle_lane_id = current_map.get_waypoint(actor.get_transform().location).lane_id
             vehicle_bb_waypoints = actual_actor.bounding_box.get_world_vertices(actor.get_transform())
             vehicle_bb_waypoints = [vehicle_bb_waypoints[0], vehicle_bb_waypoints[2], vehicle_bb_waypoints[4], vehicle_bb_waypoints[6]]
             vehicle_bb_waypoints = [current_map.get_waypoint(vertex) for vertex in vehicle_bb_waypoints]
             vehicle_bb_location = [list(map(float,[vertex.transform.location.x,vertex.transform.location.y,vertex.transform.location.z])) for vertex in vehicle_bb_waypoints]
             role_name = actual_actor.attributes.get('role_name')
-            distance_ego = None
             if role_name in ['autoware_v1', 'hero', 'ego_vehicle']:
                 role_name = 'ego'
                 bb['ego'] = vehicle_bb_location
             else:
                 bb[role_name] = vehicle_bb_location
-            data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)]
+            data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)]
 
         
         import math
@@ -408,7 +407,7 @@ class CarlaSimulation(DrivingSimulation):
                             distances.append(distance)
                     results[key] = min(distances)
                 else:
-                    results[key] = -1
+                    results[key] = -100
 
         
             return results
@@ -416,7 +415,7 @@ class CarlaSimulation(DrivingSimulation):
         bb = calculate_distances(bb)
 
         for key in data:
-            data[key] = data[key].append(str(bb[key]))
+            data[key][0].append(str(bb[key]))
 
         return data
 

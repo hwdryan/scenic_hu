@@ -423,7 +423,7 @@ class Simulation(abc.ABC):
         with open(os.path.join(user_home,f"Documents/data_{formatted_datetime}.csv"), "w+", newline="") as csvfile:
             writer = csv.writer(csvfile)
             # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
-            writer.writerow(["Timestep", "Id", "Role_name", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z", "Distance2Ego"])
+            writer.writerow(["Timestep", "Id", "Role_name", "Lane_id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z", "Distance2Ego"])
 
         while True:
             if self.verbosity >= 3:
@@ -497,9 +497,12 @@ class Simulation(abc.ABC):
 
             # Run the simulation for a single step and read its state back into Scenic
             data = self.step()
-            with open(os.path.join(user_home,f"Documents/data_{formatted_datetime}.csv"), "a", newline="") as csvfile:
+            document_path = os.path.join(user_home, f"Documents/data_{formatted_datetime}.csv")
+            with open("./current_filename.txt", "w+", newline="") as f:
+                f.write(document_path) 
+            with open(document_path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
-                for row in data:
+                for row in data.values():
                     writer.writerows(row)
 
             self.currentTime += 1

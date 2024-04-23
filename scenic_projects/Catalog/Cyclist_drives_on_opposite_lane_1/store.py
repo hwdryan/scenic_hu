@@ -44,6 +44,7 @@ try:
         # pipeline
         launch_tools()
         set_dreamview()
-        simulator.simulate(scene, verbosity=2, maxSteps=1000)
+        simulator.simulate(scene, verbosity=100, maxSteps=1000)
 finally:
         close_modules()
+        pass

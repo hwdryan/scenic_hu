@@ -21,7 +21,7 @@ roadSec = network.elements['road15'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
 cyclist_type = 'vehicle.bh.crossbike'
 # Speed of vehicles
-V1_speed = 11.11
+V1_speed = 4.16
 
 # location of vehicles
 road_length = 308.69
