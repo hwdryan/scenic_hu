@@ -344,7 +344,7 @@ class Simulation(abc.ABC):
         self.name = name
         self.worker_num = 0
         self.data = []
-
+        self.current_logfile = ""
         self.actionSequence = []
 
         # Prepare to save or load a replay.
@@ -420,7 +420,9 @@ class Simulation(abc.ABC):
         user_home = os.path.expanduser("~")
         current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y_%d_%m_%H_%M_%S")
-        with open(os.path.join(user_home,f"Documents/data_{formatted_datetime}.csv"), "w+", newline="") as csvfile:
+        document_path = os.path.join(user_home, f"Documents/data_{formatted_datetime}.csv")
+        self.current_logfile = document_path
+        with open(document_path, "w+", newline="") as csvfile:
             writer = csv.writer(csvfile)
             # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
             writer.writerow(["Timestep", "Id", "Role_name", "Lane_id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z", "Distance2Ego"])
@@ -497,7 +499,6 @@ class Simulation(abc.ABC):
 
             # Run the simulation for a single step and read its state back into Scenic
             data = self.step()
-            document_path = os.path.join(user_home, f"Documents/data_{formatted_datetime}.csv")
             with open("./current_filename.txt", "w+", newline="") as f:
                 f.write(document_path) 
             with open(document_path, "a", newline="") as csvfile:

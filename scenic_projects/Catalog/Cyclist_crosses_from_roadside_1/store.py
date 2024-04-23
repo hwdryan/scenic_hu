@@ -7,6 +7,7 @@ os.chdir(os.path.join(home_directory,directory_path))
 from scenic.simulators.carla import CarlaSimulator
 from scenic.miscs.launches import launch_carla, launch_tools
 from scenic.miscs.set_dreamview import set_dreamview, close_modules 
+from scenic.miscs.requirements import Requirements
 
 scenic_dir = os.path.join(home_directory, os.path.dirname(__file__))
 scenic_path = 'Cyclist_crosses_from_roadside_1.scenic'
@@ -44,7 +45,15 @@ try:
         # pipeline
         launch_tools()
         set_dreamview()
-        simulator.simulate(scene, verbosity=2, maxSteps=1000)
+        simulation = simulator.simulate(scene, verbosity=0, maxSteps=1000)
+except Exception as e:
+        print(e)
+else:
+        requirements = Requirements(simulation.current_logfile)
+        result = requirements.evaluate(
+                collision = requirements.collision(),
+        )
+        print(result)
 finally:
         close_modules()
 
