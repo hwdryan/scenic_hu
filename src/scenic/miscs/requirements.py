@@ -45,19 +45,19 @@ class Requirements:
         targets.remove('ego')
         self.targets = targets
     
-    def evaluate(self,**kwargs):
+    def evaluate(self,results:dict):
         """
         Evaluate numbers of reqirements, return results.
 
         Returns:
             Dictionary - requirement:pass/fail
         """
-        for value in kwargs.values():
+        for value in results.values():
             if value == False:
-                kwargs['conclusion'] = False
-                return kwargs
-        kwargs['conclusion'] = True
-        return kwargs
+                results['conclusion'] = False
+                return results
+        results['conclusion'] = True
+        return results
 
 
     def collision(self):

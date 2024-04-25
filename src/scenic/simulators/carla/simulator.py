@@ -17,14 +17,13 @@ if errors.verbosityLevel == 0:  # suppress pygame advertisement at zero verbosit
 
 import pygame
 
-from scenic.core.simulators import SimulationCreationError
+from scenic.core.simulators import SimulationCreationError, scenic_lead
 from scenic.domains.driving.simulators import DrivingSimulation, DrivingSimulator
 from scenic.simulators.carla.blueprints import oldBlueprintNames
 import scenic.simulators.carla.utils.utils as utils
 import scenic.simulators.carla.utils.visuals as visuals
 from scenic.syntax.veneer import verbosePrint
 
-scenic_lead = False
 
 class CarlaSimulator(DrivingSimulator):
     """Implementation of `Simulator` for CARLA."""
