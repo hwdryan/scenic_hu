@@ -138,6 +138,7 @@ src/scenic/syntax/parser.py
 
 # self-defined
 scenic_projects/Zhijing_scenario/parameters_log.txt
+scenic_database/sqlalchemy-tutorials/
 
 # VerifAI
 # Scenic cache files

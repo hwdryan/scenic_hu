@@ -426,7 +426,7 @@ class Simulation(abc.ABC):
         with open(document_path, "w+", newline="") as csvfile:
             writer = csv.writer(csvfile)
             # Write header timestamp,location,rotation,angular_velocity,velocity,acceleration
-            writer.writerow(["Timestep", "Id", "Role_name", "Lane_id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z", "Distance2Ego"])
+            writer.writerow(["Timestep", "Id", "Role_name", "Lane_id", "Location_x", "Location_y", "Location_z", "Rocation_pitch", "Rocation_yaw", "Rocation_roll", "Angular_velocity_x", "Angular_velocity_y", "Angular_velocity_z", "Velocity_x", "Velocity_y", "Velocity_z", "Acceleration_x", "Acceleration_y", "Acceleration_z","EgoDestination_x","EgoDestination_y","EgoDestination_z","Distance2Ego"])
 
         while True:
             if self.verbosity >= 3:

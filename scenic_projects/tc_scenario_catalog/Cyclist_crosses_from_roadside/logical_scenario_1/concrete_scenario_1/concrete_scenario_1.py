@@ -54,7 +54,7 @@ except Exception as e:
         print(e)
 else:
         # Create an engine to connect to the database
-        engine = create_engine('sqlite:////home/weidong/Tools/Scenic/scenic_database/scenario_database.db', echo=True)
+        engine = create_engine('sqlite:////home/weidonghu/Tools/Scenic/scenic_database/scenario_database.db', echo=True)
 
         # Create a session
         Session = sessionmaker(bind=engine)

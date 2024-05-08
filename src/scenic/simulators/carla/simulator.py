@@ -7,6 +7,8 @@ except ImportError as e:
 
 import csv
 import math
+import json
+import math
 import os
 import warnings
 import psutil
@@ -339,7 +341,14 @@ class CarlaSimulation(DrivingSimulation):
         current_map = self.world.get_map()
         # front_actor_id = actor_list.filter('vehicle.tesla.model3')[0].id
         # overtake_actor_id = actor_list.filter('vehicle.volkswagen.t2')[0].id
-
+        home_directory = os.path.expanduser('~')
+        config_path = os.path.join(home_directory, "Tools/apollo/modules/carla_bridge/config/objects.json")
+        with open(config_path, 'r') as file:
+            data = json.load(file)
+        d_x = data['objects'][1]['destination_point']['x']
+        d_y = data['objects'][1]['destination_point']['y']
+        d_z = data['objects'][1]['destination_point']['z']
+        ego_destination = tuple(map(float, [d_x,d_y,d_z]))
         bb = dict()
         data = dict()
         for v in vehicles:
@@ -357,20 +366,16 @@ class CarlaSimulation(DrivingSimulation):
             acceleration = tuple(map(float,[acceleration.x, acceleration.y, acceleration.z]))
             # 
             vehicle_lane_id = current_map.get_waypoint(actor.get_transform().location).lane_id
-            vehicle_bb_waypoints = actual_actor.bounding_box.get_world_vertices(actor.get_transform())
-            vehicle_bb_waypoints = [vehicle_bb_waypoints[0], vehicle_bb_waypoints[2], vehicle_bb_waypoints[4], vehicle_bb_waypoints[6]]
-            vehicle_bb_waypoints = [current_map.get_waypoint(vertex) for vertex in vehicle_bb_waypoints]
-            vehicle_bb_location = [list(map(float,[vertex.transform.location.x,vertex.transform.location.y,vertex.transform.location.z])) for vertex in vehicle_bb_waypoints]
+
+            vehicle_bb_location = [list(map(float,[v.x,v.y,v.z])) for v in actual_actor.bounding_box.get_world_vertices(actor.get_transform())][0::2]
             role_name = actual_actor.attributes.get('role_name')
             if role_name in ['autoware_v1', 'hero', 'ego_vehicle']:
                 role_name = 'ego'
                 bb['ego'] = vehicle_bb_location
+                data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration) + list(ego_destination)]
             else:
                 bb[role_name] = vehicle_bb_location
-            data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration)]
-
-        
-        import math
+                data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration) + list([None,None,None])]        
 
         def bb_size(bb_points):
             # calculate boundingbox size 
@@ -391,24 +396,62 @@ class CarlaSimulation(DrivingSimulation):
         def euclidean_distance(point1, point2):
             """Calculate the Euclidean distance between two points."""
             return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 + (point1[2] - point2[2]) ** 2)
+        
+        def distance_point2line(p_a,p_b,p_c):
+            x_1 = p_a[0]
+            y_1 = p_a[1]
+            x_2 = p_b[0]
+            y_2 = p_b[1]
+            x_0 = p_c[0]
+            y_0 = p_c[1]
+            n_A = y_2 - y_1
+            n_B = x_1 - x_2
+            n_C = x_2*y_1 - x_1*y_2
+            q_x = (n_B**2 * x_0 - n_A*n_B*y_0 - n_A*n_C)/(n_A**2 + n_B**2)
+            q_y = (n_A**2 * y_0 - n_A*n_B*x_0 - n_B*n_C)/(n_A**2 + n_B**2)
+            if q_x < min(x_1, x_2) or q_x > max(x_1, x_2):
+                return math.inf
+            if q_y < min(y_1, y_2) or q_y > max(y_1, y_2):
+                return math.inf
+            d = abs(n_A*x_0 + n_B*y_0 + n_C)/math.sqrt(n_A**2 + n_B**2)
+
+            return d
+
+        # def vehicle_overlap(v1,v2):
+        #     for point in v1:
+        #         for po
 
         def calculate_distances(data):
             """Calculate distances from 'ego' to other points."""
             ego_points = data['ego']
             results = dict()
             
-            for key, points in data.items():
-                if key != 'ego':
+            for id, target_points in data.items():
+                if id != 'ego':
                     distances = []
-                    for ego_point in ego_points:
-                        for point in points:
-                            distance = euclidean_distance(ego_point, point)
-                            distances.append(distance)
-                    results[key] = min(distances)
-                else:
-                    results[key] = -100
+                    # # Given ego_points and target_points, calculate if they overlap
+                    # if vehicle_overlap(target_points,ego_points):
+                    #     results[id] = 0
+                    #     continue
 
-        
+                    for ego_point in ego_points:
+                        for idx, target_point1 in enumerate(target_points):
+                            for target_point2 in target_points[idx+1:]:
+                                distances.append(distance_point2line(target_point1,target_point2,ego_point))
+
+                    for target_point in target_points:
+                        for idx, ego_point1 in enumerate(ego_points):
+                            for ego_point2 in ego_points[idx+1:]:
+                                distances.append(distance_point2line(ego_point1,ego_point2,target_point))
+
+                    for ego_point in ego_points:
+                        for point in target_points:
+                            distances.append(euclidean_distance(ego_point, point))
+                    
+                    results[id] = min(distances)
+                else:
+                    results[id] = -100
+
             return results
                 
         bb = calculate_distances(bb)
