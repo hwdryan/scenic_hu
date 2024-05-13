@@ -22,9 +22,10 @@ ego_car_type = 'vehicle.tesla.model3'
 C1_speed = Range(1,10)
 
 # location of vehicles
-Ego_loc = Range(1,200)
-destination_loc = Range(Ego_loc, 220)
-distance_threshold = Range(10,50)
+road_length = 308.69
+Ego_loc = Range(100,140)
+destination_loc = min(Ego_loc + 125, road_length)
+distance_threshold = Range(10,road_length/2-Ego_loc)
 
 oppo_curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle
 brake_spot = new OrientedPoint right of oppo_curb_middle by 1.5

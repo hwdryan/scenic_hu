@@ -107,19 +107,38 @@ class TCEnhancedConcreteScenario(Base):
     # One-to-one relationship with TestCase
     test_case = relationship("TestCase", back_populates="tc_enhanced_concrete_scenario", uselist=False)
 
-    # 
+class Regulation(Base):
+    __tablename__ = "regulations"
+
+    id = Column(Integer, primary_key=True)
+    regulation_description= Column(String, unique=True, nullable=False)
+
+    # Many-to-many relationship with RequiredBehavior
+    required_behaviors = relationship("RequiredBehavior", secondary="regulations_required_behaviors", back_populates="regulations")
+
+    # Many-to-many relationship with TestCase
+    required_behaviors = relationship("TestCase", secondary="regulations_test_cases", back_populates="regulations")
+
 
 class RequiredBehavior(Base):
     __tablename__ = "required_behaviors"
 
     id = Column(Integer, primary_key=True)
     behavior_name = Column(String,  unique=True, nullable=False)
+    behavior_description= Column(String,  unique=True, nullable=False)
 
     # One-to-one relationship with HazardousBehavior
     hazardous_behavior = relationship("HazardousBehavior", back_populates="required_behavior", uselist=False)
 
-    # Many-to-many relationship with TestCase
-    test_cases = relationship("TestCase", secondary="test_cases_required_behaviors", back_populates="required_behaviors")
+    # Many-to-many relationship with Regulation
+    regulations = relationship("Regulation", secondary="regulations_required_behaviors", back_populates="required_behaviors")
+
+# Association table between Regulation and RequiredBehavior
+class RegulationRequiredBehavior(Base):
+    __tablename__ = 'regulations_required_behaviors'
+    id = Column(Integer, primary_key=True)
+    regulation_id = Column('test_case_id', Integer, ForeignKey('regulations.id'))
+    required_behavior_id = Column('required_behavior_id', Integer, ForeignKey('required_behaviors.id'))
 
 class HazardousBehavior(Base):
     __tablename__ = "hazardous_behaviors"
@@ -134,12 +153,12 @@ class HazardousBehavior(Base):
     # Many-to-many relationship with TestCase
     test_results = relationship("TestResult", secondary="test_results_hazardous_behaviors", back_populates="hazardous_behaviors")
 
-# Association table between TestCase and RequiredBehavior
-class TestCaseRequiredBehavior(Base):
-    __tablename__ = 'test_cases_required_behaviors'
+# Association table between Regulation and TestCase
+class RegulationTestCase(Base):
+    __tablename__ = 'regulations_test_cases'
     id = Column(Integer, primary_key=True)
     test_case_id = Column('test_case_id', Integer, ForeignKey('test_cases.id'))
-    required_behavior_id = Column('required_behavior_id', Integer, ForeignKey('required_behaviors.id'))
+    regulation_id = Column('regulation_id', Integer, ForeignKey('regulations.id'))
 
 class TestCase(Base):
     __tablename__ = "test_cases"
@@ -150,8 +169,8 @@ class TestCase(Base):
     tc_enhanced_concrete_scenario_id = Column(Integer, ForeignKey('tc_enhanced_concrete_scenarios.id'))
     tc_enhanced_concrete_scenario = relationship("TCEnhancedConcreteScenario", back_populates="test_case")
 
-    # Many-to-many relationship with RequiredBehavior
-    required_behaviors = relationship("RequiredBehavior", secondary="test_cases_required_behaviors", back_populates="test_cases")
+    # Many-to-many relationship with Regulation
+    required_behaviors = relationship("Regulation", secondary="regulations_test_cases", back_populates="test_cases")
 
     # One-to-many relationship with TestResult
     test_result_items = relationship("TestResult", back_populates="test_case_item")
@@ -181,7 +200,7 @@ class TestResult(Base):
 
 
 # Create the tables in the database
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 # # Create a session
 # Session = sessionmaker(bind=engine)

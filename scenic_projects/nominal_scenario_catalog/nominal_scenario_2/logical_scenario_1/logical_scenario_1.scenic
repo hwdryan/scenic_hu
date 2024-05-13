@@ -20,8 +20,8 @@ ego_car_type = 'vehicle.tesla.model3'
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = Range(100,200)
-destination_loc = min(Ego_loc + 125, road_length)
+Ego_loc = Range(1,100)
+destination_loc = Ego_loc + 125
 
 scenario Main():
     setup:

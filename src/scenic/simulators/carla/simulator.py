@@ -368,6 +368,7 @@ class CarlaSimulation(DrivingSimulation):
             vehicle_lane_id = current_map.get_waypoint(actor.get_transform().location).lane_id
 
             vehicle_bb_location = [list(map(float,[v.x,v.y,v.z])) for v in actual_actor.bounding_box.get_world_vertices(actor.get_transform())][0::2]
+            vehicle_bb_location[2], vehicle_bb_location[3] = vehicle_bb_location[3], vehicle_bb_location[2] 
             role_name = actual_actor.attributes.get('role_name')
             if role_name in ['autoware_v1', 'hero', 'ego_vehicle']:
                 role_name = 'ego'
@@ -417,10 +418,36 @@ class CarlaSimulation(DrivingSimulation):
 
             return d
 
-        # def vehicle_overlap(v1,v2):
-        #     for point in v1:
-        #         for po
+        def vehicle_collide(v1_bb_location,v2_bb_location):
+            """
+            point (xp, yp), edge (x1, y1) - (x2, y2):
+            D = (x2 - x1) * (yp - y1) - (xp - x1) * (y2 - y1)
+            If D > 0, the point is on the left-hand side. If D < 0, the point is on the right-hand side. If D = 0, the point is on the line.
+            """
+            d_list1 = list()
+            for p0 in v1_bb_location:
+                d_point = list()
+                for idx, p1 in enumerate(v2_bb_location):
+                    p2 = v2_bb_location[(idx+1)%4]
+                    d = (p2[0]-p1[0]) * (p0[1]-p1[1]) - (p0[0]-p1[0]) * (p2[1]-p1[1])
+                    d_point.append(d)
+                if max(d_point) <= 0:
+                    return True
+                d_list1.append(d_point)
 
+            d_list2 = list()
+            for p0 in v2_bb_location:
+                d_point = list()
+                for idx, p1 in enumerate(v1_bb_location):
+                    p2 = v1_bb_location[(idx+1)%4]
+                    d = (p2[0]-p1[0]) * (p0[1]-p1[1]) - (p0[0]-p1[0]) * (p2[1]-p1[1])
+                    d_point.append(d)
+                if max(d_point) <= 0:
+                    return True
+                d_list2.append(d_point)
+
+            return False
+        
         def calculate_distances(data):
             """Calculate distances from 'ego' to other points."""
             ego_points = data['ego']
@@ -429,10 +456,10 @@ class CarlaSimulation(DrivingSimulation):
             for id, target_points in data.items():
                 if id != 'ego':
                     distances = []
-                    # # Given ego_points and target_points, calculate if they overlap
-                    # if vehicle_overlap(target_points,ego_points):
-                    #     results[id] = 0
-                    #     continue
+                    # Given ego_points and target_points, calculate if they overlap
+                    if vehicle_collide(target_points,ego_points):
+                        results[id] = 0
+                        continue
 
                     for ego_point in ego_points:
                         for idx, target_point1 in enumerate(target_points):

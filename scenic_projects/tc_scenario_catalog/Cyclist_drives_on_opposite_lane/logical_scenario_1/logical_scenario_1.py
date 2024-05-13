@@ -14,7 +14,7 @@ from scenic.miscs.set_dreamview import set_dreamview, close_modules
 from scenic.miscs.requirements import Requirements
 
 scenic_dir = os.path.join(home_directory, os.path.dirname(__file__))
-scenic_path = 'concrete_scenario_1.scenic'
+scenic_path = 'Cyclist_drives_on_opposite_lane_1.scenic'
 scenic_param = 'param.scene'
 scenic_path = os.path.join(scenic_dir, scenic_path)
 scenic_param = os.path.join(scenic_dir, scenic_param)

@@ -33,11 +33,15 @@ class Requirements:
             ('Acceleration_x', float),
             ('Acceleration_y', float),
             ('Acceleration_z', float),
+            ('EgoDestination_x', float),
+            ('EgoDestination_y', float),
+            ('EgoDestination_z', float),
             ('Distance2Ego', float)
         ]
 
         data = np.genfromtxt(logfile, dtype=dtype, delimiter=',', skip_header=1)
         data['Location_y'] = - data['Location_y']
+        data['EgoDestination_y'] = - data['EgoDestination_y']
         data['Timestep'] -= data['Timestep'][0] 
         data['Timestep'] = np.round(data['Timestep'],2)
         self.data = data
@@ -59,6 +63,8 @@ class Requirements:
         results['conclusion'] = True
         return results
 
+    def test(self):
+        return type(self.data)
 
     def collision(self):
         """
@@ -76,20 +82,21 @@ class Requirements:
 
     def exceed_acceleration(self):
         """
-        Test case fails if exceeds rated acceleration.
+        Test case fails if exceeds specified acceleration.
 
         Returns:
             Bool - fail (False) or succeed (True)
         """
-        rated_acceleration = 10
+        specified_acceleration = 5
 
         ego_rows = self.data[self.data['Role_name'] == 'ego']
-        acceleration_x = ego_rows['Acceleration_x']
-        acceleration_y = ego_rows['Acceleration_y']
-        acceleration_z = ego_rows['Acceleration_z']
+        ego_rotated_acceleration = rotate_points((ego_rows['Acceleration_x'],ego_rows['Acceleration_y']),ego_rows['Rotation_yaw'])
+        # only acceleration, filter out deceleration
+        max_acceleration = np.max(ego_rotated_acceleration[:,0].astype(float), axis=0)
 
-        acc = np.sqrt(acceleration_x**2 + acceleration_y**2)
-        return np.max(acc) <= rated_acceleration
+        if max_acceleration > specified_acceleration:
+            return False
+        return True
     
     def minimum_distance(self):
         """
@@ -99,10 +106,9 @@ class Requirements:
             Bool - fail (False) or succeed (True)
         """
         minimum_distance = 1.5
-        for target in self.targets:
-            target_rows = self.data[self.data['Role_name'] == target]
-            if np.any((target_rows['Distance2Ego'] < minimum_distance)):
-                return False
+    
+        if np.any((self.data['Distance2Ego'] < minimum_distance)):
+            return False
         return True
     
     def ego_overtake(self, target_rolename):
@@ -118,22 +124,28 @@ class Requirements:
         """
         # assume same heading, same lane
         ego_rows = self.data[self.data['Role_name'] == 'ego']
+        original_lane_id = ego_rows['Lane_id'][0]
         target_rows = self.data[self.data['Role_name'] == target_rolename]
         # vehicle coordinates
         ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
         target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
-        # 
-        ego_target_c = transform_points(ego_c, target_c)
-        
-        if np.any(ego_target_c[:,0]<=0):
+        # target coordinate in ego local coordinate system
+        transformed_target_c = transform_points(ego_c, target_c)
+        # if when parallel to target, ego are on neighbor lane, ego overtook
+        ego_parallel_segment = ego_rows[np.abs(transformed_target_c[:,0].astype(float))<1]
+        if ego_parallel_segment == 0:
+            return True
+        if np.any(ego_parallel_segment['Lane_id']!=original_lane_id):
             return False
         return True
     
-    def safe_lat_distance(self, target_rolename):
+    def safe_longitudinal_distance(self, target_rolename):
         """
-        Test case fails if ego violates the safe lateral distance toward front vehicle.
+        Test case fails if ego violates the safe longitudinal distance toward front vehicle.
         
-        NOTE: Assume same heading, same lane for ego and target
+        NOTE: Assume same heading, same lane for ego and target.
+        if ego overtakes to the front of target vehicle, test case also fails.
+
         Args:
             target_rolename: String 
 
@@ -143,62 +155,314 @@ class Requirements:
         ego_rows = self.data[self.data['Role_name'] == 'ego']
         target_rows = self.data[self.data['Role_name'] == target_rolename]
         ego_v = np.sqrt(ego_rows['Velocity_x']**2 + ego_rows['Velocity_y']**2 + ego_rows['Velocity_z']**2)
+
+        # if ego overtakes to the front of target vehicle, test case also fails
+        if self.ego_overtake(target_rolename):
+            return False
+
         distance_to_Ego = target_rows['Distance2Ego']
 
 
         d_min = []
         for v in ego_v:
-            if v in range(0,2):
-                d_min.append(v*1.0)
-            elif v in range(2,2.78):
+            if 0 <= v < 2:
+                d_min.append(2)
+            elif 2 <= v < 2.78:
                 d_min.append(v*1.1)
-            elif v in range(2.78,5.56):
+            elif 2.78<= v < 5.56 :
                 d_min.append(v*1.2)
-            elif v in range(5.56,8.33):
+            elif 5.56 <= v < 8.33:
                 d_min.append(v*1.3)
-            elif v in range(8.33,11.11):
+            elif 8.33 <= v < 11.11:
                 d_min.append(v*1.4)
-            elif v in range(11.11,13.89):
+            elif 11.11 <= v < 13.89:
                 d_min.append(v*1.5)
-            elif v in range(13.89,16.67):
+            elif 13.89 <= v < 16.67:
                 d_min.append(v*1.6)
 
         d_min = np.array(d_min)
-        if np.any(distance_to_Ego<d_min):
+        if np.any(distance_to_Ego<=d_min):
             return False
         return True
-    
     
     def ego_drive_normally(self):
         """
         Test case fails if ego drive abnormally, as in:
-            ego's deceleration < -2m/s
-            ego has different lane id
-            at the end, ego's distance to destination > 2m.  
+            if ego's deceleration < -2m/s &
+                ego has different lane id &
+                at the end, ego's distance to destination > 10m,
+            test case fails.
 
         Returns:
             Boolean - fail (False) or succeed (True)     
         """
         ego_rows = self.data[self.data['Role_name'] == 'ego']
         ego_lane_id = ego_rows['Lane_id']
-        ego_rotated_acceleration = rotate_point((ego_rows['Acceleration_x'],ego_rows['Acceleration_y']),ego_rows['Rotation_yaw'])
-        max_deceleration = np.min(ego_rotated_acceleration, axis=0)
-        #
+        ego_rotated_acceleration = rotate_points((ego_rows['Acceleration_x'],ego_rows['Acceleration_y']),ego_rows['Rotation_yaw'])
+
+        max_deceleration = np.min(ego_rotated_acceleration[:,0].astype(float), axis=0)
+        return max_deceleration
+        # ego's deceleration < -2m/s
         if max_deceleration < -2:
             return False
-        # 
+        # ego has different lane id
         if len(set(ego_lane_id))>1:
             return False
+        # at the end, ego's distance to destination > 10m.
+        # Location_x Location_y	Location_z EgoDestination_x	EgoDestination_y EgoDestination_z
+        if two_points_distance((ego_rows["Location_x"][-1],ego_rows["Location_y"][-1]),(ego_rows['EgoDestination_x'][-1],ego_rows['EgoDestination_y'][-1])) > 10:
+            return False
+        
+        return True
+        
+    def ego_overtake_safe_lateral_distance(self, target_rolename):
+        """
+        Test case fails if ego violate safe lateral distance when overtaking road users.
+        
+        Note: assume same lane, same heading 
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        # assume same heading, same lane
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        target_rolenames = set(self.data['Role_name']).remove('ego')
+        for rolename in target_rolenames:
+            target_rows = self.data[self.data['Role_name'] == rolename]
+            # vehicle coordinates
+            ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
+            target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
+            # target coordinate in ego local coordinate system
+            transformed_target_c = transform_points(ego_c, target_c)
+            # When ego langitudinal distance < 3 m, ego lateral distance > 1.5 m
+            overtake_segment = transformed_target_c[np.abs(transformed_target_c[:,0].astype(float))<3]
+            if np.any(np.abs(overtake_segment[:,1].astype(float)) < 1.5):
+                return False 
+            return True
+    
+    def ego_safe_overtake_oncoming_traffic(self, target_rolename):
+        """
+        Test case fails if ego overtake when time for manuevor is not enough, given that opposite lane has oncoming traffic
+        
+        Note: assume straight road, on same section of road from start to end , neighbor lane has opposite travel direction
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        s_safe = 10
+
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        original_lane_id = ego_rows['Lane_id'][0]
+        t_maneuvor_span = ego_rows['Timestep'][ego_rows['Lane_id']!=original_lane_id]
+        # Ego start overtaking
+        t0 = np.min(t_maneuvor_span)
+        # Ego finish overtaking
+        t1 = np.max(t_maneuvor_span)
+        # Assume only one target for now
+        target_rows = self.data[(self.data['Role_name'] == target_rolename)]
+        """
+        # Basicly to test who reaches the position where ego finishs overtaking first
+        t1_position = target_rows[target_rows['Timestep']==np.max(t_maneuvor_span)][['Location_x','Location_y']][0]
+        # The real t2
+        target_location = target_rows[["Location_x","Location_y"]]
+        target_to_t1_distance = np.argmin(np.array([two_points_distance(x,t1_position) for x in target_location]))
+        t2 = target_rows['Timestep'][target_to_t1_distance][0]
+        """
+        ego_location = ego_rows[['Location_x','Location_y']]
+        target_location = target_rows[["Location_x","Location_y"]]
+        # s_0 = ego position at t0, s_1 = target position at t0
+        s_0 = ego_location[ego_rows['Timestep']==t0][0]
+        s_1 = target_location[target_rows['Timestep']==t0][0]
+        # v_0 = ego velocity at t0, v_1 = target velocity at t0
+        v_0 = ego_rows[ego_rows['Timestep']==t0][['Velocity_x','Velocity_y']][0]
+        v_1 = target_rows[target_rows['Timestep']==t0][['Velocity_x','Velocity_y']][0]
+        # estimated ttc (plus safe distance)
+        delta_v = v_1-v_0
+        ttc = (s_1-s_0-s_safe)/math.sqrt(delta_v[0]**2+delta_v[1]**2)
+        # t_m = estimated time for meneuvor, s_2 = position when ego finish overtaking
+        # s_2 = ego_location[ego_rows['Timestep']==t1][0]
+
+        front_targets_rows = self.data[(self.data['Role_name'] != 'ego') & \
+                                      (self.data['Role_name'] != target_rolename) & \
+                                      (self.data['Lane_id']==original_lane_id)]
+        further_target_rolename= front_targets_rows[front_targets_rows['Distance2Ego']==np.max(front_targets_rows['Distance2Ego'])]['Role_name'][0]
+        further_target = self.data[(self.data['Role_name'] == further_target_rolename)]
+        # target coordinate in ego local coordinate system
+        ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
+        target_c = np.stack((further_target['Location_x'],further_target['Location_y'],further_target['Rotation_yaw']),axis=1)
+        s_2 = reverse_transform_points(target_c, np.ones((target_c.shape[0], 2)) * [10.0, 0])[0]
+        t_m = (s_2-s_0)/math.sqrt(v_0[0]**2+v_0[1]**2)
         # 
+        if t_m >= ttc:
+            return False
+        return True
+    
+    def ego_safe_overtake_higher_speed(self):
+        """
+        Test case fails if ego overtake when ego speed is not 15% higher than the vehicle's speed being overtaken.
+        
+        Note: assume straight road, on same section of road from start to end 
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        higher_speed = 15 # %
+
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        original_lane_id = ego_rows['Lane_id'][0]
+        t_maneuvor_span = ego_rows['Timestep'][ego_rows['Lane_id']!=original_lane_id]
+        # Ego start overtaking
+        t0 = np.min(t_maneuvor_span)
+        # Ego finish overtaking
+        t1 = np.max(t_maneuvor_span)
+        # all targets included
+        target_rolenames = set(self.data['Role_name']).remove('ego')
+        # For each target
+        for rolename in target_rolenames:
+            target_rows = self.data[(self.data['Role_name'] == rolename) & (self.data['Lane_id']==original_lane_id)]
+            if not target_rows:
+                continue
+            # vehicle coordinates
+            ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
+            target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
+            # ego coordinate in target local coordinate system
+            transformed_ego_c = transform_points(target_c, ego_c)
+            # check if ego overtook this target vehicle
+            if not ((transformed_ego_c[ego_rows['Timestep']==t0]<0) and ((transformed_ego_c[ego_rows['Timestep']==t1]>0))):
+                continue
+            # v_0 = ego velocity at t0, v_1 = target velocity at t0
+            # s_0 = ego speed at t0, s_1 = target speed at t0
+            v_0 = ego_rows[ego_rows['Timestep']==t0][['Velocity_x','Velocity_y']][0]
+            s_0 = math.sqrt(v_0[0]**2+v_0[1]**2)
+            v_1 = target_rows[target_rows['Timestep']==t0][['Velocity_x','Velocity_y']][0]
+            s_1 = math.sqrt(v_1[0]**2+v_1[1]**2)
+            try:
+                if (s_0-s_1)/s_1 < 0.15:
+                    return False
+            except ZeroDivisionError:
+                continue
+        return True
+        
+    def ego_being_overtaken(self, *target_rolenames):
+        """
+        Test case fails if ego increase speed when being overtaken.
+        
+        Note: assume straight road, on same section of road from start to end 
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        # For each target
+        for rolename in target_rolenames:
+            target_rows = self.data[(self.data['Role_name'] == rolename)]
+            # vehicle coordinates
+            ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
+            target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
+            # target coordinate in ego local coordinate system
+            transformed_target_c = transform_points(ego_c, target_c)
+            # t_0 = target at the left of ego, t_1 = target in front of ego
+            t_0 = ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)==0)& \
+                                       (transformed_target_c[:,1].astype(float)< 10)& \
+                                        (transformed_target_c[:,1].astype(float)> 0)][0]
+            t_1 = ego_rows['Timestep'][(transformed_target_c[:,1].astype(float)> -1)& \
+                                       (transformed_target_c[:,1].astype(float)< 1)& \
+                                       (transformed_target_c[:,0].astype(float)< 10)& \
+                                        (transformed_target_c[:,0].astype(float)> 0)][0]
+            overtaken_acceleration_segment = ego_rows[(ego_rows['Timestep']>=t_0) & (ego_rows['Timestep']<t_1)][['Acceleration_x','Acceleration_y','Rotation_yaw']]
+            ego_rotated_acceleration = rotate_points((overtaken_acceleration_segment['Acceleration_x'],overtaken_acceleration_segment['Acceleration_y']),overtaken_acceleration_segment['Rotation_yaw'])
+            max_acceleration = np.max(ego_rotated_acceleration[:,0].astype(float), axis=0)
+            if np.any(max_acceleration)> 1:
+                return False
+
+        return True
+    
+    def ego_emergency_braking(self, oncoming_vehicle_rolename):
+        """
+        Test case fails if ego didn't reduce speed 20 km/h or to 0 km/h, in case a collision cannot be avoided. If avoidable, ego should brake to stop.
+        
+        Note: assume straight road, on same section of road from start to end, 
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        # ego emergency deceleration
+        ego_d = -11.58 # m/s2 
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        original_lane_id = ego_rows['Lane_id'][0]
+        target_rows = self.data[(self.data['Role_name'] == oncoming_vehicle_rolename)]
+        # t_0 = target vehicle start overtaking (lane id being the opposite lane)
+        t_0 = np.min(target_rows['Timestep'][target_rows['Lane_id']==original_lane_id])
+        # v_0 = ego speed at t_0, v_1 = target speed at t_0
+        v_0 = ego_rows[ego_rows['Timestep']==t_0][['Velocity_x','Velocity_y']][0]
+        v_1 = target_rows[target_rows['Timestep']==t_0][['Velocity_x','Velocity_y']][0]
+        # d = distance between two vehicle
+        d = two_points_distance(ego_rows[ego_rows['Timestep']==t_0][['Location_x','Location_y']][0],
+            target_rows[target_rows['Timestep']==t_0][['Location_x','Location_y']][0])
+        # check if is avoidable
+        d_safe = 5
+        if v_1*v_0/ego_d + v_0**2/(2*ego_d) > (d - d_safe):
+            # v_2 = ego speed when collision happens
+            collision_segment = ego_rows[ego_rows['Distance2Ego']==0]
+            v_2 = collision_segment[collision_segment['Timestep']==np.min(collision_segment['Timestep'])][['Velocity_x','Velocity_y']][0]
+            delta_speed = math.sqrt(v_2[0]**2+v_2[1]**2) - math.sqrt(v_0[0]**2+v_0[1]**2)
+            if delta_speed < 20/3.6 and math.sqrt(v_2[0]**2+v_2[1]**2) > 0.1:
+                return False
+        else:
+            # v_2 = ego speed when collision happens
+            critical_moment = ego_rows[ego_rows['Distance2Ego']==np.min(ego_rows['Distance2Ego'])][0]
+            v_2 = critical_moment[['Velocity_x','Velocity_y']][0]
+            if math.sqrt(v_2[0]**2+v_2[1]**2) > 0.1:
+                return False
+        return True
+
+    def ego_overtaking_on_the_left(self):
+        """
+        Test case fails if ego didn't overtake from the left side.
+        
+        Note: assume same lane, same heading 
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        # assume same heading, same lane
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        target_rolenames = set(self.data['Role_name']).remove('ego')
+        for rolename in target_rolenames:
+            target_rows = self.data[self.data['Role_name'] == rolename]
+            # vehicle coordinates
+            ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
+            target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
+            # target coordinate in ego local coordinate system
+            transformed_target_c = transform_points(ego_c, target_c)
+            # When ego langitudinal distance < 3 m, ego lateral distance > 1.5 m
+            overtake_segment = transformed_target_c[np.abs(transformed_target_c[:,0].astype(float))<1]
+            if overtake_segment.size == 0:
+                continue
+            if np.any(overtake_segment[:,1].astype(float) >= 0):
+                return False 
+            return True
+
+    def ego_react_to_pedetrian(self):
+        """
+        Test case fails if ego didn't overtake from the left side.
+        
+        Note: assume same lane, same heading 
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+    
+
+
+
 
 # Utility functions
 
-def rotate_point(points, angles):
-    """Rotate a point around the origin (0, 0) by a given angle in radians."""
+def rotate_points(points, angles):
+    """Rotate points around the origin (0, 0) by a given angle in radians."""
     # Convert yaw angle from degrees to radians
-    print(angles.shape)
     radians = np.radians(angles)
-    print(radians.shape)
     xs, ys = points
     cos_angles = np.cos(radians)
     sin_angles = np.sin(radians)
@@ -214,6 +478,23 @@ def transform_points(p1_array, p2_array):
     yaw_angles = p1_array[:,2]
 
     # Rotate p2_array around the origin of p1_array by the yaw angle of p1_array
-    transformed_points = rotate_point((translated_xs, translated_ys), yaw_angles)
+    transformed_points = rotate_points((translated_xs, translated_ys), yaw_angles)
 
     return transformed_points
+
+def reverse_transform_points(p1_array, p2_array):
+    """Transform points in p2_array from local coordinates of p1_array to world coordinates."""
+    yaw_angles = p1_array[:,2]
+
+    # Rotate p2_array around the origin of p1_array by the -1*yaw angle of p1_array
+    transformed_points = rotate_points((p2_array[:,0], p2_array[:,1]), -1*yaw_angles)
+    
+    translated_xs = transformed_points[:,0] + p1_array[:,0]
+    translated_ys = transformed_points[:,1] + p1_array[:,1]
+
+    return np.stack((translated_xs, translated_ys),axis=1)
+
+def two_points_distance(p1,p2):
+    d = math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
+    return d
+

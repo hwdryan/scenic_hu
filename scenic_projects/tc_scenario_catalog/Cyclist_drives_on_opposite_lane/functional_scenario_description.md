@@ -6,16 +6,10 @@ Road **has** geometry straight
 
 ### Moveable objects:
 
-Ego **has** position in the middle of the right lane
+Ego **has** position on right lane
 
-Bicycle **has** position in the middle of the sidewalk lane
+Bicycle **has** position on left lane
 
 Ego **drives** following lane
 
-Bicycle **drives** across the road
-
-### Inter-relationship
-
-Bicycle **shows up** in front of Ego
-
-s
+Bicycle **drives** following lane

@@ -10,18 +10,17 @@ import scenic.domains.driving.roads as _roads
 import scenic.simulators.carla.utils.utils as _utils
 import scenic.simulators.carla.misc as _misc
 
-import random
 import carla
 import time
 
-road = random.choice(['road4','road6','road12','road8','road15'])
-roadSec = network.elements[road].sections[0]
+roadSec = network.elements['road15'].sections[0]
 ego_car_type = 'vehicle.tesla.model3'
+cyclist_type = 'vehicle.bh.crossbike'
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = Range(100,200)
-destination_loc = min(Ego_loc + 125, road_length)
+Ego_loc = 50
+destination_loc = Ego_loc + 125
 
 scenario Main():
     setup:

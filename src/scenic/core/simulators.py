@@ -500,7 +500,8 @@ class Simulation(abc.ABC):
 
             # Run the simulation for a single step and read its state back into Scenic
             data = self.step()
-            with open("./current_filename.txt", "w+", newline="") as f:
+            home_directory = os.path.expanduser('~')
+            with open(f"{home_directory}/Tools/Scenic/src/scenic/miscs/current_filename.txt", "w+", newline="") as f:
                 f.write(document_path) 
             with open(document_path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
