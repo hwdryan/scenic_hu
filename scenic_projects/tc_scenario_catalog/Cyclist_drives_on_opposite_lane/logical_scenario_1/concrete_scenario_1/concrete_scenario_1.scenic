@@ -1,6 +1,6 @@
-# The road has one lane for ego's travelling direction and one lane for the opposite direction. 
-# On the opposite lane a cyclist drives following lane
-
+################
+# Scenic code
+################
 param map = localPath("../../assets/maps/CARLA/Town01.xodr")
 param carla_map = 'Town01'
 param weather = "ClearNoon"

@@ -307,7 +307,8 @@ class CarlaSimulation(DrivingSimulation):
         if self.render:
             self.cameraManager.render(self.display)
             pygame.display.flip()
-        
+        if scenic_lead:
+            return None
         return data
             
 
@@ -351,32 +352,33 @@ class CarlaSimulation(DrivingSimulation):
         ego_destination = tuple(map(float, [d_x,d_y,d_z]))
         bb = dict()
         data = dict()
-        for v in vehicles:
-            actor = world_snapshot.find(v.id)
-            actual_actor = self.world.get_actor(v.id)
-            location = actor.get_transform().location
-            location = tuple(map(float,[location.x, location.y, location.z]))
-            rotation = actor.get_transform().rotation
-            rotation = tuple(map(float,[rotation.pitch, rotation.yaw, rotation.roll]))
-            angular_velocity = actor.get_angular_velocity()
-            angular_velocity = tuple(map(float,[angular_velocity.x, angular_velocity.y, angular_velocity.z]))
-            velocity = actor.get_velocity()
-            velocity = tuple(map(float,[velocity.x, velocity.y, velocity.z]))
-            acceleration = actor.get_acceleration()
-            acceleration = tuple(map(float,[acceleration.x, acceleration.y, acceleration.z]))
-            # 
-            vehicle_lane_id = current_map.get_waypoint(actor.get_transform().location).lane_id
+        for group in (vehicles, peds):
+            for v in group:
+                actor = world_snapshot.find(v.id)
+                actual_actor = self.world.get_actor(v.id)
+                location = actor.get_transform().location
+                location = tuple(map(float,[location.x, location.y, location.z]))
+                rotation = actor.get_transform().rotation
+                rotation = tuple(map(float,[rotation.pitch, rotation.yaw, rotation.roll]))
+                angular_velocity = actor.get_angular_velocity()
+                angular_velocity = tuple(map(float,[angular_velocity.x, angular_velocity.y, angular_velocity.z]))
+                velocity = actor.get_velocity()
+                velocity = tuple(map(float,[velocity.x, velocity.y, velocity.z]))
+                acceleration = actor.get_acceleration()
+                acceleration = tuple(map(float,[acceleration.x, acceleration.y, acceleration.z]))
+                # 
+                vehicle_lane_id = current_map.get_waypoint(actor.get_transform().location).lane_id
 
-            vehicle_bb_location = [list(map(float,[v.x,v.y,v.z])) for v in actual_actor.bounding_box.get_world_vertices(actor.get_transform())][0::2]
-            vehicle_bb_location[2], vehicle_bb_location[3] = vehicle_bb_location[3], vehicle_bb_location[2] 
-            role_name = actual_actor.attributes.get('role_name')
-            if role_name in ['autoware_v1', 'hero', 'ego_vehicle']:
-                role_name = 'ego'
-                bb['ego'] = vehicle_bb_location
-                data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration) + list(ego_destination)]
-            else:
-                bb[role_name] = vehicle_bb_location
-                data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration) + list([None,None,None])]        
+                vehicle_bb_location = [list(map(float,[v.x,v.y,v.z])) for v in actual_actor.bounding_box.get_world_vertices(actor.get_transform())][0::2]
+                vehicle_bb_location[2], vehicle_bb_location[3] = vehicle_bb_location[3], vehicle_bb_location[2] 
+                role_name = actual_actor.attributes.get('role_name')
+                if role_name in ['autoware_v1', 'hero', 'ego_vehicle']:
+                    role_name = 'ego'
+                    bb['ego'] = vehicle_bb_location
+                    data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration) + list(ego_destination)]
+                else:
+                    bb[role_name] = vehicle_bb_location
+                    data[role_name] = [[timestamp] + [int(v.id)] + [role_name] + [vehicle_lane_id] + list(location) + list(rotation) + list(angular_velocity) + list(velocity) + list(acceleration) + list([None,None,None])]        
 
         def bb_size(bb_points):
             # calculate boundingbox size 

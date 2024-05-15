@@ -183,7 +183,7 @@ class CarlaActor(DrivingObject):
         gear (int)
         """
         v_parameters = [control.throttle, control.steer, control.brake]
-        print(control.throttle, control.steer, control.brake)
+        # print(control.throttle, control.steer, control.brake)
         if control.throttle!=0 or control.steer!=0 or control.brake!=0:
             return True
         else:
@@ -208,6 +208,34 @@ class CarlaActor(DrivingObject):
         return None
 
     # self-defined
+    def longitudinaldistanceToEgo(self):
+        """Compute the distance to Ego.
+        """
+        objects = simulation().objects
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+                ego_tr = tuple(map(float,[actor.get_transform().location.x, -1 * actor.get_transform().location.y, actor.get_transform().rotation.yaw]))
+                target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
+                result = transform_point(target_tr,ego_tr)[0]
+                return result
+        
+    # self-defined
+    def lateraldistanceToEgo(self):
+        """Compute the distance to Ego.
+        """
+        objects = simulation().objects
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+                ego_tr = tuple(map(float,[actor.get_transform().location.x, -1 * actor.get_transform().location.y, actor.get_transform().rotation.yaw]))
+                target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
+                result = transform_point(target_tr,ego_tr)[1]
+                return result
+        
+
+
+    # self-defined
     def distanceToObj(self, role_name):
         """Compute the distance to the object.
         """
@@ -221,6 +249,31 @@ class CarlaActor(DrivingObject):
                 (self.carlaActor.get_transform().location.y - actor.get_transform().location.y)**2)
                 return distance
         return None
+
+# self-defined
+def transform_point(p1, p2):
+    """Transform p2 from world coordinates to local coordinates of p1."""
+    
+    translated_x = p2[0] - p1[0]
+    translated_y = p2[1] - p1[1]
+    yaw_angle = p1[2]
+
+    # Rotate p2_array around the origin of p1_array by the yaw angle of p1_array
+    transformed_point = rotate_point((translated_x, translated_y), yaw_angle)
+
+    return transformed_point
+
+
+def rotate_point(point, angle):
+    """Rotate point around the origin (0, 0) by a given angle in radians."""
+    # Convert yaw angle from degrees to radians
+    radians = math.radians(angle)
+    x, y = point
+    cos_angle = math.cos(radians)
+    sin_angle = math.sin(radians)
+    rotated_x = x * cos_angle - y * sin_angle
+    rotated_y = x * sin_angle + y * cos_angle
+    return (rotated_x, rotated_y)
 
 # self-defined
 def EgoSpawned() -> bool:

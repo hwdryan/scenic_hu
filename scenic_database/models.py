@@ -117,7 +117,7 @@ class Regulation(Base):
     required_behaviors = relationship("RequiredBehavior", secondary="regulations_required_behaviors", back_populates="regulations")
 
     # Many-to-many relationship with TestCase
-    required_behaviors = relationship("TestCase", secondary="regulations_test_cases", back_populates="regulations")
+    test_cases = relationship("TestCase", secondary="regulations_test_cases", back_populates="regulations")
 
 
 class RequiredBehavior(Base):
@@ -125,7 +125,6 @@ class RequiredBehavior(Base):
 
     id = Column(Integer, primary_key=True)
     behavior_name = Column(String,  unique=True, nullable=False)
-    behavior_description= Column(String,  unique=True, nullable=False)
 
     # One-to-one relationship with HazardousBehavior
     hazardous_behavior = relationship("HazardousBehavior", back_populates="required_behavior", uselist=False)
@@ -137,7 +136,7 @@ class RequiredBehavior(Base):
 class RegulationRequiredBehavior(Base):
     __tablename__ = 'regulations_required_behaviors'
     id = Column(Integer, primary_key=True)
-    regulation_id = Column('test_case_id', Integer, ForeignKey('regulations.id'))
+    regulation_id = Column('regulation_id', Integer, ForeignKey('regulations.id'))
     required_behavior_id = Column('required_behavior_id', Integer, ForeignKey('required_behaviors.id'))
 
 class HazardousBehavior(Base):
@@ -170,7 +169,7 @@ class TestCase(Base):
     tc_enhanced_concrete_scenario = relationship("TCEnhancedConcreteScenario", back_populates="test_case")
 
     # Many-to-many relationship with Regulation
-    required_behaviors = relationship("Regulation", secondary="regulations_test_cases", back_populates="test_cases")
+    regulations = relationship("Regulation", secondary="regulations_test_cases", back_populates="test_cases")
 
     # One-to-many relationship with TestResult
     test_result_items = relationship("TestResult", back_populates="test_case_item")
@@ -200,7 +199,7 @@ class TestResult(Base):
 
 
 # Create the tables in the database
-Base.metadata.create_all(engine)
+# Base.metadata.create_all(engine)
 
 # # Create a session
 # Session = sessionmaker(bind=engine)

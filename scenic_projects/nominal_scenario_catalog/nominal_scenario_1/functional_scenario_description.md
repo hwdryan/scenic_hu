@@ -6,7 +6,7 @@ Road **has** geometry straight
 
 ### Moveable objects:
 
-Ego **has** position in the middle of the right lane
+Ego **has** position on the right lane
 
 Ego **drives** following lane
 

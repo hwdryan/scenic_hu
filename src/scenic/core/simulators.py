@@ -501,12 +501,13 @@ class Simulation(abc.ABC):
             # Run the simulation for a single step and read its state back into Scenic
             data = self.step()
             home_directory = os.path.expanduser('~')
-            with open(f"{home_directory}/Tools/Scenic/src/scenic/miscs/current_filename.txt", "w+", newline="") as f:
-                f.write(document_path) 
-            with open(document_path, "a", newline="") as csvfile:
-                writer = csv.writer(csvfile)
-                for row in data.values():
-                    writer.writerows(row)
+            if not scenic_lead:
+                with open(f"{home_directory}/Tools/Scenic/src/scenic/miscs/current_filename.txt", "w+", newline="") as f:
+                    f.write(document_path) 
+                with open(document_path, "a", newline="") as csvfile:
+                    writer = csv.writer(csvfile)
+                    for row in data.values():
+                        writer.writerows(row)
 
             self.currentTime += 1
             self.updateObjects()

@@ -1,6 +1,6 @@
-# The road has one lane for ego's travelling direction and one lane for the opposite direction. 
-# On the opposite lane a cyclist drives following lane
-
+################
+# Scenic code
+################
 param map = localPath("../../assets/maps/CARLA/Town01.xodr")
 param carla_map = 'Town01'
 param weather = "ClearNoon"
@@ -18,12 +18,13 @@ ego_car_type = 'vehicle.tesla.model3'
 cyclist_type = 'vehicle.bh.crossbike'
 
 # Speed of vehicles
-C1_speed = 11.11
+C1_speed = Range(1,11.11)
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = 50
-C1_loc = road_length - 100
+Ego_loc = Range(1,100)
+destination_loc = Ego_loc + 125
+C1_loc = road_length - Range(1,100)
 
 behavior C1Behavoir(target_speed):
     try:
@@ -36,7 +37,7 @@ scenario Main():
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        destination_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc + 125
+        destination_spot = new OrientedPoint following roadDirection from start_spot for destination_loc
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         print(f"Ego destination: {destination_spot.destination_spot()}")
         # ego = new Car following roadDirection from start_spot for Ego_loc, \

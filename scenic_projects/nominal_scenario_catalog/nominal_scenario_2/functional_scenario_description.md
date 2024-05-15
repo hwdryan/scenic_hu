@@ -2,13 +2,12 @@
 
 Road **has** layout two-lane motorway with opposite traveling directions, sidewalks on both road side.
 
-Road **has** geometry straight
+Road **has** geometry curve in the middle
 
 ### Moveable objects:
 
-Ego **has** position at the start of the right lane
+Ego **has** position on the right lane
 
 Ego **drives** following lane
 
 ### Inter-relationship
-

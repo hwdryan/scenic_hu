@@ -45,7 +45,7 @@ try:
         # pipeline
         launch_tools()
         set_dreamview()
-        simulation = simulator.simulate(scene, verbosity=0, maxSteps=1000)
+        simulation = simulator.simulate(scene, verbosity=0, maxSteps=1500)
 except Exception as e:
         print(e)
 else:

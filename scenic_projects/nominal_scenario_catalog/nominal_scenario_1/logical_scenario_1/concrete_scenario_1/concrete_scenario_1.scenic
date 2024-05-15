@@ -14,12 +14,10 @@ import carla
 import time
 
 roadSec = network.elements['road15'].sections[0]
-ego_car_type = 'vehicle.tesla.model3'
-cyclist_type = 'vehicle.bh.crossbike'
 
 # location of vehicles
 road_length = 308.69
-Ego_loc = 120
+Ego_loc = 50
 destination_loc = Ego_loc + 125
 
 scenario Main():

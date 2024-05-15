@@ -14,20 +14,25 @@ import random
 import carla
 import time
 
-road = random.choice(['road4','road6','road12','road8','road15'])
-roadSec = network.elements[road].sections[0]
-ego_car_type = 'vehicle.tesla.model3'
+roadSec = network.elements['road15'].sections[0]
+corner_roadSec = network.elements['road20'].sections[0]
+roadSec2 = network.elements['road5'].sections[0]
+ego_car_type = 'vehicle.lincoln.mkz_2017'
 
 # location of vehicles
-road_length = 308.69
-Ego_loc = Range(1,100)
-destination_loc = Ego_loc + 125
+road_length_1 = 308.69
+road_length_corner = 16.70
+road_length_2 = 69.62
+Ego_loc = Range(150,250)
 
 scenario Main():
     setup:
-        # Ego car
+        # Ego vehicle
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
         ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
-        destination_spot = new OrientedPoint following roadDirection from start_spot for destination_loc
+        destination_spot = new OrientedPoint on roadSec2.forwardLanes[0].centerline.middle
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         print(f"Ego destination: {destination_spot.destination_spot()}")
+
+
+

@@ -201,7 +201,7 @@ class Requirements:
         ego_rotated_acceleration = rotate_points((ego_rows['Acceleration_x'],ego_rows['Acceleration_y']),ego_rows['Rotation_yaw'])
 
         max_deceleration = np.min(ego_rotated_acceleration[:,0].astype(float), axis=0)
-        return max_deceleration
+
         # ego's deceleration < -2m/s
         if max_deceleration < -2:
             return False
@@ -443,17 +443,151 @@ class Requirements:
                 return False 
             return True
 
-    def ego_react_to_pedetrian(self):
+    def ego_safe_deceleration(self):
         """
-        Test case fails if ego didn't overtake from the left side.
-        
-        Note: assume same lane, same heading 
+        Test case fails if ego's deceleration is lower than threshold.
 
         Returns:
             Boolean - fail (False) or succeed (True)     
         """
-    
+        safe_deceleration = -2
 
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        ego_lane_id = ego_rows['Lane_id']
+        ego_rotated_acceleration = rotate_points((ego_rows['Acceleration_x'],ego_rows['Acceleration_y']),ego_rows['Rotation_yaw'])
+
+        max_deceleration = np.min(ego_rotated_acceleration[:,0].astype(float), axis=0)
+
+        # ego's deceleration < safe_deceleration
+        if max_deceleration < -2:
+            return False
+        
+        return True
+
+    def ego_lane_keeping(self):
+        """
+        Test case fails if ego deviates to other lanes.
+
+        Note: assume on same section of road from start to end 
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        ego_lane_id = ego_rows['Lane_id']
+        
+        # ego has different lane id
+        if len(set(ego_lane_id))>1:
+            return False
+                
+        return True
+
+    def ego_reach_destination(self):
+        """
+        Test case fails if ego doesn't reach the destination.
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        ego_lane_id = ego_rows['Lane_id']
+        
+        # at the end, ego's distance to destination > 10m.
+        if two_points_distance((ego_rows["Location_x"][-1],ego_rows["Location_y"][-1]),(ego_rows['EgoDestination_x'][-1],ego_rows['EgoDestination_y'][-1])) > 10:
+            return False
+                
+        return True
+
+    def ego_speed_limit(self):
+        """
+        Test case fails if ego's speed exceed the speed limit.
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        speed_limit = 12
+
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        v = ego_rows[['Velocity_x','Velocity_y']]
+        s = np.sqrt(ego_rows['Velocity_x']**2+ego_rows['Velocity_y']**2)
+        if np.any(s > 12):
+            return False
+                
+        return True
+    
+    def ego_react_to_pedetrian(self, pedestrian_name):
+        """
+        Test case fails if ego didn't stop and wait for the pedestrian.
+        
+        Note: assume straight road, pedestrian walks perpendicular to the road
+
+        Returns:
+            Boolean - fail (False) or succeed (True)     
+        """
+        safe_distance = 8
+
+        # assume same heading, same lane
+        ego_rows = self.data[self.data['Role_name'] == 'ego']
+        target_rows = self.data[(self.data['Role_name'] == pedestrian_name)]
+        # vehicle coordinates
+        ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
+        target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
+        # target coordinate in ego local coordinate system
+        transformed_target_c = transform_points(ego_c, target_c)
+        target_rotated_velocity = rotate_points((target_rows['Velocity_x'],target_rows['Velocity_y']),ego_rows['Rotation_yaw'])
+        # If ped in front, with lateral speed, might collide consider safe distance
+        interact_segment_target = target_rows[(transformed_target_c[:,0]>2)&(target_rotated_velocity[:,1]!=0)]
+        interact_segment_ego = ego_rows[(transformed_target_c[:,0]>2)&(target_rotated_velocity[:,1]!=0)]
+        # d_long,d_lat,v_e,v_p
+        d_long = transformed_target_c[(transformed_target_c[:,0]>2)&(target_rotated_velocity[:,1]!=0)][:,1].astype(float) + safe_distance
+        d_lat = transformed_target_c[(transformed_target_c[:,0]>2)&(target_rotated_velocity[:,1]!=0)][:,0].astype(float)
+        d_lat_close = d_lat - 1.5
+        d_lat_far = d_lat + 1.5
+        v_e = interact_segment_ego[['Velocity_x','Velocity_y']]
+        s_e = np.sqrt((v_e[:,0]**2+v_e[:,1]**2))
+        s_e[s_e==0]=0.001
+        v_p = interact_segment_target[['Velocity_x','Velocity_y']]
+        s_p = np.sqrt((v_p[:,0]**2+v_p[:,1]**2))
+        s_p[s_p==0]=0.001
+        t_e = d_long/s_e
+        t_p_far = d_lat_far/s_p
+        t_p_close = d_lat_close/s_p
+        # diff > 0, pedestrian walk to the point first
+        if np.any(t_p_close <= t_e < t_p_far):
+            if np.any(v_e==[0,0]):
+                return True
+            else:
+                return False
+        else:
+            return True
+
+    # def ego_slow_down_for_Traffic_jam_on_opposite_lane(self, pedestrian_name):
+    #     """
+    #     Test case fails if ego didn't stop and wait for the pedestrian.
+        
+    #     Note: assume straight two-lane road, each lane has opposite traveling direction. 
+
+    #     Returns:
+    #         Boolean - fail (False) or succeed (True)     
+    #     """
+    #     ego_rows = self.data[self.data['Role_name'] == 'ego']
+    #     original_lane_id = ego_rows['Lane_id'][0]
+    #     target_rolenames = set(self.data['Role_name']).remove('ego')
+    #     for rolename in target_rolenames:
+    #         target_rows = self.data[(self.data['Role_name'] == rolename) & (self.data['Lane_id']!=original_lane_id)]
+    #         if target_rows.size == 0:
+    #             continue
+    #         # vehicle coordinates
+    #         ego_c = np.stack((ego_rows['Location_x'],ego_rows['Location_y'],ego_rows['Rotation_yaw']),axis=1)
+    #         target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
+    #         # target coordinate in ego local coordinate system
+    #         transformed_target_c = transform_points(ego_c, target_c)
+    #         v_e = ego_rows[['Velocity_x','Velocity_y']]
+    #         s_e = np.sqrt((v_e[:,0]**2+v_e[:,1]**2))
+    #         v_p = target_rows[['Velocity_x','Velocity_y']]
+    #         s_p = np.sqrt((v_p[:,0]**2+v_p[:,1]**2))
+    #         # When parallel, ego speed should be no higher than target speed + 15
+            
 
 
 
