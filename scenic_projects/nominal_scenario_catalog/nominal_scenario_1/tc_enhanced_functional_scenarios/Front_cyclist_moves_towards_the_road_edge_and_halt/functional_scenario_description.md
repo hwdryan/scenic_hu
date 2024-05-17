@@ -8,7 +8,16 @@ Road **has** geometry straight
 
 Ego **has** position on the right lane
 
+Cyclist **has** position on the right lane
+
+Pedestrian **has** position on the right sidewalk
+
 Ego **drives** following lane
+
+Cyclist **drives** following lane, later **drives** towards the road edge and **halts** next to the pedestrian
+
+Pedestrian **stands** still.
 
 ### objects relationship:
 
+Cyclist **in front of** Ego initially.

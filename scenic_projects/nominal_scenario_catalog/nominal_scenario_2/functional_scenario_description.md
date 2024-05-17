@@ -10,4 +10,10 @@ Ego **has** position on the right lane
 
 Ego **drives** following lane
 
-### Inter-relationship
+Mock **has** position on the left lane
+
+Mock **drives** following lane
+
+### objects relationship:
+
+Mock **in front of** Ego initially

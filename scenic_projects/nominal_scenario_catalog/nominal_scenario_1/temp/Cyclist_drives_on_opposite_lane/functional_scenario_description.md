@@ -14,4 +14,4 @@ Ego **drives** following lane
 
 Bicycle **drives** following lane
 
-### Inter-relationship
+### objects relationship:

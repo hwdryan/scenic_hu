@@ -18,6 +18,6 @@ Bicycle **drives** following lane, then move towards the road edge and halt next
 
 Pedestrian **stands** still
 
-### Inter-relationship
+### objects relationship:
 
 Bicycle initially in front of the vehicle

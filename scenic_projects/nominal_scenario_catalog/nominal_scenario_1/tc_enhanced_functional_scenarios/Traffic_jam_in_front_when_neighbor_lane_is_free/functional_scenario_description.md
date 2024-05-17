@@ -6,16 +6,16 @@ Road **has** geometry straight
 
 ### Moveable objects:
 
-Ego **has** position in the middle of the right lane
-
-Bicycle **has** position in the middle of the sidewalk lane
+Ego **has** position on the right lane
 
 Ego **drives** following lane
 
-Bicycle **drives** across the road
+Target_group **has** position on the right lane
+
+Target_group **stand** still in a traffic jam 
 
 ### objects relationship:
 
-Bicycle **shows up** in front of Ego
+Target_group **in front of** Ego initially
 
-s
+

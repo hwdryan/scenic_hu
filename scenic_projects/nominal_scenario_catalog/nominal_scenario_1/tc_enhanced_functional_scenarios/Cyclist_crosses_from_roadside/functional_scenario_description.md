@@ -6,16 +6,14 @@ Road **has** geometry straight
 
 ### Moveable objects:
 
-Ego **has** position in the middle of the right lane
+Ego **has** position on the right lane
 
-Bicycle **has** position in the middle of the sidewalk lane
+Cyclist **has** position on the right sidewalk
 
 Ego **drives** following lane
 
-Bicycle **drives** across the road
+Cyclist **drives** crossing the road to the left sidewalk
 
 ### objects relationship:
 
-Bicycle **shows up** in front of Ego
-
-s
+Cyclist **in front of** Ego when crossing

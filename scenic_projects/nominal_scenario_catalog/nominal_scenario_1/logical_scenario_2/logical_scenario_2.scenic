@@ -14,13 +14,13 @@ import random
 import carla
 import time
 
-# long road
-road = random.choice(['road8','road15'])
+# short road
+road = random.choice(['road4','road6','road12'])
 roadSec = network.elements[road].sections[0]
 target_vehicle_type = 'vehicle.lincoln.mkz_2017'
 
 # location of vehicles
-road_length = 308.69
+road_length = 224.22
 Ego_loc = Range(1,road_length-125)
 destination_loc = Ego_loc + 125
 
