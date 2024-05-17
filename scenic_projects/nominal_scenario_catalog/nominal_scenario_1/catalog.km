@@ -3,11 +3,320 @@
         "data": {
             "id": "d1b2ta7y3xc0",
             "created": 1715863404941,
-            "text": "functional_scenario_description.md"
+            "text": "database",
+            "expandState": "expand"
         },
-        "children": []
+        "children": [
+            {
+                "data": {
+                    "id": "d1b36ig1hrk0",
+                    "created": 1715864441579,
+                    "text": "Triggering conditions",
+                    "expandState": "expand"
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "d1b30paqo8w0",
+                            "created": 1715863986311,
+                            "text": "Cyclist_crosses_from_roadside",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b32trvr680",
+                            "created": 1715864152783,
+                            "text": "Cyclist_drives_on_opposite_lane",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b34w597dc0",
+                            "created": 1715864314674,
+                            "text": "Front_cyclist_moves_towards_the_road_edge_and_halt",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b34zlw9v40",
+                            "created": 1715864322210,
+                            "text": "Front_vehicle_drives_on_lane_marking",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b355ynkbs0",
+                            "created": 1715864336042,
+                            "text": "Front_vehicle_halts_on_the_lane_with_warning_flasher_on",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b35a6583s0",
+                            "created": 1715864345202,
+                            "text": "Multiple_vehicle_cut_into_ego_path_in_short_time",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b35fm2t5c0",
+                            "created": 1715864357050,
+                            "text": "Oncoming_vehicle_overtakes_a_halting_vehicle",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b35ioox740",
+                            "created": 1715864363738,
+                            "text": "Traffic_jam_in_front_when_neighbor_lane_is_free",
+                            "expandState": "expand"
+                        },
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "data": {
+                    "id": "d1b36x0ryso0",
+                    "created": 1715864473308,
+                    "text": "Nominal functional scenarios",
+                    "expandState": "expand"
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "d1b3a0y6oig0",
+                            "created": 1715864716951,
+                            "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_2/functional_scenario_description.md"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "d1b37rnk9o80",
+                            "created": 1715864539989,
+                            "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/functional_scenario_description.md",
+                            "expandState": "expand"
+                        },
+                        "children": [
+                            {
+                                "data": {
+                                    "id": "d1b36ig1hrk0",
+                                    "created": 1715864441579,
+                                    "text": "TC enhanced functional scenarios",
+                                    "expandState": "collapse"
+                                },
+                                "children": [
+                                    {
+                                        "data": {
+                                            "id": "d1b30paqo8w0",
+                                            "created": 1715863986311,
+                                            "text": "Cyclist_crosses_from_roadside",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3cobp3s80",
+                                                    "created": 1715864924562,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Cyclist_crosses_from_roadside/functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b32trvr680",
+                                            "created": 1715864152783,
+                                            "text": "Cyclist_drives_on_opposite_lane",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3crm33og0",
+                                                    "created": 1715864931721,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Cyclist_drives_on_opposite_lane/functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b34w597dc0",
+                                            "created": 1715864314674,
+                                            "text": "Front_cyclist_moves_towards_the_road_edge_and_halt",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3cwsn6ko0",
+                                                    "created": 1715864943001,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Front_cyclist_moves_towards_the_road_edge_and_halt/functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b34zlw9v40",
+                                            "created": 1715864322210,
+                                            "text": "Front_vehicle_drives_on_lane_marking",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3d05u5k80",
+                                                    "created": 1715864950329,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Front_vehicle_drives_on_lane_marking/functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b355ynkbs0",
+                                            "created": 1715864336042,
+                                            "text": "Front_vehicle_halts_on_the_lane_with_warning_flasher_on",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3dmhlw8g0",
+                                                    "created": 1715864998930,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Front_vehicle_halts_on_the_lane_with_warning_flasher_on /functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b35a6583s0",
+                                            "created": 1715864345202,
+                                            "text": "Multiple_vehicle_cut_into_ego_path_in_short_time",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3dq1jrs00",
+                                                    "created": 1715865006666,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Multiple_vehicle_cut_into_ego_path_in_short_time/functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b35fm2t5c0",
+                                            "created": 1715864357050,
+                                            "text": "Oncoming_vehicle_overtakes_a_halting_vehicle",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3dt4jmjc0",
+                                                    "created": 1715865013378,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Oncoming_vehicle_overtakes_a_halting_vehicle/functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b35ioox740",
+                                            "created": 1715864363738,
+                                            "text": "Traffic_jam_in_front_when_neighbor_lane_is_free",
+                                            "expandState": "expand"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3e369qug0",
+                                                    "created": 1715865035250,
+                                                    "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/tc_enhanced_functional_scenarios/Traffic_jam_in_front_when_neighbor_lane_is_free/functional_scenario_description.md"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "data": {
+                                    "id": "d1b3f2zn11k0",
+                                    "created": 1715865113213,
+                                    "text": "Nominal logical scenarios"
+                                },
+                                "children": [
+                                    {
+                                        "data": {
+                                            "id": "d1b3ky3rlts0",
+                                            "created": 1715865572764,
+                                            "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/logical_scenario_1/logical_scenario_1.scenic"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3nhbw3340",
+                                                    "created": 1715865771342,
+                                                    "text": "TC enhanced logical scenarios"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "data": {
+                                            "id": "d1b3l14wo2o0",
+                                            "created": 1715865579363,
+                                            "text": "/home/weidonghu/Tools/Scenic/scenic_projects/nominal_scenario_catalog/nominal_scenario_1/logical_scenario_2/logical_scenario_2.scenic"
+                                        },
+                                        "children": [
+                                            {
+                                                "data": {
+                                                    "id": "d1b3np9su1s0",
+                                                    "created": 1715865788630,
+                                                    "text": "TC enhanced logical scenarios"
+                                                },
+                                                "children": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
     },
-    "template": "default",
+    "template": "filetree",
     "theme": "fresh-blue",
     "version": "1.4.43"
 }
