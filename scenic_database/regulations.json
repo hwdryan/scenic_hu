@@ -1,0 +1,141 @@
+{
+    "regulations":[
+        {
+            "regulation":"The AD-Function shall adjust the speed of the AD-Vehicle to applicable speed limits.",
+            "required_behavior":[
+                "ego_speed_limit"
+            ],
+            "hazardous_behavior":[
+                "Ego exceeded the applicable speed limit."
+            ]
+        },
+        {
+            "regulation":"the AD-Function shall not perform harsh brake without a compelling reason.",
+            "required_behavior":[
+                "ego_safe_deceleration"
+            ],
+            "hazardous_behavior":["Ego performed unintended harsh brake."]
+        },
+        {
+            "regulation":"The AD-Function shall only initiate a regular lane change if there is a reason for a lane change.",
+            "required_behavior":[
+                "ego_lane_keeping"
+            ],
+            "hazardous_behavior":["Ego performed unintended lane change."]
+        },
+        {
+            "regulation":"The AD-Function shall reach the specified destination in reasonable time limit, in the absence of any accident.",
+            "required_behavior":[
+                "ego_reach_destination",
+                "collision"
+            ],
+            "hazardous_behavior":[
+                "Ego failed to reach the specified destination.",
+                "Ego collided with road user."
+            ]
+        },
+        {
+            "regulation":"Under urban and rural driving conditions, the AD-Function shall avoid a collision, up to a speed of 60 km/h, with an unobstructed cyclist crossing with a lateral speed component of not more than 15 km/h in front of the vehicle. This shall be ensured independently from the specific manoeuvre the AD-Function is undertaking.",
+            "required_behavior":[
+                "collision"
+            ],
+            "hazardous_behavior":["Ego collided with road user."]
+        },
+        {
+            "regulation":"In case an unobstructed cyclist crosses, under urban or rural driving conditions, with a lateral speed component of more than 15 km/h in front of the vehicle, the control strategy of the AD-Function may change between collision avoidance and mitigation only if the manufacturer can demonstrate that this increases the safety of the vehicle occupants and the other road users (e.g. by prioritizing braking over an alternative manoeuvre).",
+            "required_behavior":[
+                "ego_emergency_braking"
+            ],
+            "hazardous_behavior":["Ego didn't brake enough during emergency."]
+        },
+        {
+            "regulation":"In general, the AD-Function shall drive normally.",
+            "required_behavior":[
+                "ego_speed_limit",
+                "ego_safe_deceleration",
+                "ego_lane_keeping",
+                "ego_reach_destination",
+                "collision"
+            ],
+            "hazardous_behavior":[
+                "Ego exceeded the applicable speed limit.",
+                "Ego performed unintended harsh brake.",
+                "Ego performed unintended lane change.",
+                "Ego failed to reach the specified destination.",
+                "Ego collided with road user."
+            ]
+        },
+        {
+            "regulation":"When overtaking pedestrians, cyclists or personal light electric vehicles in built-up areas, the AD-Function shall keep at least 1.5 m lateral distance. If necessary, the AD-Function shall wait. At intersections and junctions, the minimum lateral distance of 1.5m to cyclists does not apply, if cyclists have overtaken the AD-Vehicle waiting there on the right or have come to a standstill next to them.",
+            "required_behavior":[
+                "ego_overtake_safe_lateral_distance"
+            ],
+            "hazardous_behavior":[
+                "Ego did not maintain sufficient lateral distance from other road users while overtaking."
+            ]
+        },
+        {
+            "regulation":"The AD-Function shall not overtake in unclear traffic situations.",
+            "required_behavior":[
+                "ego_overtake"
+            ],
+            "hazardous_behavior":[
+                "Ego performed unintended overtake ."
+            ]
+        },
+        {
+            "regulation":"While the AD-Vehicle is not at standstill, and operating in speed range up to 60 km/h, the AD-Function shall adapt the speed to adjust the distance to a lead vehicle in the same lane to be equal or greater than the minimum following distance.",
+            "required_behavior":[
+                "safe_longitudinal_distance"
+            ],
+            "hazardous_behavior":[
+                "Ego failed to maintain the minimum required following distance from the lead vehicle."
+            ]
+        },
+        {
+            "regulation":"Only if the AD-Function can oversee, that there will be no obstruction of oncoming traffic during the entire overtaking process, the AD-Function may overtake.",
+            "required_behavior":[
+                "ego_safe_overtake_oncoming_traffic"
+            ],
+            "hazardous_behavior":[
+                "Ego attempted to overtake despite the potential obstruction of oncoming traffic."
+            ]
+        },
+        {
+            "regulation":"Only if the AD-Function drives with considerably higher speed than the vehicle being overtaken, the AD-Function may overtake.",
+            "required_behavior":[
+                "ego_safe_overtake_higher_speed"
+            ],
+            "hazardous_behavior":[
+                "Ego overtook without considerably higher speed than the target vehicle."
+            ]
+        },
+        {
+            "regulation":"The AD-Function shall overtake on the left, except defined otherwise in separate requirements.",
+            "required_behavior":[
+                "ego_overtaking_on_the_left"
+            ],
+            "hazardous_behavior":[
+                "Ego overtook on the right side."
+            ]
+        },
+        {
+            "regulation":"During overtaking, AD-Function shall keep enough lateral distance to other road users.",
+            "required_behavior":[
+                "ego_overtake_safe_lateral_distance"
+            ],
+            "hazardous_behavior":[
+                "Ego did not maintain sufficient lateral distance from other road users while overtaking."
+            ]
+        },
+        {
+            "regulation":"When being overtaken, the AD-Function shall not increase speed.",
+            "required_behavior":[
+                "ego_being_overtaken"
+            ],
+            "hazardous_behavior":[
+                "Ego increased its speed while being overtaken."
+            ]
+        }
+    ]
+}

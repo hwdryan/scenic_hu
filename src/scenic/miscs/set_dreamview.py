@@ -43,14 +43,17 @@ def set_dreamview():
     # Wait for all modules to be launched
     modules_launched = False
     while not modules_launched:
+        modules_launched = True
         data = json.loads(ws.recv())
         while data["type"] != "HMIStatus":
             data = json.loads(ws.recv())
+        print(data['data']['modules'])
         for apollo_module in apollo_modules:
             if not data['data']['modules'][apollo_module]:
                 modules_launched = False
                 break  # Break the loop if any apollo_module is False
-            modules_launched = True
+    
+    print("All modules launched.")
     # Wait
     time.sleep(5)
 
@@ -80,7 +83,7 @@ def set_dreamview():
         "end": {"x": d_x, "y": d_y, "z": d_z},
         "waypoint": "[]",
     }
-    # print("msg:",msg)
+    print("msg:",msg)
     ws.send(json.dumps(msg))
 
 def close_modules():
@@ -106,3 +109,17 @@ def close_modules():
             ws.send(json.dumps({"type": "HMIAction", "action": "STOP_MODULE", "value": apollo_module}))
     except ConnectionRefusedError:
         pass
+
+def temp():
+    ip = 'localhost'
+    port = '8888'
+    url = "ws://" + ip + ":" + port + "/websocket"
+    ws = create_connection(url)
+
+
+    msg = {'type': 'SendRoutingRequest', 
+        'start': {'x': 396.33056640625, 'y': -268.5392150878906, 'z': 0.6000000238418579, 'heading': 1.5711848819979393}, 
+        'end': {'x': 396.2988586425781, 'y': -143.53921508789062, 'z': 0.0}, 
+        'waypoint': '[]'}
+
+    ws.send(json.dumps(msg))

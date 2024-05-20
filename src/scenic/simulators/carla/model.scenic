@@ -233,22 +233,48 @@ class CarlaActor(DrivingObject):
                 result = transform_point(target_tr,ego_tr)[1]
                 return result
         
-
-
     # self-defined
-    def distanceToObj(self, role_name):
-        """Compute the distance to the object.
+    def distanceToActor(self, rolename):
+        """Compute the distance to Ego.
         """
         objects = simulation().objects
 
         sim_world = simulation().world
+        Ego_vehicle = None
         for actor in sim_world.get_actors():
-            # print("role_name:", actor.attributes.get('role_name'))
-            if actor.attributes.get('role_name') == role_name:
-                distance = math.sqrt((self.carlaActor.get_transform().location.x - actor.get_transform().location.x)**2 + \
-                (self.carlaActor.get_transform().location.y - actor.get_transform().location.y)**2)
+            if actor.attributes.get('role_name') == rolename:
+                Ego_vehicle = actor
+                distance = math.sqrt((self.carlaActor.get_transform().location.x - Ego_vehicle.get_transform().location.x)**2 + \
+                (self.carlaActor.get_transform().location.y - Ego_vehicle.get_transform().location.y)**2)
                 return distance
         return None
+
+    # self-defined
+    def longitudinaldistanceToActor(self, rolename):
+        """Compute the distance to Ego.
+        """
+        objects = simulation().objects
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            if actor.attributes.get('role_name') == rolename:
+                ego_tr = tuple(map(float,[actor.get_transform().location.x, -1 * actor.get_transform().location.y, actor.get_transform().rotation.yaw]))
+                target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
+                result = transform_point(target_tr,ego_tr)[0]
+                return result
+        
+    # self-defined
+    def lateraldistanceToActor(self, rolename):
+        """Compute the distance to Ego.
+        """
+        objects = simulation().objects
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            if actor.attributes.get('role_name') == rolename:
+                ego_tr = tuple(map(float,[actor.get_transform().location.x, -1 * actor.get_transform().location.y, actor.get_transform().rotation.yaw]))
+                target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
+                result = transform_point(target_tr,ego_tr)[1]
+                return result
+
 
 # self-defined
 def transform_point(p1, p2):
@@ -369,6 +395,11 @@ class Truck(Vehicle):
     width: 3
     length: 7
     blueprint: Uniform(*blueprints.truckModels)
+
+class Bus(Vehicle):
+    width: 4
+    length: 11
+    blueprint: Uniform(*blueprints.busModels)
 
 
 class Pedestrian(Pedestrian, CarlaActor, Walks, _CarlaPedestrian):

@@ -7,7 +7,7 @@ scenic_param = 'param.scene'
 scenic_path = os.path.join(scenic_dir, scenic_path)
 scenic_param = os.path.join(scenic_dir, scenic_param)
 
-map_path="../assets/maps/CARLA/Town03.xodr"
+map_path="../../assets/maps/CARLA/Town03.xodr"
 carla_map='Town03'
 weather="ClearNoon"
 model="scenic.simulators.carla.model"
@@ -16,7 +16,7 @@ model="scenic.simulators.carla.model"
 
 simulator = CarlaSimulator(carla_map=carla_map, 
                         map_path=map_path,
-                        render=False
+                        render=True
                         )
 
 scenario = scenic.scenarioFromFile(path = scenic_path

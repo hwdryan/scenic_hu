@@ -40,10 +40,9 @@ scenario Main():
             with rolename "hero", \
             with behavior AutopilotBehavior()
 
-        mock = new Car following roadDirection from start_spot for 6, \
+        mock = new Bus following roadDirection from start_spot for 16, \
             facing 0 deg relative to roadDirection, \
             with behavior FollowLaneBehavior(target_speed=3), \
-            with blueprint ego_car_type, \
             with color Color(1,0,0), \
             with rolename "mock"
 

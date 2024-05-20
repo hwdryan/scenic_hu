@@ -55,6 +55,12 @@ truckModels = [
     "vehicle.tesla.cybertruck",
     "vehicle.mercedes.sprinter",
     "vehicle.carlamotors.european_hgv",
+    "vehicle.carlamotors.firetruck",
+]
+
+# self-defined
+busModels = [
+    "vehicle.mitsubishi.fusorosa",
 ]
 
 ## Prop blueprints

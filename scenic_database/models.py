@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boole
 from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 
 # Create an engine to connect to the database
-engine = create_engine('sqlite:///scenario_database.db', echo=True)
+engine = create_engine('sqlite:///scenario_database.db', echo=False)
 
 # Create a base class for declarative class definitions
 Base = declarative_base()
@@ -13,8 +13,8 @@ class FunctionalNominalScenario(Base):
     id = Column(Integer, primary_key=True)
     path = Column(String, unique=True, nullable=False)
 
-    # One-to-one relationship with TCEnhancedFunctionalScenario
-    tc_enhanced_functional_scenario = relationship("TCEnhancedFunctionalScenario", uselist=False, back_populates="functional_nominal_scenario")
+    # One-to-many relationship with TCEnhancedFunctionalScenario
+    tc_enhanced_functional_scenario_items = relationship("TCEnhancedFunctionalScenario", back_populates="functional_nominal_scenario_item")
 
     # One-to-many relationship with LogicalNominalScenario
     logical_nominal_scenario_items = relationship("LogicalNominalScenario", back_populates="functional_nominal_scenario_item")
@@ -24,13 +24,14 @@ class LogicalNominalScenario(Base):
 
     id = Column(Integer, primary_key=True)
     path = Column(String, unique=True, nullable=False)
-    functional_nominal_scenario_id = Column(Integer, ForeignKey('functional_nominal_scenarios.id'))
     
-    # One-to-one relationship with TCEnhancedLogicalScenario
-    tc_enhanced_logical_scenario = relationship("TCEnhancedLogicalScenario", uselist=False, back_populates="logical_nominal_scenario")
+    # One-to-many relationship with TCEnhancedLogicalScenario
+    tc_enhanced_logical_scenario_items = relationship("TCEnhancedLogicalScenario", back_populates="logical_nominal_scenario_item")
 
     # Many-to-one relationship with FunctionalNominalScenario
+    functional_nominal_scenario_id = Column(Integer, ForeignKey('functional_nominal_scenarios.id'))
     functional_nominal_scenario_item = relationship("FunctionalNominalScenario", back_populates="logical_nominal_scenario_items")
+
     # One-to-many relationship with ConcreteNominalScenario
     concrete_nominal_scenario_items = relationship("ConcreteNominalScenario", back_populates="logical_nominal_scenario_item")
 
@@ -39,19 +40,19 @@ class ConcreteNominalScenario(Base):
 
     id = Column(Integer, primary_key=True)
     path = Column(String, unique=True, nullable=False)
-    logical_nominal_scenario_id = Column(Integer, ForeignKey('logical_nominal_scenarios.id'))
 
     # One-to-many relationship with TCEnhancedConcreteScenario
     tc_enhanced_concrete_scenario_items = relationship("TCEnhancedConcreteScenario", back_populates="concrete_nominal_scenario_item")
 
     # Many-to-one relationship with LogicalNominalScenario
+    logical_nominal_scenario_id = Column(Integer, ForeignKey('logical_nominal_scenarios.id'))
     logical_nominal_scenario_item = relationship("LogicalNominalScenario", back_populates="concrete_nominal_scenario_items")
 
 class TriggeringCondition(Base):
     __tablename__ = "triggering_conditions"
 
     id = Column(Integer, primary_key=True)
-    triggering_condition_name = Column(String,  unique=True, nullable=False)
+    triggering_condition_name = Column(String, unique=True, nullable=False)
     functional_insufficiency = Column(String)
     functional_insufficiency_origin = Column(String)
 
@@ -63,15 +64,15 @@ class TCEnhancedFunctionalScenario(Base):
 
     id = Column(Integer, primary_key=True)
     path = Column(String, unique=True, nullable=False)
-    exist_non_complient = Column(Boolean, nullable=False)
 
-    # One-to-one relationship with FunctionalNominalScenario
+    # Many-to-one relationship with FunctionalNominalScenario
     functional_nominal_scenario_id = Column(Integer, ForeignKey('functional_nominal_scenarios.id'))
-    functional_nominal_scenario = relationship("FunctionalNominalScenario", back_populates="tc_enhanced_functional_scenario")
+    functional_nominal_scenario_item = relationship("FunctionalNominalScenario", back_populates="tc_enhanced_functional_scenario_items")
 
     # Many-to-one relationship with LogicalNominalScenario
     triggering_condition_id = Column(Integer, ForeignKey('triggering_conditions.id'))
     triggering_condition_item = relationship("TriggeringCondition", back_populates="tc_enhanced_functional_scenario_items")
+
     # One-to-many relationship with TCEnhancedLogicalScenario
     tc_enhanced_logical_scenario_items = relationship("TCEnhancedLogicalScenario", back_populates="tc_enhanced_functional_scenario_item")
     
@@ -81,13 +82,14 @@ class TCEnhancedLogicalScenario(Base):
     id = Column(Integer, primary_key=True)
     path = Column(String, unique=True, nullable=False)
 
-    # One-to-one relationship with FunctionalNominalScenario
+    # Many-to-one relationship with FunctionalNominalScenario
     logical_nominal_scenario_id = Column(Integer, ForeignKey('logical_nominal_scenarios.id'))
-    logical_nominal_scenario = relationship("LogicalNominalScenario", back_populates="tc_enhanced_logical_scenario")
+    logical_nominal_scenario_item = relationship("LogicalNominalScenario", back_populates="tc_enhanced_logical_scenario_items")
 
     # Many-to-one relationship with TCEnhancedFunctionalScenario
     tc_enhanced_functional_scenario_id = Column(Integer, ForeignKey('tc_enhanced_functional_scenarios.id'))
     tc_enhanced_functional_scenario_item = relationship("TCEnhancedFunctionalScenario", back_populates="tc_enhanced_logical_scenario_items")
+
     # One-to-many relationship with TCEnhancedConcreteScenario
     tc_enhanced_concrete_scenario_items = relationship("TCEnhancedConcreteScenario", back_populates="tc_enhanced_logical_scenario_item")
 
@@ -104,6 +106,7 @@ class TCEnhancedConcreteScenario(Base):
     # Many-to-one relationship with TCEnhancedLogicalScenario
     tc_enhanced_logical_scenario_id = Column(Integer, ForeignKey('tc_enhanced_logical_scenarios.id'))
     tc_enhanced_logical_scenario_item = relationship("TCEnhancedLogicalScenario", back_populates="tc_enhanced_concrete_scenario_items")
+
     # One-to-one relationship with TestCase
     test_case = relationship("TestCase", back_populates="tc_enhanced_concrete_scenario", uselist=False)
 
@@ -199,7 +202,7 @@ class TestResult(Base):
 
 
 # Create the tables in the database
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 # # Create a session
 # Session = sessionmaker(bind=engine)
