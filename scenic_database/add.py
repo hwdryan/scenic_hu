@@ -60,36 +60,38 @@ def extract_number(filename):
     else:
         return float('inf')
 
-dir_path = "/home/weidong/Tools/Scenic/scenic_projects/nominal_scenario_catalog/"
-for dirpath, dirnames, filenames in os.walk(dir_path):
+home_dir = os.path.expanduser('~')
+dir_path = "~/Tools/Scenic/scenic_projects/nominal_scenario_catalog/"
+for dirpath, dirnames, filenames in os.walk(dir_path.replace("~",home_dir)):
     for filename in filenames:
         # find nfs
         if re.compile(r"nf\d+\.md").match(filename):
-            path = os.path.join(dirpath, filename)
+            path = os.path.join(dirpath.replace(home_dir,"~"), filename)
             nfs.append(path)
+            print(len(nfs))
         # find nls
         elif re.compile(r"nl\d+\.scenic").match(filename):
-            path = os.path.join(dirpath, filename)
+            path = os.path.join(dirpath.replace(home_dir,"~"), filename)
             nls.append(path)
         # find ncs
         elif re.compile(r"nc\d+\.scenic").match(filename):
-            path = os.path.join(dirpath, filename)
+            path = os.path.join(dirpath.replace(home_dir,"~"), filename)
             ncs.append(path)
         # find tcfs
         elif re.compile(r"tcf\d+\.md").match(filename):
-            path = os.path.join(dirpath, filename)
+            path = os.path.join(dirpath.replace(home_dir,"~"), filename)
             for tc in tcs:
                 if tc in path:
                     tcfs[tc].append(path)
         # find tcls
         elif re.compile(r"tcl\d+\.scenic").match(filename):
-            path = os.path.join(dirpath, filename)
+            path = os.path.join(dirpath.replace(home_dir,"~"), filename)
             for tc in tcs:
                 if tc in path:
                     tcls[tc].append(path)
         # find tccs
         elif re.compile(r"tcc\d+\.scenic").match(filename):
-            path = os.path.join(dirpath, filename)
+            path = os.path.join(dirpath.replace(home_dir,"~"), filename)
             for tc in tcs:
                 if tc in path:
                     tccs[tc].append(path)

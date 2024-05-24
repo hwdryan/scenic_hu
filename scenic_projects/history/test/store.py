@@ -7,7 +7,7 @@ scenic_param = 'param.scene'
 scenic_path = os.path.join(scenic_dir, scenic_path)
 scenic_param = os.path.join(scenic_dir, scenic_param)
 
-map_path="../assets/maps/CARLA/Town01.xodr"
+map_path="../../assets/maps/CARLA/Town01.xodr"
 carla_map='Town01'
 weather="ClearNoon"
 model="scenic.simulators.carla.model"

@@ -275,6 +275,8 @@ class CarlaActor(DrivingObject):
                 result = transform_point(target_tr,ego_tr)[1]
                 return result
 
+    def 
+
 
 # self-defined
 def transform_point(p1, p2):

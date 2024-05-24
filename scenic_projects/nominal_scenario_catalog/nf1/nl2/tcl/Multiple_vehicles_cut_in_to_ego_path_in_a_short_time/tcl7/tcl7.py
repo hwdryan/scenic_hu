@@ -62,14 +62,24 @@ else:
         Session = sessionmaker(bind=engine)
         session = Session()
 
-        
-        current_file_path = os.path.realpath(__file__).split("scenic_projects/")[-1]
+        home_dir = os.path.expanduser('~')
+        dir_path = "~/Tools/Scenic/scenic_projects/nominal_scenario_catalog/"
+        current_file_path = os.path.join(script_dir, scenic_path).replace(home_dir,"~")
         print("***current_file_path",current_file_path)
+        
         test_case_queried = session.query(TestCase).join(TCEnhancedConcreteScenario).filter(TCEnhancedConcreteScenario.path == str(current_file_path)).first()
+        
+        required_behaviors = session.query(RequiredBehavior).\
+                            join(RegulationRequiredBehavior).\
+                            join(Regulation).\
+                            join(RegulationTestCase).\
+                            join(TestCase).\
+                            join(TCEnhancedConcreteScenario).\
+                            filter(TCEnhancedConcreteScenario.path == str(current_file_path)).all()
         
         requirements = Requirements(simulation.current_logfile)
         rbs=dict()
-        for rb in test_case_queried.required_behaviors:
+        for rb in required_behaviors:
                 behavior = rb.behavior_name
                 exec(f"rbs['{behavior}'] = requirements.{behavior}()")
 
@@ -85,7 +95,7 @@ else:
         test_case_queried.test_result_items.append(test_result_1)
         # many2many
         hazardous_behaviors_queried = []
-        for rb in test_case_queried.required_behaviors:
+        for rb in required_behaviors:
                 hazardous_behaviors_queried.append(session.query(HazardousBehavior).filter(HazardousBehavior.required_behavior == rb).first())
         test_result_1.hazardous_behaviors.extend(hazardous_behaviors_queried)
 

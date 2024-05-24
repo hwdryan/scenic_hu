@@ -1,7 +1,3 @@
-# The road has one lane for ego's travelling direction and one lane for the opposite direction. 
-# Cyclist crosses from ego's roadside
-
-
 ################
 # Scenic code
 ################
@@ -64,9 +60,9 @@ scenario Main():
         
         # Cyclist C1 
         curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle
-        cyclist_spot = new OrientedPoint on curb_middle, facing 0 deg relative to roadDirection
+        cyclist_spot = new OrientedPoint on curb_middle
 
-        cyclist = new Bicycle left of cyclist_spot by 2, \
+        cyclist = new Bicycle right of cyclist_spot by 2, \
             facing 90 deg relative to roadDirection, \
             with color Color(1,0,0), \
             with behavior CyclistCrossingBehavior(), \

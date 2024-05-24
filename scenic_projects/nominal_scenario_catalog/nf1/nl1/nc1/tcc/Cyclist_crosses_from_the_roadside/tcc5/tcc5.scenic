@@ -1,7 +1,3 @@
-# The road has one lane for ego's travelling direction and one lane for the opposite direction. 
-# Cyclist crosses from ego's roadside
-
-
 ################
 # Scenic code
 ################
@@ -27,7 +23,7 @@ C1_speed = 2
 road_length = 308.69
 Ego_loc = 50
 destination_loc = Ego_loc + 125
-distance_threshold = 25
+distance_threshold = 40
 
 
 oppo_curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle

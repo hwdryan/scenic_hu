@@ -1,7 +1,3 @@
-# The road has one lane for ego's travelling direction and one lane for the opposite direction. 
-# Cyclist crosses from ego's roadside
-
-
 ################
 # Scenic code
 ################
