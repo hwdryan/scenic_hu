@@ -14,7 +14,7 @@ target_vehicle_type = 'vehicle.lincoln.mkz_2017'
 cyclist_type = 'vehicle.bh.crossbike'
 
 # Speed of vehicles
-C1_speed = 1
+C1_speed = 3
 Mock_speed = 7
 
 # location of vehicles
@@ -24,21 +24,17 @@ destination_loc = Ego_loc + 125
 Mock_loc = road_length - 120
 C1_loc = 60
 
-# Time for meneuvor
-C1_duration = 5
-
-behavior CyclistBehavior(target_speed,avoidance_threshold=18):
+behavior CyclistBehavior(target_speed):
     try:
         wait
     interrupt when self.EgoInitControl():
-        do FollowRightEdgeBehavior(target_speed=target_speed) for C1_duration seconds
-        do BrakeBehavior()
+        do ReachRightEdgeBehavior(target_speed=target_speed)
         
 scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
+        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc, facing 0.01 deg relative to roadDirection
         destination_spot = new OrientedPoint following roadDirection from start_spot for destination_loc
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         print(f"Ego destination: {destination_spot.destination_spot()}")

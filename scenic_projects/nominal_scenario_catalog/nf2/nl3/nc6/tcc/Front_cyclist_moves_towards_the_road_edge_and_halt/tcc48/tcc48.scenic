@@ -23,21 +23,25 @@ destination_loc = Ego_loc + 125
 Mock_loc = road_length - 200
 C1_loc = 120
 
-# Time for meneuvor
-C1_duration = 10
+# C1 drive distance
+C1_distance = 40
 
+C1_start_spot = new OrientedPoint on roadSec.forwardLanes[0].rightEdge.start
+C1_destination_spot = new OrientedPoint following roadDirection from C1_start_spot for C1_loc + C1_distance
 behavior CyclistBehavior(target_speed,avoidance_threshold=18):
     try:
         wait
     interrupt when self.EgoInitControl():
-        do FollowRightEdgeBehavior(target_speed=target_speed) for C1_duration seconds
-        do BrakeBehavior()
+        try:
+            do FollowRightEdgeBehavior(target_speed=target_speed)
+        interrupt when (distance from self.position to C1_destination_spot) < 1:
+            do BrakeBehavior()
         
 scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
+        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc, facing 0.01 deg relative to roadDirection
         destination_spot = new OrientedPoint following roadDirection from start_spot for destination_loc
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         print(f"Ego destination: {destination_spot.destination_spot()}")

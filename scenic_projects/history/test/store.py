@@ -24,7 +24,7 @@ scenario = scenic.scenarioFromFile(path = scenic_path
                                         , "weather":weather}
                                 , model=model
                                 , mode2D=True)
-
+        
 scene, _ = scenario.generate()
 # safe parameters
 data = scenario.sceneToBytes(scene)

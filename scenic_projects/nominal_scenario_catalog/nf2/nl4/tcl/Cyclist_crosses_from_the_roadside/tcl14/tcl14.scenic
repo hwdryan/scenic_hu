@@ -26,16 +26,16 @@ C1_speed = Range(4,16,11.11)
 road_length = 224.22
 Ego_loc = Range(1,road_length-125)
 destination_loc = Ego_loc + 125
-distance_threshold = Range(1,40)
+distance_threshold = 100/C1_speed
 Mock_loc = road_length - Range(Ego_loc, road_length)
 
-oppo_curb_middle = new OrientedPoint on roadSec.forwardLanes[0].group.curb.middle 
-brake_spot = new OrientedPoint left of oppo_curb_middle by 1.5
+oppo_curb_middle = new OrientedPoint on roadSec.forwardLanes[0].group.curb.middle
+brake_spot = new OrientedPoint behind oppo_curb_middle by 1.5
 behavior CyclistCrossingBehavior(target_speed=C1_speed,distance_threshold=distance_threshold):
     try:
         wait
         # when within distance to ego, and mock has passed.
-    interrupt when (self.distanceToEgo() <= distance_threshold) and (self.lateraldistanceToActor("Mock")<0):
+    interrupt when (self.EgolongitudinaldistanceToActor() <= distance_threshold) and (self.lateraldistanceToActor("Mock")<0):
         try:
             do ConstantSpeedBehavior(target_speed)
         interrupt when (distance from self to brake_spot) < 1:
@@ -45,7 +45,7 @@ scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
+        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc, facing 0.01 deg relative to roadDirection
         destination_spot = new OrientedPoint following roadDirection from start_spot for destination_loc
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         print(f"Ego destination: {destination_spot.destination_spot()}")
@@ -59,10 +59,11 @@ scenario Main():
                         with behavior FollowLaneBehavior(target_speed=Mock_speed)
         
         # Cyclist C1 
-        curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle
-        cyclist_spot = new OrientedPoint on curb_middle, facing 0 deg relative to roadDirection
-        cyclist = new Bicycle right of cyclist_spot by 2, \
-            facing 90 deg relative to roadDirection, \
+        curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle 
+        cyclist_spot = new OrientedPoint on curb_middle
+
+        cyclist = new Bicycle ahead of curb_middle by 0.1, \
+            facing 180 deg relative to roadDirection, \
             with color Color(1,0,0), \
             with behavior CyclistCrossingBehavior(), \
             with rolename "C1", \

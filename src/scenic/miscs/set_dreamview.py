@@ -83,9 +83,8 @@ def set_dreamview():
         "end": {"x": d_x, "y": d_y, "z": d_z},
         "waypoint": "[]",
     }
-    print("msg:",msg)
     ws.send(json.dumps(msg))
-
+    
 def close_modules():
     # 
     username = os.getlogin()

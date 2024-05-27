@@ -232,10 +232,36 @@ class CarlaActor(DrivingObject):
                 target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
                 result = transform_point(target_tr,ego_tr)[1]
                 return result
+    
+    # self-defined
+    def EgolongitudinaldistanceToActor(self):
+        """Compute the distance to Ego.
+        """
+        objects = simulation().objects
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+                ego_tr = tuple(map(float,[actor.get_transform().location.x, -1 * actor.get_transform().location.y, actor.get_transform().rotation.yaw]))
+                target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
+                result = transform_point(ego_tr,target_tr)[0]
+                return result
+        
+    # self-defined
+    def EgolateraldistanceToActor(self):
+        """Compute the distance to Ego.
+        """
+        objects = simulation().objects
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            if actor.attributes.get('role_name') in ['autoware_v1', 'hero', 'ego_vehicle']:
+                ego_tr = tuple(map(float,[actor.get_transform().location.x, -1 * actor.get_transform().location.y, actor.get_transform().rotation.yaw]))
+                target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
+                result = transform_point(ego_tr,target_tr)[1]
+                return result
         
     # self-defined
     def distanceToActor(self, rolename):
-        """Compute the distance to Ego.
+        """Compute the distance to actor.
         """
         objects = simulation().objects
 
@@ -251,7 +277,7 @@ class CarlaActor(DrivingObject):
 
     # self-defined
     def longitudinaldistanceToActor(self, rolename):
-        """Compute the distance to Ego.
+        """Compute the distance to actor.
         """
         objects = simulation().objects
         sim_world = simulation().world
@@ -261,10 +287,38 @@ class CarlaActor(DrivingObject):
                 target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
                 result = transform_point(target_tr,ego_tr)[0]
                 return result
+
+    def longitudinaldistanceToClosestLeadVehicle(self):
+        """
+        Compute the langitudinal distance to the closest vehicle.
+        """
+        objects = simulation().objects
+        minDist = float('inf')
+
+        sim_world = simulation().world
+        for actor in sim_world.get_actors():
+            if 'vehicle' in str(actor.attributes.get('ros_name')):
+                ego_tr = tuple(map(float,[actor.get_transform().location.x, -1 * actor.get_transform().location.y, actor.get_transform().rotation.yaw]))
+                target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
+                result = transform_point(target_tr,ego_tr)
+                if abs(result[1])<1 and 0 < result[0] < minDist:
+                    minDist = result[0]
+
+        return minDist
+
+
+        for obj in objects:
+            if not isinstance(obj, type):
+                continue
+            d = distance from self to obj
+            # print(f"**Found the closest obj! {d} meter away!**")
+            if 0 < d < minDist:
+                minDist = d
+        return minDist
         
     # self-defined
     def lateraldistanceToActor(self, rolename):
-        """Compute the distance to Ego.
+        """Compute the distance to actor.
         """
         objects = simulation().objects
         sim_world = simulation().world
@@ -274,9 +328,6 @@ class CarlaActor(DrivingObject):
                 target_tr = tuple(map(float,[self.carlaActor.get_transform().location.x, -1 * self.carlaActor.get_transform().location.y, self.carlaActor.get_transform().rotation.yaw]))
                 result = transform_point(target_tr,ego_tr)[1]
                 return result
-
-    def 
-
 
 # self-defined
 def transform_point(p1, p2):

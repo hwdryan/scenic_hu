@@ -10,7 +10,7 @@
             ]
         },
         {
-            "regulation":"the AD-Function shall not perform harsh brake without a compelling reason.",
+            "regulation":"The AD-Function shall not perform harsh brake without a compelling reason.",
             "required_behavior":[
                 "ego_safe_deceleration"
             ],
@@ -24,7 +24,7 @@
             "hazardous_behavior":["Ego performed unintended lane change."]
         },
         {
-            "regulation":"The AD-Function shall reach the specified destination in reasonable time limit, in the absence of any accident.",
+            "regulation":"The AD-Function shall reach the specified destination within a reasonable time limit, without causing any accidents.",
             "required_behavior":[
                 "ego_reach_destination",
                 "collision"

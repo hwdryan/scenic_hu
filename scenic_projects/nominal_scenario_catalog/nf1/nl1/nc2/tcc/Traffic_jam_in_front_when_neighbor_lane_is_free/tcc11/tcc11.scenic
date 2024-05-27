@@ -35,7 +35,7 @@ scenario Main():
     setup:
         # Ego car
         start_spot = new OrientedPoint on roadSec.forwardLanes[0].centerline.start
-        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc
+        ego_spot = new OrientedPoint following roadDirection from start_spot for Ego_loc, facing 0.01 deg relative to roadDirection
         destination_spot = new OrientedPoint following roadDirection from start_spot for destination_loc
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         print(f"Ego destination: {destination_spot.destination_spot()}")
@@ -46,6 +46,7 @@ scenario Main():
         count = 0
         while count < number_of_vehicle:
             new Car following roadDirection from parked_vehicle_spot for (count*6),  \
+                        facing 0.01 deg relative to roadDirection, \
                         with color Color(1,0,0), \
                         with blueprint parked_vehicle_type[count % len(parked_vehicle_type)], \
                         with behavior BrakeBehavior()
