@@ -55,7 +55,7 @@ scenario Main():
                         with color Color(0,0,1), \
                         with blueprint target_vehicle_type, \
                         with rolename "Mock", \
-                        with behavior FollowLaneBehavior(target_speed=Mock_speed)
+                        with behavior MockBehavior(target_speed=Mock_speed)
         
         # Cyclist C1 
         curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle 

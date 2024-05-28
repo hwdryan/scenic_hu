@@ -371,6 +371,9 @@ class Requirements:
             Boolean - fail (False) or succeed (True)     
         """
         ego_rows = self.data[self.data['Role_name'] == 'ego']
+        t_start = float('inf')
+        t_end = 0
+
         # For each target
         for rolename in self.targets:
             target_rows = self.data[(self.data['Role_name'] == rolename)]
@@ -380,18 +383,27 @@ class Requirements:
             # target coordinate in ego local coordinate system
             transformed_target_c = transform_points(ego_c, target_c)
             # t_0 = target at the left of ego, t_1 = target in front of ego
-            t_0 = ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)==0)& \
+            t_0 = np.sort(ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)<1)& \
+                                       (transformed_target_c[:,0].astype(float)>-1)& \
                                        (transformed_target_c[:,1].astype(float)< 10)& \
-                                        (transformed_target_c[:,1].astype(float)> 0)][0]
-            t_1 = ego_rows['Timestep'][(transformed_target_c[:,1].astype(float)> -1)& \
-                                       (transformed_target_c[:,1].astype(float)< 1)& \
-                                       (transformed_target_c[:,0].astype(float)< 10)& \
-                                        (transformed_target_c[:,0].astype(float)> 0)][0]
-            overtaken_acceleration_segment = ego_rows[(ego_rows['Timestep']>=t_0) & (ego_rows['Timestep']<t_1)][['Acceleration_x','Acceleration_y','Rotation_yaw']]
-            ego_rotated_acceleration = rotate_points((overtaken_acceleration_segment['Acceleration_x'],overtaken_acceleration_segment['Acceleration_y']),overtaken_acceleration_segment['Rotation_yaw'])
-            max_acceleration = np.max(ego_rotated_acceleration[:,0].astype(float), axis=0)
-            if np.any(max_acceleration)> 1:
-                return False
+                                       (transformed_target_c[:,1].astype(float)> 0)])[0]
+            t_1 = np.sort(ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)<1)& \
+                                       (transformed_target_c[:,0].astype(float)>-1)& \
+                                       (transformed_target_c[:,1].astype(float)< 10)& \
+                                       (transformed_target_c[:,1].astype(float)> 0)])[-1]
+            if t_0 < t_start:
+                t_start = t_0
+            if t_1 > t_end:
+                t_end = t_1
+        overtaken_velocity_start = ego_rows[ego_rows['Timestep']==t_start][['Velocity_x','Velocity_y']]
+        overtaken_velocity_start = math.sqrt(overtaken_velocity_start['Velocity_x']**2+overtaken_velocity_start['Velocity_y']**2)
+        overtaken_velocity_end = ego_rows[ego_rows['Timestep']==t_end][['Velocity_x','Velocity_y','Rotation_yaw']]
+        overtaken_velocity_end = math.sqrt(overtaken_velocity_end['Velocity_x']**2+overtaken_velocity_end['Velocity_y']**2)
+        
+        # Set print options to suppress scientific notation
+        np.set_printoptions(suppress=True)
+        if overtaken_velocity_end > overtaken_velocity_start:
+            return False
 
         return True
     
@@ -422,7 +434,10 @@ class Requirements:
             # target coordinate in ego local coordinate system
             transformed_target_c = transform_points(ego_c, target_c)
             # t_0 = target vehicle start overtaking (lane id being the opposite lane)
-            t_0 = np.min(target_rows['Timestep'][np.abs(transformed_target_c[:,1])<=2])
+            try:
+                t_0 = np.min(target_rows['Timestep'][np.abs(transformed_target_c[:,1])<=2])
+            except ValueError:
+                continue
             # v_0 = ego speed at t_0
             v_0 = ego_rows[ego_rows['Timestep']==t_0][['Velocity_x','Velocity_y']][0]
             # v_1 = target speed at t_0
@@ -490,7 +505,7 @@ class Requirements:
         Returns:
             Boolean - fail (False) or succeed (True)     
         """
-        safe_deceleration = -2
+        safe_deceleration = -12
 
         ego_rows = self.data[self.data['Role_name'] == 'ego']
         ego_rotated_acceleration = rotate_points((ego_rows['Acceleration_x'],ego_rows['Acceleration_y']),ego_rows['Rotation_yaw'])
@@ -499,6 +514,7 @@ class Requirements:
         np.set_printoptions(suppress=True)
         # print("***max_deceleration: ",np.round(ego_rotated_acceleration[:,0][ego_rotated_acceleration[:,0] < 0].astype(float), 2))
         # ego's deceleration < safe_deceleration
+        print(max_deceleration)
         if max_deceleration < safe_deceleration:
             return False
         

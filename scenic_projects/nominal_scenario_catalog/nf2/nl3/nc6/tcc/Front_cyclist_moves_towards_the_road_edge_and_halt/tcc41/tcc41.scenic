@@ -14,6 +14,7 @@ cyclist_type = 'vehicle.bh.crossbike'
 
 # Speed of vehicles
 C1_speed = 7
+Mock_speed = 10
 
 # location of vehicles
 road_length = 308.69
@@ -43,7 +44,7 @@ scenario Main():
                         with color Color(0,0,1), \
                         with blueprint target_vehicle_type, \
                         with rolename "Mock", \
-                        with behavior FollowLaneBehavior(target_speed=Mock_speed)
+                        with behavior MockBehavior(target_speed=Mock_speed)
 
         # Cyclist C1
         cyslist_spot = new OrientedPoint following roadDirection from start_spot for C1_loc

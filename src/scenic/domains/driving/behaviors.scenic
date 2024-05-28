@@ -406,8 +406,7 @@ behavior ReachRightEdgeBehavior(target_speed = 10, laneToFollow=None, is_opposit
         nearest_line_segment = PolylineRegion(nearest_line_points)
         cte = nearest_line_segment.signedDistanceTo(self.position)
         if abs(cte) < 0.1:
-            while True:
-                SetBrakeAction(1.0)
+            do BrakeBehavior()
         if is_oppositeTraffic:
             cte = -cte
 
@@ -423,9 +422,17 @@ behavior ReachRightEdgeBehavior(target_speed = 10, laneToFollow=None, is_opposit
         past_steer_angle = current_steer_angle
         past_speed = current_speed
 
+
 # self-defined
 behavior BrakeBehavior():
     take SetBrakeAction(1.0)
+
+# self-defined
+behavior MockBehavior(target_speed=10):
+    try:
+        wait
+    interrupt when self.EgoInitControl():
+        do FollowLaneBehavior(target_speed=target_speed)
 
 # self-defined
 behavior FollowLeftEdgeBehavior(target_speed = 10, laneToFollow=None, is_oppositeTraffic=False):

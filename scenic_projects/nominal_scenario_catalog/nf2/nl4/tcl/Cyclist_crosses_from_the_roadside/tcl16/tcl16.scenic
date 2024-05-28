@@ -25,7 +25,7 @@ C1_speed = Range(4.16,11.11)
 road_length = 224.22
 Ego_loc = Range(1,road_length-125)
 destination_loc = Ego_loc + 125
-distance_threshold = 60/C1_speed
+distance_threshold = 80/C1_speed
 Mock_loc = road_length - Range(Ego_loc, road_length)
 
 oppo_curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle
@@ -54,7 +54,7 @@ scenario Main():
                         with color Color(0,0,1), \
                         with blueprint target_vehicle_type, \
                         with rolename "Mock", \
-                        with behavior FollowLaneBehavior(target_speed=Mock_speed)
+                        with behavior MockBehavior(target_speed=Mock_speed)
 
         # Cyclist C1 
         curb_middle = new OrientedPoint on roadSec.forwardLanes[0].group.curb.middle 

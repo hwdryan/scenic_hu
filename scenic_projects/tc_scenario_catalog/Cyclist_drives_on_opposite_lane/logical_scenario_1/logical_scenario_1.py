@@ -63,7 +63,7 @@ else:
 
         
         current_file_path = os.path.realpath(__file__).split("scenic_projects/")[-1]
-        print("***current_file_path",current_file_path)
+        # print("***current_file_path",current_file_path)
         test_case_queried = session.query(TestCase).join(TCEnhancedConcreteScenario).filter(TCEnhancedConcreteScenario.path == str(current_file_path)).first()
         
         requirements = Requirements(simulation.current_logfile)

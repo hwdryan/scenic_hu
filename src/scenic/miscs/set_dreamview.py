@@ -47,7 +47,7 @@ def set_dreamview():
         data = json.loads(ws.recv())
         while data["type"] != "HMIStatus":
             data = json.loads(ws.recv())
-        print(data['data']['modules'])
+        # print(data['data']['modules'])
         for apollo_module in apollo_modules:
             if not data['data']['modules'][apollo_module]:
                 modules_launched = False

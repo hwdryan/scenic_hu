@@ -24,7 +24,7 @@ C1_speed = 9.72
 road_length = 224.22
 Ego_loc = 40
 destination_loc = Ego_loc + 125
-distance_threshold = 60/C1_speed
+distance_threshold = 80/C1_speed
 
 
 oppo_curb_middle = new OrientedPoint on roadSec.backwardLanes[0].group.curb.middle

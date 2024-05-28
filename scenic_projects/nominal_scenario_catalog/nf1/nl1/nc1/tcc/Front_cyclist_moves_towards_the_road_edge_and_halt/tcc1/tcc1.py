@@ -56,7 +56,7 @@ except Exception as e:
 else:
         # Create an engine to connect to the database
         home_directory = os.path.expanduser('~')
-        engine = create_engine(f'sqlite:///{home_directory}/Tools/Scenic/scenic_database/scenario_database.db', echo=True)
+        engine = create_engine(f'sqlite:///{home_directory}/Tools/Scenic/scenic_database/scenario_database.db', echo=False)
 
         # Create a session
         Session = sessionmaker(bind=engine)
@@ -65,7 +65,7 @@ else:
         home_dir = os.path.expanduser('~')
         dir_path = "~/Tools/Scenic/scenic_projects/nominal_scenario_catalog/"
         current_file_path = os.path.join(script_dir, scenic_path).replace(home_dir,"~")
-        print("***current_file_path",current_file_path)
+        # print("***current_file_path",current_file_path)
         
         test_case_queried = session.query(TestCase).join(TCEnhancedConcreteScenario).filter(TCEnhancedConcreteScenario.path == str(current_file_path)).first()
         
@@ -96,9 +96,13 @@ else:
         # many2many
         hazardous_behaviors_queried = []
         for rb in required_behaviors:
+                # if required behavior return True, do not add hazardous behavior
+                if results[rb.behavior_name] == True:
+                        continue
                 hazardous_behaviors_queried.append(session.query(HazardousBehavior).filter(HazardousBehavior.required_behavior == rb).first())
         test_result_1.hazardous_behaviors.extend(hazardous_behaviors_queried)
 
+        # {'ego_safe_deceleration': False, 'ego_reach_destination': True, 'collision': True, 'ego_overtake_safe_lateral_distance': False, 'safe_longitudinal_distance': True, 'ego_speed_limit': True, 'ego_safe_overtake_higher_speed': True, 'conclusion': False}
 
         session.add(test_result_1)
         session.commit()
