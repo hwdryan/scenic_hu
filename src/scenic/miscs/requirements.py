@@ -387,10 +387,9 @@ class Requirements:
                                        (transformed_target_c[:,0].astype(float)>-1)& \
                                        (transformed_target_c[:,1].astype(float)< 10)& \
                                        (transformed_target_c[:,1].astype(float)> 0)])[0]
-            t_1 = np.sort(ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)<1)& \
-                                       (transformed_target_c[:,0].astype(float)>-1)& \
-                                       (transformed_target_c[:,1].astype(float)< 10)& \
-                                       (transformed_target_c[:,1].astype(float)> 0)])[-1]
+            t_1 = np.sort(ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)>0)& \
+                                       (transformed_target_c[:,1].astype(float)< 1.5)& \
+                                       (transformed_target_c[:,1].astype(float)> 0)])[0]
             if t_0 < t_start:
                 t_start = t_0
             if t_1 > t_end:
@@ -402,6 +401,7 @@ class Requirements:
         
         # Set print options to suppress scientific notation
         np.set_printoptions(suppress=True)
+        print(overtaken_velocity_start, overtaken_velocity_end)
         if overtaken_velocity_end > overtaken_velocity_start:
             return False
 
