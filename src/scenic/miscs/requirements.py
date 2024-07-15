@@ -340,7 +340,7 @@ class Requirements:
             # ego coordinate in target local coordinate system
             transformed_ego_c = transform_points(target_c, ego_c)
             # time span for ego overtake
-            t_maneuvor_span = ego_rows['Timestep'][(np.abs(transformed_ego_c[:,0])<5)&(transformed_ego_c[:,1]<5)&(transformed_ego_c[:,1]>0)]
+            t_maneuvor_span = ego_rows['Timestep'][(transformed_ego_c[:,0]<3)&(transformed_ego_c[:,0]>-3)&(transformed_ego_c[:,1]<5)&(transformed_ego_c[:,1]>0)]
             # check if ego overtook this target vehicle
             if t_maneuvor_span.size == 0:
                 continue
@@ -382,6 +382,10 @@ class Requirements:
             target_c = np.stack((target_rows['Location_x'],target_rows['Location_y'],target_rows['Rotation_yaw']),axis=1)
             # target coordinate in ego local coordinate system
             transformed_target_c = transform_points(ego_c, target_c)
+            np.set_printoptions(threshold=np.inf, suppress=True)
+            print(rolename)
+            print(np.column_stack((transformed_target_c[::2,:], target_rows['Distance2Ego'][::2])))
+            print()
             # t_0 = target at the left of ego, t_1 = target in front of ego
             t_0 = np.sort(ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)<1)& \
                                        (transformed_target_c[:,0].astype(float)>-1)& \
@@ -401,7 +405,7 @@ class Requirements:
         
         # Set print options to suppress scientific notation
         np.set_printoptions(suppress=True)
-        print(overtaken_velocity_start, overtaken_velocity_end)
+        # print(overtaken_velocity_start, overtaken_velocity_end)
         if overtaken_velocity_end > overtaken_velocity_start:
             return False
 

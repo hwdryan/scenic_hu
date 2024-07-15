@@ -45,7 +45,7 @@ behavior OvertakeBehavior(target_speed,avoidance_threshold=5):
             do LaneChangeBehavior(
                     laneSectionToSwitch=laneToLeftSec,
                     is_oppositeTraffic=True,
-                    target_speed=target_speed)
+                    target_speed=(target_speed*0.9))
             do FollowLaneBehavior(
                     is_oppositeTraffic=True,
                     target_speed=target_speed)

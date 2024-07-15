@@ -194,6 +194,8 @@ class Simulator(abc.ABC):
                 allowPickle=allowPickle,
             )
         print("***simulate while loop exit***")
+        self.client.stop_recorder()
+
         return simulation
 
     def replay(self, scene, replay, **kwargs):
@@ -422,6 +424,12 @@ class Simulation(abc.ABC):
         current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y_%d_%m_%H_%M_%S")
         document_path = os.path.join(user_home, f"Documents/data_{formatted_datetime}.csv")
+        scenariolog_path = os.path.join(user_home, f"Documents/scenario_{formatted_datetime}.log")
+        
+        # self-defined
+        if not scenic_lead:
+            self.client.start_recorder(scenariolog_path)
+
         self.current_logfile = document_path
         with open(document_path, "w+", newline="") as csvfile:
             writer = csv.writer(csvfile)

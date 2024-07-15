@@ -1,4 +1,4 @@
-# The road has one lane for ego's travelling direction and one lane for the opposite direction. 
+8# The road has one lane for ego's travelling direction and one lane for the opposite direction. 
 # ego follows lane, while multiple vehicle cut in to ego path in short time
 
 ################
@@ -45,7 +45,7 @@ behavior OvertakeBehavior(target_speed,avoidance_threshold=5):
             do LaneChangeBehavior(
                     laneSectionToSwitch=laneToLeftSec,
                     is_oppositeTraffic=True,
-                    target_speed=target_speed)
+                    target_speed=(target_speed*0.9))
             do FollowLaneBehavior(
                     is_oppositeTraffic=True,
                     target_speed=target_speed)

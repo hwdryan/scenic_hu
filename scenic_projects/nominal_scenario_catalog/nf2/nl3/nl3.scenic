@@ -15,7 +15,7 @@ import carla
 import time
 
 # long road
-road = random.choice(['road8','road15'])
+road = Uniform('road8','road15')
 roadSec = network.elements[road].sections[0]
 target_vehicle_type = 'vehicle.lincoln.mkz_2017'
 

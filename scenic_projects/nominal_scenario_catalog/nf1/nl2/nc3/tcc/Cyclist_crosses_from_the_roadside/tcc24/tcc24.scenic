@@ -13,8 +13,7 @@ import scenic.simulators.carla.misc as _misc
 import carla
 import time
 
-road = random.choice(['road4','road6','road12'])
-roadSec = network.elements[road].sections[0]
+roadSec = network.elements['road6'].sections[0]
 target_vehicle_type = 'vehicle.lincoln.mkz_2017'
 cyclist_type = 'vehicle.bh.crossbike'
 # Speed of vehicles

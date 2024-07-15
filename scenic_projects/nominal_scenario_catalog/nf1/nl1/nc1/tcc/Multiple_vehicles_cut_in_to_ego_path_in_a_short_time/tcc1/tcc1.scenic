@@ -44,7 +44,7 @@ behavior OvertakeBehavior(target_speed,avoidance_threshold=5):
             do LaneChangeBehavior(
                     laneSectionToSwitch=laneToLeftSec,
                     is_oppositeTraffic=True,
-                    target_speed=target_speed)
+                    target_speed=(target_speed*0.9))
             do FollowLaneBehavior(
                     is_oppositeTraffic=True,
                     target_speed=target_speed)
@@ -62,7 +62,7 @@ scenario Main():
         destination_spot = new OrientedPoint following roadDirection from start_spot for destination_loc
         print(f"Ego position: {ego_spot.pos_and_ori()}")
         print(f"Ego destination: {destination_spot.destination_spot()}")
-
+        
         # overtake vehicle V1
         overtake_vehicle = new Car following roadDirection from start_spot for V1_loc,  \
                         facing 0.1 deg relative to roadDirection,
