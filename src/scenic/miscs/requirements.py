@@ -383,9 +383,9 @@ class Requirements:
             # target coordinate in ego local coordinate system
             transformed_target_c = transform_points(ego_c, target_c)
             np.set_printoptions(threshold=np.inf, suppress=True)
-            print(rolename)
-            print(np.column_stack((transformed_target_c[::2,:], target_rows['Distance2Ego'][::2])))
-            print()
+            # print(rolename)
+            # print(np.column_stack((transformed_target_c[::2,:], target_rows['Distance2Ego'][::2])))
+            # print()
             # t_0 = target at the left of ego, t_1 = target in front of ego
             t_0 = np.sort(ego_rows['Timestep'][(transformed_target_c[:,0].astype(float)<1)& \
                                        (transformed_target_c[:,0].astype(float)>-1)& \

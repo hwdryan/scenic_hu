@@ -103,8 +103,8 @@ else:
         test_result_1.hazardous_behaviors.extend(hazardous_behaviors_queried)
 
 
-        session.add(test_result_1)
-        session.commit()
+        # session.add(test_result_1)
+        # session.commit()
         print("***results:",results)
 finally:
         close_modules()

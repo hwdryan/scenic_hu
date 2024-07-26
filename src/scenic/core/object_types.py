@@ -975,6 +975,7 @@ class OrientedPoint(Point):
         
         return (x,y,z,pitch,yaw,roll)
     
+    # self-defined
     def destination_spot(self):
         # pos
         loc = carla.Location(self.position.x, self.position.y, 0)

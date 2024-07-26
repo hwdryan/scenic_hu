@@ -162,7 +162,7 @@ class CarlaActor(DrivingObject):
     
     # self-defined
     def EgoInitControl(self):
-        """Compute the speed of Ego.
+        """Check if ego control module is activated. Apollo ego vehicle tends to brake when control module is activated. This method utilizes this. 
         """
         sim_world = simulation().world
         Ego_vehicle = None

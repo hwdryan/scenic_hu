@@ -5,10 +5,10 @@ param map = localPath("../../assets/maps/CARLA/Town01.xodr")
 param carla_map = 'Town01'
 param weather = "ClearNoon"
 model scenic.simulators.carla.model
-import scenic.simulators.carla.model as _model
-import scenic.domains.driving.roads as _roads
-import scenic.simulators.carla.utils.utils as _utils
-import scenic.simulators.carla.misc as _misc
+# import scenic.simulators.carla.model as _model
+# import scenic.domains.driving.roads as _roads
+# import scenic.simulators.carla.utils.utils as _utils
+# import scenic.simulators.carla.misc as _misc
 
 import carla
 import time

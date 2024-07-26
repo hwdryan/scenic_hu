@@ -13,7 +13,7 @@ ego_car_type = 'vehicle.volkswagen.t2'
 behavior CyclistBehavior(target_speed=10,avoidance_threshold=18):
     try:
         wait
-    interrupt when self.SpeedOfEgo() > 0.1:
+    interrupt when self.EgoInitControl():
         try:
             # do FollowLaneBehavior(target_speed=target_speed)
             do AutopilotBehavior()
